@@ -1,13 +1,13 @@
 use crate::common::ByteArray;
+use crate::inputs::InputActions::Knob;
+use crate::inputs::InputActions::{Button, Touchscreen};
 use crate::inputs::buttons::ButtonActions;
 use crate::inputs::input_buffer::BUFFER_SIZE_13;
-use crate::inputs::InputActions::{Button, Touchscreen};
-use crate::inputs::InputActions::Knob;
 use crate::inputs::knobs::KnobActions;
 use crate::inputs::touchscreen::TouchscreenAction;
 
-pub mod input_buffer;
 mod buttons;
+pub mod input_buffer;
 mod knobs;
 mod touchscreen;
 
@@ -16,7 +16,7 @@ pub enum InputActions {
     Button(ButtonActions),
     Knob(KnobActions),
     Touchscreen(TouchscreenAction),
-    Unknown
+    Unknown,
 }
 impl From<ByteArray<BUFFER_SIZE_13>> for InputActions {
     fn from(value: ByteArray<BUFFER_SIZE_13>) -> Self {
@@ -67,7 +67,7 @@ impl From<ByteArray<BUFFER_SIZE_13>> for InputActions {
             knobs::KNOB_3_COUNTER_CLOCKWISE => Knob(KnobActions::Knob3CounterClockwise),
             knobs::KNOB_4_COUNTER_CLOCKWISE => Knob(KnobActions::Knob4CounterClockwise),
 
-            _ => InputActions::Unknown
+            _ => InputActions::Unknown,
         }
     }
 }
@@ -259,4 +259,3 @@ mod tests {
         ));
     }
 }
-

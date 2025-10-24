@@ -1,0 +1,110 @@
+name: CI
+
+env:
+  CARGO_TERM_COLOR: always
+
+on:
+  push:
+    branches:
+      - main
+  pull_request: { }
+
+jobs:
+  check:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v5
+      - uses: ./.github/actions/install-libudev
+      - uses: dtolnay/rust-toolchain@beta
+        with:
+          components: clippy, rustfmt
+      - uses: Swatinem/rust-cache@v2
+        with:
+          save-if: ${{ github.ref == 'refs/heads/main' }}
+      - name: Check
+        run: cargo clippy --workspace --all-targets --all-features -- -D warnings
+      - name: rustfmt
+        run: cargo fmt --all --check
+
+  check-docs:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v5
+      - uses: ./.github/actions/install-libudev
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@v2
+        with:
+          save-if: ${{ github.ref == 'refs/heads/main' }}
+      - name: cargo doc -p firmware-api
+        run: cargo doc --package firmware-api --all-features --no-deps
+    env:
+      RUSTDOCFLAGS: "-D rustdoc::all -A rustdoc::private-doc-tests"
+
+  cargo-hack:
+    runs-on: ubuntu-24.04
+    env:
+      # Fail the build if there are any warnings
+      RUSTFLAGS: "-D warnings"
+    steps:
+      - uses: actions/checkout@v5
+      - uses: ./.github/actions/install-libudev
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@v2
+        with:
+          save-if: ${{ github.ref == 'refs/heads/main' }}
+      - uses: taiki-e/install-action@cargo-hack
+      - name: cargo hack check
+        run: cargo hack check --each-feature --no-dev-deps --all
+
+  test-versions:
+    needs: check
+    runs-on: ubuntu-24.04
+    strategy:
+      matrix:
+        rust: [ stable, beta ]
+    steps:
+      - uses: actions/checkout@v5
+      - uses: ./.github/actions/install-libudev
+      - uses: dtolnay/rust-toolchain@master
+        with:
+          toolchain: ${{ matrix.rust }}
+      - uses: Swatinem/rust-cache@v2
+        with:
+          save-if: ${{ github.ref == 'refs/heads/main' }}
+      - name: Run tests
+        run: cargo test --workspace --all-features --all-targets
+
+  test-docs:
+    needs: check
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v5
+      - uses: ./.github/actions/install-libudev
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@v2
+        with:
+          save-if: ${{ github.ref == 'refs/heads/main' }}
+      - name: Run doc tests
+        run: cargo test --all-features --doc
+
+  dependencies-are-sorted:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v5
+      - name: Install cargo-sort
+        uses: taiki-e/install-action@v2
+        with:
+          tool: cargo-sort@2.0.2
+      - name: Check dependency tables
+        run: |
+          cargo-sort --workspace --grouped --check
+
+  spell-check-with-typos:
+    runs-on: ubuntu-24.04
+
+    steps:
+      - name: Checkout Actions Repository
+        uses: actions/checkout@v5
+
+      - name: Check the spelling of the files in our repo
+        uses: crate-ci/typos@v1.29.4

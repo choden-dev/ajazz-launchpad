@@ -2,6 +2,7 @@ use crate::common::ByteArray;
 use crate::inputs::input_buffer::BUFFER_SIZE_13;
 
 #[derive(Debug, Clone)]
+#[allow(clippy::enum_variant_names)]
 pub enum KnobActions {
     Knob1Clockwise,
     Knob2Clockwise,

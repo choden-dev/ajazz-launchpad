@@ -1,0 +1,22 @@
+name: 'Install libudev'
+description: 'Install libudev development libraries'
+
+runs:
+  using: 'composite'
+  steps:
+    - name: Cache libudev
+      id: cache-libudev
+      uses: actions/cache@v4
+      with:
+        path: |
+          /usr/lib/x86_64-linux-gnu/libudev*
+          /usr/include/libudev.h
+          /usr/lib/x86_64-linux-gnu/pkgconfig/libudev.pc
+        key: libudev-ubuntu-${{ runner.arch }}
+
+    - name: Install libudev
+      if: steps.cache-libudev.outputs.cache-hit != 'true'
+      shell: bash
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y libudev-dev
