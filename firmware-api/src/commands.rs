@@ -20,7 +20,7 @@ struct PayloadCommand<const N: usize, P: Payload<N>> {
 impl<const N: usize, P: Payload<N>> Command<N, HidResult<usize>> for PayloadCommand<N, P> {
     fn execute<F>(&self, write_callback: F) -> HidResult<usize>
     where
-        F: Fn(&ByteArray<N>) -> HidResult<usize>
+        F: Fn(&ByteArray<N>) -> HidResult<usize>,
     {
         write_callback(&self.payload.generate())
     }
@@ -44,6 +44,6 @@ pub fn set_brightness_command_factory(
     brightness: u8,
 ) -> impl Command<{ output_buffer::BUFFER_SIZE_513 }, HidResult<usize>> {
     PayloadCommand {
-        payload: payloads::SetBrightness { brightness },
+        payload: payloads::SetBrightness::new(brightness),
     }
 }

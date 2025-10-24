@@ -1,5 +1,5 @@
-use crate::commands::output_buffer::{create_output_buffer, BUFFER_SIZE_513};
 use crate::commands::messages;
+use crate::commands::output_buffer::{BUFFER_SIZE_513, create_output_buffer};
 use crate::common::ByteArray;
 
 pub trait Payload<const N: usize> {
@@ -21,14 +21,12 @@ impl Payload<BUFFER_SIZE_513> for Refresh {
 }
 
 pub struct SetBrightness {
-    pub brightness: u8,
+    brightness: u8,
 }
 
 impl SetBrightness {
-    fn new(brightness: u8) -> Self {
-        Self {
-            brightness
-        }
+    pub fn new(brightness: u8) -> Self {
+        Self { brightness }
     }
 }
 
@@ -42,8 +40,8 @@ impl Payload<BUFFER_SIZE_513> for SetBrightness {
 
 #[cfg(test)]
 mod tests {
-    use crate::commands::messages::{REFRESH, SET_BRIGHTNESS, WAKE_SCREEN};
     use super::*;
+    use crate::commands::messages::{REFRESH, SET_BRIGHTNESS, WAKE_SCREEN};
 
     #[test]
     fn correct_refresh_payload() {
@@ -59,9 +57,7 @@ mod tests {
 
     #[test]
     fn correct_set_brightness_payload() {
-        let payload = SetBrightness::generate(&SetBrightness {
-            brightness: 30,
-        });
+        let payload = SetBrightness::generate(&SetBrightness { brightness: 30 });
 
         let mut message_buffer = [0; 12];
         message_buffer[..11].copy_from_slice(&SET_BRIGHTNESS);

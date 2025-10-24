@@ -1,5 +1,5 @@
 use crate::common::ByteArray;
-use crate::inputs::input_buffer::{BUFFER_SIZE_13};
+use crate::inputs::input_buffer::BUFFER_SIZE_13;
 #[derive(Debug, Clone)]
 pub enum ButtonActions {
     Button1Pressed,
