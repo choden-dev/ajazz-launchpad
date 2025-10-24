@@ -1,0 +1,10 @@
+[package]
+name = "firmware-api"
+version = "0.1.0"
+edition = "2024"
+
+[lib]
+name = "firmware_api"
+
+[dependencies]
+hidapi = "2.6.3"
