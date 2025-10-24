@@ -1,6 +1,9 @@
-pub mod commands;
+//! Contains the required APIs to interact with the launchpad
+//!
+//! Most of the APIs needed are from the Device crate.
+mod commands;
 
-pub mod inputs;
+mod inputs;
 
-pub mod common;
+mod common;
 pub mod device;
