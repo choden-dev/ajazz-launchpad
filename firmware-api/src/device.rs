@@ -1,10 +1,15 @@
-use crate::commands::set_brightness_command_factory;
-use crate::commands::{Command, refresh_command_factory, wake_screen_command_factory};
-use crate::common::ByteArray;
+use crate::commands::{
+    Command, initiate_set_background_command_factory, refresh_command_factory,
+    send_image_data_packet_command_factory, wake_screen_command_factory,
+};
+use crate::commands::{clear_all_images_command_factory, set_brightness_command_factory};
+use crate::common::{ByteArray, IMAGE_DATA_PACKET_LENGTH, IMAGE_SIZE_LENGTH_IN_BYTES};
 use crate::inputs::InputActions;
 use crate::inputs::input_buffer::BUFFER_SIZE_13;
-use hidapi::HidResult;
+use hidapi::{HidError, HidResult};
 use std::error::Error;
+use std::fs::File;
+use std::io::Read;
 
 pub trait HidDeviceOperations {
     fn read(&self, buffer: &mut [u8]) -> HidResult<usize>;
@@ -96,6 +101,28 @@ impl<H: HidDeviceOperations, I: InputHandler> Device<H, I> {
     pub fn refresh(&self) -> HidResult<usize> {
         let refresh_command = refresh_command_factory();
         refresh_command.execute(|buf| self.hid_device.write(buf))
+    }
+
+    pub fn clear_all_images(&self) -> HidResult<usize> {
+        let clear_all_images_command = clear_all_images_command_factory();
+        clear_all_images_command.execute(|buf| self.hid_device.write(buf))
+    }
+
+    pub fn set_background_image(&self, image_size: u32, mut file: File) -> HidResult<usize> {
+        // Let the device know to prepare
+        let init_command = initiate_set_background_command_factory(image_size);
+        init_command.execute(|buf| self.hid_device.write(buf))?;
+
+        let mut buffer: ByteArray<IMAGE_DATA_PACKET_LENGTH> = [0; IMAGE_DATA_PACKET_LENGTH];
+        let mut last_result = Ok(0);
+
+        // Send image data until EOF
+        while file.read(&mut buffer)? > 0 {
+            let command = send_image_data_packet_command_factory(buffer);
+            last_result = command.execute(|buf| self.hid_device.write(buf));
+        }
+
+        last_result
     }
 }
 

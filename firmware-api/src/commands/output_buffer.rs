@@ -1,6 +1,7 @@
 use crate::common::ByteArray;
 
 pub const BUFFER_SIZE_513: usize = 513;
+pub const BUFFER_SIZE_1025: usize = 1025;
 
 /// Generates a fixed-size byte-array containing a message.
 ///
