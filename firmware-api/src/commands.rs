@@ -80,3 +80,11 @@ pub fn send_image_data_packet_command_factory(
         payload: payloads::SendImageDataPacket::new(packet),
     }
 }
+
+pub fn clear_display_zone_image_command_factory(
+    display_zone: DisplayZones,
+) -> impl Command<{ output_buffer::BUFFER_SIZE_513 }, HidResult<usize>> {
+    PayloadCommand {
+        payload: payloads::ClearDisplayZoneImage::new(display_zone),
+    }
+}

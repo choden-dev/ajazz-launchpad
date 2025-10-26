@@ -1,5 +1,7 @@
 use crate::commands::messages;
-use crate::commands::output_buffer::{BUFFER_SIZE_513, BUFFER_SIZE_1025, create_output_buffer};
+use crate::commands::output_buffer::{
+    BUFFER_SIZE_513, BUFFER_SIZE_1025, create_output_buffer_with_lsbs_filled,
+};
 use crate::common::{ByteArray, IMAGE_DATA_PACKET_LENGTH, IMAGE_SIZE_LENGTH_IN_BYTES};
 use crate::display_zones::DisplayZones;
 
@@ -10,14 +12,14 @@ pub trait Payload<const N: usize> {
 pub struct WakeScreen;
 impl Payload<BUFFER_SIZE_513> for WakeScreen {
     fn generate(&self) -> ByteArray<BUFFER_SIZE_513> {
-        create_output_buffer(&messages::WAKE_SCREEN)
+        create_output_buffer_with_lsbs_filled(&messages::WAKE_SCREEN)
     }
 }
 
 pub struct Refresh;
 impl Payload<BUFFER_SIZE_513> for Refresh {
     fn generate(&self) -> ByteArray<BUFFER_SIZE_513> {
-        create_output_buffer(&messages::REFRESH)
+        create_output_buffer_with_lsbs_filled(&messages::REFRESH)
     }
 }
 
@@ -33,7 +35,7 @@ impl SetBrightness {
 
 impl Payload<BUFFER_SIZE_513> for SetBrightness {
     fn generate(&self) -> ByteArray<BUFFER_SIZE_513> {
-        let mut default_buffer = create_output_buffer(&messages::SET_BRIGHTNESS);
+        let mut default_buffer = create_output_buffer_with_lsbs_filled(&messages::SET_BRIGHTNESS);
         default_buffer[messages::SET_BRIGHTNESS.len()] = self.brightness;
         default_buffer
     }
@@ -43,7 +45,27 @@ pub struct ClearAllImages;
 
 impl Payload<BUFFER_SIZE_513> for ClearAllImages {
     fn generate(&self) -> ByteArray<BUFFER_SIZE_513> {
-        create_output_buffer(&messages::CLEAR_ALL_IMAGES)
+        create_output_buffer_with_lsbs_filled(&messages::CLEAR_ALL_IMAGES)
+    }
+}
+
+pub struct ClearDisplayZoneImage {
+    display_zone: DisplayZones,
+}
+
+impl ClearDisplayZoneImage {
+    pub fn new(display_zone: DisplayZones) -> Self {
+        Self { display_zone }
+    }
+}
+
+impl Payload<BUFFER_SIZE_513> for ClearDisplayZoneImage {
+    fn generate(&self) -> ByteArray<BUFFER_SIZE_513> {
+        let mut message_buffer =
+            create_output_buffer_with_lsbs_filled(&messages::CLEAR_DISPLAY_ZONE_IMAGE);
+        message_buffer[messages::CLEAR_DISPLAY_ZONE_IMAGE.len()] =
+            DisplayZones::into(self.display_zone);
+        message_buffer
     }
 }
 
@@ -58,15 +80,16 @@ impl InitiateSetBackgroundImage {
 }
 impl Payload<BUFFER_SIZE_1025> for InitiateSetBackgroundImage {
     fn generate(&self) -> ByteArray<BUFFER_SIZE_1025> {
-        let mut default_buffer = create_output_buffer(&messages::INITIATE_SET_BACKGROUND_IMAGE);
+        let mut message_buffer =
+            create_output_buffer_with_lsbs_filled(&messages::INITIATE_SET_BACKGROUND_IMAGE);
         let last_index = messages::INITIATE_SET_BACKGROUND_IMAGE.len();
 
-        default_buffer[last_index..last_index + IMAGE_SIZE_LENGTH_IN_BYTES]
+        message_buffer[last_index..last_index + IMAGE_SIZE_LENGTH_IN_BYTES]
             .clone_from_slice(&self.image_size_bytes.to_be_bytes());
 
-        default_buffer[last_index + IMAGE_SIZE_LENGTH_IN_BYTES] = 0x01;
+        message_buffer[last_index + IMAGE_SIZE_LENGTH_IN_BYTES] = 0x01;
 
-        default_buffer
+        message_buffer
     }
 }
 
@@ -86,16 +109,17 @@ impl InitiateDisplayZoneImage {
 
 impl Payload<BUFFER_SIZE_1025> for InitiateDisplayZoneImage {
     fn generate(&self) -> ByteArray<BUFFER_SIZE_1025> {
-        let mut default_buffer = create_output_buffer(&messages::INITIATE_SET_DISPLAY_ZONE_IMAGE);
+        let mut message_buffer =
+            create_output_buffer_with_lsbs_filled(&messages::INITIATE_SET_DISPLAY_ZONE_IMAGE);
         let last_index = messages::INITIATE_SET_DISPLAY_ZONE_IMAGE.len();
 
-        default_buffer[last_index..last_index + IMAGE_SIZE_LENGTH_IN_BYTES]
+        message_buffer[last_index..last_index + IMAGE_SIZE_LENGTH_IN_BYTES]
             .clone_from_slice(&self.image_size_bytes.to_be_bytes());
 
-        default_buffer[last_index + IMAGE_SIZE_LENGTH_IN_BYTES] =
+        message_buffer[last_index + IMAGE_SIZE_LENGTH_IN_BYTES] =
             DisplayZones::into(self.display_zone);
 
-        default_buffer
+        message_buffer
     }
 }
 
@@ -109,9 +133,9 @@ impl SendImageDataPacket {
 }
 impl Payload<BUFFER_SIZE_1025> for SendImageDataPacket {
     fn generate(&self) -> ByteArray<BUFFER_SIZE_1025> {
-        let mut default_buffer: ByteArray<BUFFER_SIZE_1025> = [0; 1025];
-        default_buffer[1..BUFFER_SIZE_1025].clone_from_slice(&self.packet);
-        default_buffer
+        let mut message_buffer: ByteArray<BUFFER_SIZE_1025> = [0; 1025];
+        message_buffer[1..BUFFER_SIZE_1025].clone_from_slice(&self.packet);
+        message_buffer
     }
 }
 
@@ -119,20 +143,20 @@ impl Payload<BUFFER_SIZE_1025> for SendImageDataPacket {
 mod tests {
     use super::*;
     use crate::commands::messages::{
-        INITIATE_SET_BACKGROUND_IMAGE, INITIATE_SET_DISPLAY_ZONE_IMAGE, REFRESH, SET_BRIGHTNESS,
-        WAKE_SCREEN,
+        CLEAR_DISPLAY_ZONE_IMAGE, INITIATE_SET_BACKGROUND_IMAGE, INITIATE_SET_DISPLAY_ZONE_IMAGE,
+        REFRESH, SET_BRIGHTNESS, WAKE_SCREEN,
     };
 
     #[test]
     fn correct_refresh_payload() {
         let payload = Refresh::generate(&Refresh);
-        assert_eq!(payload, create_output_buffer(&REFRESH))
+        assert_eq!(payload, create_output_buffer_with_lsbs_filled(&REFRESH))
     }
 
     #[test]
     fn correct_wake_screen_payload() {
         let payload = WakeScreen::generate(&WakeScreen);
-        assert_eq!(payload, create_output_buffer(&WAKE_SCREEN))
+        assert_eq!(payload, create_output_buffer_with_lsbs_filled(&WAKE_SCREEN))
     }
 
     #[test]
@@ -144,7 +168,10 @@ mod tests {
 
         message_buffer[11] = 30;
 
-        assert_eq!(payload, create_output_buffer(&message_buffer))
+        assert_eq!(
+            payload,
+            create_output_buffer_with_lsbs_filled(&message_buffer)
+        )
     }
 
     #[test]
@@ -160,7 +187,10 @@ mod tests {
         message_buffer[12] = 0x20;
         message_buffer[13] = 0x01;
 
-        assert_eq!(payload, create_output_buffer(&message_buffer))
+        assert_eq!(
+            payload,
+            create_output_buffer_with_lsbs_filled(&message_buffer)
+        )
     }
 
     #[test]
@@ -178,6 +208,25 @@ mod tests {
         message_buffer[12] = 0x20;
         message_buffer[13] = 0x07;
 
-        assert_eq!(payload, create_output_buffer(&message_buffer))
+        assert_eq!(
+            payload,
+            create_output_buffer_with_lsbs_filled(&message_buffer)
+        )
+    }
+
+    #[test]
+    fn correct_clear_display_zone_image_payload() {
+        let payload = ClearDisplayZoneImage::generate(&ClearDisplayZoneImage::new(
+            DisplayZones::Touchscreen3,
+        ));
+
+        let mut message_buffer = [0; 14];
+        message_buffer[..12].copy_from_slice(&CLEAR_DISPLAY_ZONE_IMAGE);
+        message_buffer[12] = 3;
+
+        assert_eq!(
+            payload,
+            create_output_buffer_with_lsbs_filled(&message_buffer)
+        )
     }
 }

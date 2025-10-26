@@ -29,7 +29,7 @@ fn main() {
 
     // Set up the required image parameters (size in bytes and the file stream)
     let background_image = File::open(Path::new(
-        "../assets/example-background-image.jpg",
+        "./firmware-api/examples/assets/example-background-image.jpg",
     ))
     .unwrap();
     let metadata = background_image.metadata().unwrap();

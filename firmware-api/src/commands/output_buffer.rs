@@ -8,12 +8,12 @@ pub const BUFFER_SIZE_1025: usize = 1025;
 /// Note that the lower addresses will be populated first
 ///
 /// * `N` - The length of the buffer, the launchpad typically uses 513 (0x201) bytes for the most part but some commands require 1025 (0x401) bytes
-/// * `message` - byte array to overwrite the lower bytes (will contain your intended message)
-pub fn create_output_buffer<const N: usize>(message: &[u8]) -> ByteArray<N> {
+/// * `lsb_buffer` - byte array to overwrite the lower bytes (will contain your intended message)
+pub fn create_output_buffer_with_lsbs_filled<const N: usize>(lsb_buffer: &[u8]) -> ByteArray<N> {
     let mut buffer = [0u8; N];
-    let length = message.len().min(N);
+    let length = lsb_buffer.len().min(N);
 
-    buffer[..length].copy_from_slice(&message[..length]);
+    buffer[..length].copy_from_slice(&lsb_buffer[..length]);
     buffer
 }
 
@@ -22,7 +22,7 @@ mod tests {
     use super::*;
     #[test]
     fn fills_in_lower_bytes_happy_path() {
-        let output = create_output_buffer::<513>(&[0x09, 0x90]);
+        let output = create_output_buffer_with_lsbs_filled::<513>(&[0x09, 0x90]);
         let mut to_check = [0; 513];
 
         to_check[0] = 0x09;
@@ -33,7 +33,7 @@ mod tests {
     #[test]
     fn truncates_oversized_message() {
         let message = [99u8; 6969];
-        let output = create_output_buffer::<10>(&message);
+        let output = create_output_buffer_with_lsbs_filled::<10>(&message);
 
         assert_eq!(output, message[0..10]);
     }

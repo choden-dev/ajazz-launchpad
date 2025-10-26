@@ -1,5 +1,5 @@
 use crate::commands::{
-    Command, initiate_set_background_command_factory,
+    Command, clear_display_zone_image_command_factory, initiate_set_background_command_factory,
     initiate_set_display_zone_image_command_factory, output_buffer, refresh_command_factory,
     send_image_data_packet_command_factory, wake_screen_command_factory,
 };
@@ -108,6 +108,12 @@ impl<H: HidDeviceOperations, I: InputHandler> Device<H, I> {
     pub fn clear_all_images(&self) -> HidResult<usize> {
         let clear_all_images_command = clear_all_images_command_factory();
         clear_all_images_command.execute(|buf| self.hid_device.write(buf))
+    }
+
+    pub fn clear_display_zone_image(&self, display_zone: DisplayZones) -> HidResult<usize> {
+        let clear_display_zone_image_command =
+            clear_display_zone_image_command_factory(display_zone);
+        clear_display_zone_image_command.execute(|buf| self.hid_device.write(buf))
     }
 
     pub fn set_background_image(&self, image_size: u32, file: File) -> HidResult<usize> {

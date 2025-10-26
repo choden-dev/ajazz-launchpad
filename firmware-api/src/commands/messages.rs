@@ -9,7 +9,7 @@ pub const REFRESH: ByteArray<9> = *b"\0CRT\0\0STP";
 
 /// Note that this is just a prefix for the other clear commands
 /// You will need to provide a byte referring to the key to clear
-pub const CLEAR_KEY: ByteArray<12> = *b"\0CRT\0\0CLE\0\0\0";
+pub const CLEAR_DISPLAY_ZONE_IMAGE: ByteArray<12> = *b"\0CRT\0\0CLE\0\0\0";
 
 pub const CLEAR_ALL_IMAGES: ByteArray<13> = *b"\0CRT\0\0CLE\0\0\0\xFF";
 
