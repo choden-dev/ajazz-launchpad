@@ -49,7 +49,10 @@ fn main() {
 
     ALL_BUTTONS.iter().for_each(|button| {
         println!("Setting {:?}", button);
-        let button_image = File::open(Path::new("./firmware-api/examples/assets/example-button-image.jpg")).unwrap();
+        let button_image = File::open(Path::new(
+            "./firmware-api/examples/assets/example-button-image.jpg",
+        ))
+        .unwrap();
         let metadata = button_image.metadata().unwrap();
         device
             .set_display_zone_image(metadata.len() as u32, *button, button_image)
@@ -65,8 +68,10 @@ fn main() {
 
     ALL_TOUCHSCREEN_ZONES.iter().for_each(|touchscreen_zone| {
         println!("Setting {:?}", touchscreen_zone);
-        let touchscreen_image =
-            File::open(Path::new("firmware-api/examples/assets/example-touchscreen-zone-image.jpg")).unwrap();
+        let touchscreen_image = File::open(Path::new(
+            "firmware-api/examples/assets/example-touchscreen-zone-image.jpg",
+        ))
+        .unwrap();
         let metadata = touchscreen_image.metadata().unwrap();
         device
             .set_display_zone_image(metadata.len() as u32, *touchscreen_zone, touchscreen_image)
