@@ -6,7 +6,7 @@
 //!
 //! Note for images: when passing the image `File` as an argument, it MUST
 //! be a JPG or JPEG format, or it will not be handled properly by the device
-//! (an exception for background image which somehow works with PNGs, but JPG still preferred)
+//! (an exception for background image which somehow works with PNG, but JPG still preferred)
 //!
 //! ## Display zone Layout
 //!
