@@ -1,5 +1,14 @@
-/// Used when trying to clear an image that was set on one of the smaller display
-/// zones, this does **not** include the background image.
+/// Used when trying to clear or set an image that was set on one of the
+/// smaller display zones, this does **not** include the background image.
+///
+///  ### Main Button Panel (5×2)
+///  | button1 | button2 | button3 | button4 | button5 |
+///  |---------|---------|---------|---------|---------|
+///  | button6 | button7 | button8 | button9 | button10|
+///
+///  ### Touchscreen Panel (4×1)
+///  | touchscreen1 | touchscreen2 | touchscreen3 | touchscreen4 |
+///  |--------------|--------------|--------------|--------------|
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum DisplayZones {
     Button1,
