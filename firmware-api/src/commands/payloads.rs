@@ -1,6 +1,7 @@
 use crate::commands::messages;
 use crate::commands::output_buffer::{BUFFER_SIZE_513, BUFFER_SIZE_1025, create_output_buffer};
 use crate::common::{ByteArray, IMAGE_DATA_PACKET_LENGTH, IMAGE_SIZE_LENGTH_IN_BYTES};
+use crate::display_zones::DisplayZones;
 
 pub trait Payload<const N: usize> {
     fn generate(&self) -> ByteArray<N>;
@@ -69,6 +70,35 @@ impl Payload<BUFFER_SIZE_1025> for InitiateSetBackgroundImage {
     }
 }
 
+pub struct InitiateDisplayZoneImage {
+    image_size_bytes: u32,
+    display_zone: DisplayZones,
+}
+
+impl InitiateDisplayZoneImage {
+    pub fn new(image_size_bytes: u32, display_zone: DisplayZones) -> Self {
+        Self {
+            image_size_bytes,
+            display_zone,
+        }
+    }
+}
+
+impl Payload<BUFFER_SIZE_1025> for InitiateDisplayZoneImage {
+    fn generate(&self) -> ByteArray<BUFFER_SIZE_1025> {
+        let mut default_buffer = create_output_buffer(&messages::INITIATE_SET_DISPLAY_ZONE_IMAGE);
+        let last_index = messages::INITIATE_SET_DISPLAY_ZONE_IMAGE.len();
+
+        default_buffer[last_index..last_index + IMAGE_SIZE_LENGTH_IN_BYTES]
+            .clone_from_slice(&self.image_size_bytes.to_be_bytes());
+
+        default_buffer[last_index + IMAGE_SIZE_LENGTH_IN_BYTES] =
+            DisplayZones::into(self.display_zone);
+
+        default_buffer
+    }
+}
+
 pub struct SendImageDataPacket {
     packet: ByteArray<IMAGE_DATA_PACKET_LENGTH>,
 }
@@ -89,7 +119,8 @@ impl Payload<BUFFER_SIZE_1025> for SendImageDataPacket {
 mod tests {
     use super::*;
     use crate::commands::messages::{
-        INITIATE_SET_BACKGROUND_IMAGE, REFRESH, SET_BRIGHTNESS, WAKE_SCREEN,
+        INITIATE_SET_BACKGROUND_IMAGE, INITIATE_SET_DISPLAY_ZONE_IMAGE, REFRESH, SET_BRIGHTNESS,
+        WAKE_SCREEN,
     };
 
     #[test]
@@ -128,6 +159,24 @@ mod tests {
         message_buffer[11] = 0x00;
         message_buffer[12] = 0x20;
         message_buffer[13] = 0x01;
+
+        assert_eq!(payload, create_output_buffer(&message_buffer))
+    }
+
+    #[test]
+    fn correct_initiate_set_display_zone_image_payload() {
+        let payload = InitiateDisplayZoneImage::generate(&InitiateDisplayZoneImage::new(
+            0x20u32,
+            DisplayZones::Button7,
+        ));
+
+        let mut message_buffer = [0; 14];
+        message_buffer[..9].copy_from_slice(&INITIATE_SET_DISPLAY_ZONE_IMAGE);
+        message_buffer[9] = 0x00;
+        message_buffer[10] = 0x00;
+        message_buffer[11] = 0x00;
+        message_buffer[12] = 0x20;
+        message_buffer[13] = 0x07;
 
         assert_eq!(payload, create_output_buffer(&message_buffer))
     }

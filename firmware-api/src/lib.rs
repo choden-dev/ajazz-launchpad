@@ -6,4 +6,7 @@ mod commands;
 mod inputs;
 
 mod common;
+
+pub mod display_zones;
+
 pub mod device;

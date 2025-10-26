@@ -1,12 +1,14 @@
 use crate::commands::{
-    Command, initiate_set_background_command_factory, refresh_command_factory,
+    Command, initiate_set_background_command_factory,
+    initiate_set_display_zone_image_command_factory, output_buffer, refresh_command_factory,
     send_image_data_packet_command_factory, wake_screen_command_factory,
 };
 use crate::commands::{clear_all_images_command_factory, set_brightness_command_factory};
-use crate::common::{ByteArray, IMAGE_DATA_PACKET_LENGTH, IMAGE_SIZE_LENGTH_IN_BYTES};
+use crate::common::{ByteArray, IMAGE_DATA_PACKET_LENGTH};
+use crate::display_zones::DisplayZones;
 use crate::inputs::InputActions;
 use crate::inputs::input_buffer::BUFFER_SIZE_13;
-use hidapi::{HidError, HidResult};
+use hidapi::HidResult;
 use std::error::Error;
 use std::fs::File;
 use std::io::Read;
@@ -108,9 +110,30 @@ impl<H: HidDeviceOperations, I: InputHandler> Device<H, I> {
         clear_all_images_command.execute(|buf| self.hid_device.write(buf))
     }
 
-    pub fn set_background_image(&self, image_size: u32, mut file: File) -> HidResult<usize> {
+    pub fn set_background_image(&self, image_size: u32, file: File) -> HidResult<usize> {
         // Let the device know to prepare
         let init_command = initiate_set_background_command_factory(image_size);
+        self.write_image_to_device_command(init_command, file)
+    }
+
+    pub fn set_display_zone_image(
+        &self,
+        image_size: u32,
+        display_zone: DisplayZones,
+        file: File,
+    ) -> HidResult<usize> {
+        let init_command =
+            initiate_set_display_zone_image_command_factory(image_size, display_zone);
+        self.write_image_to_device_command(init_command, file)
+    }
+
+    /// Generic factory to deal with image writing operations
+    fn write_image_to_device_command(
+        &self,
+        init_command: impl Command<{ output_buffer::BUFFER_SIZE_1025 }, HidResult<usize>>,
+        mut file: File,
+    ) -> HidResult<usize> {
+        // Let the device know to prepare
         init_command.execute(|buf| self.hid_device.write(buf))?;
 
         let mut buffer: ByteArray<IMAGE_DATA_PACKET_LENGTH> = [0; IMAGE_DATA_PACKET_LENGTH];

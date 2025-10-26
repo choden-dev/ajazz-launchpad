@@ -1,4 +1,5 @@
 use firmware_api::device::{Device, FunctionHandler, HidDeviceWrapper};
+use firmware_api::display_zones::DisplayZones;
 use hidapi::HidApi;
 use std::fs::File;
 use std::path::Path;
@@ -25,19 +26,57 @@ fn main() {
 
     sleep(Duration::from_secs(3));
 
+    println!("Setting up background image");
+
     // Set up the required image parameters (size in bytes and the file stream)
-    let image = File::open(Path::new(
+    let background_image = File::open(Path::new(
         "./firmware-api/examples/assets/example-background-image.jpg",
     ))
     .unwrap();
-    let metadata = image.metadata().unwrap();
+    let metadata = background_image.metadata().unwrap();
 
     device
-        .set_background_image(metadata.len() as u32, image)
+        .set_background_image(metadata.len() as u32, background_image)
         .unwrap_or_else(|e| panic!("Failed to set background image: {}", e));
     device
         .refresh()
         .unwrap_or_else(|e| panic!("Failed to refresh device: {}", e));
 
     sleep(Duration::from_secs(3));
+
+    println!("Setting up button image");
+
+    let button_image = File::open(Path::new(
+        "./firmware-api/examples/assets/example-button-image.jpg",
+    ))
+    .unwrap();
+    let metadata = button_image.metadata().unwrap();
+
+    device
+        .set_display_zone_image(metadata.len() as u32, DisplayZones::Button3, button_image)
+        .unwrap_or_else(|e| panic!("Failed to set button image: {}", e));
+    device
+        .refresh()
+        .unwrap_or_else(|e| panic!("Failed to refresh device: {}", e));
+
+    sleep(Duration::from_secs(3));
+
+    println!("Setting up touchscreen zone image");
+
+    let touchscreen_zone_image = File::open(Path::new(
+        "./firmware-api/examples/assets/example-touchscreen-zone-image.jpg",
+    ))
+    .unwrap();
+    let metadata = touchscreen_zone_image.metadata().unwrap();
+
+    device
+        .set_display_zone_image(
+            metadata.len() as u32,
+            DisplayZones::Touchscreen2,
+            touchscreen_zone_image,
+        )
+        .unwrap_or_else(|e| panic!("Failed to set touchscreen image: {}", e));
+    device
+        .refresh()
+        .unwrap_or_else(|e| panic!("Failed to refresh device: {}", e));
 }

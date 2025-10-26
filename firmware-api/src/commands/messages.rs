@@ -14,3 +14,4 @@ pub const CLEAR_KEY: ByteArray<12> = *b"\0CRT\0\0CLE\0\0\0";
 pub const CLEAR_ALL_IMAGES: ByteArray<13> = *b"\0CRT\0\0CLE\0\0\0\xFF";
 
 pub const INITIATE_SET_BACKGROUND_IMAGE: ByteArray<9> = *b"\0CRT\0\0LOG";
+pub const INITIATE_SET_DISPLAY_ZONE_IMAGE: ByteArray<9> = *b"\0CRT\0\0BAT";
