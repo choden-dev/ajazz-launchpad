@@ -63,6 +63,8 @@ You can see in the above example the usage revolves around the `Device` struct a
 
 [`libtransport.so`]: https://github.com/MiraboxSpace/StreamDock-Device-SDK/blob/6174312894d1275b163beb7c073332baa3f9a660/Python-Linux-SDK/src/StreamDock/Transport/libtransport.so
 
+[`hidapitester`]: https://github.com/todbot/hidapitester
+
 [StreamDock-Device-SDK]: https://github.com/MiraboxSpace/StreamDock-Device-SDK/tree/6174312894d1275b163beb7c073332baa3f9a660
 
 [StreamDock-Device-SDK's example python usage]: https://github.com/MiraboxSpace/StreamDock-Device-SDK/blob/6174312894d1275b163beb7c073332baa3f9a660/Python-Linux-SDK/src/main.py
