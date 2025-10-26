@@ -67,6 +67,12 @@ impl From<ByteArray<BUFFER_SIZE_13>> for InputActions {
             knobs::KNOB_3_COUNTER_CLOCKWISE => Knob(KnobActions::Knob3CounterClockwise),
             knobs::KNOB_4_COUNTER_CLOCKWISE => Knob(KnobActions::Knob4CounterClockwise),
 
+            // Knob pressed
+            knobs::KNOB_1_PRESSED => Knob(KnobActions::Knob1Pressed),
+            knobs::KNOB_2_PRESSED => Knob(KnobActions::Knob2Pressed),
+            knobs::KNOB_3_PRESSED => Knob(KnobActions::Knob3Pressed),
+            knobs::KNOB_4_PRESSED => Knob(KnobActions::Knob4Pressed),
+
             _ => InputActions::Unknown,
         }
     }
@@ -239,6 +245,26 @@ mod tests {
         assert!(matches!(
             InputActions::from(knobs::KNOB_4_COUNTER_CLOCKWISE),
             Knob(KnobActions::Knob4CounterClockwise)
+        ));
+    }
+
+    #[test]
+    fn test_knob_pressed_actions() {
+        assert!(matches!(
+            InputActions::from(knobs::KNOB_1_PRESSED),
+            Knob(KnobActions::Knob1Pressed)
+        ));
+        assert!(matches!(
+            InputActions::from(knobs::KNOB_2_PRESSED),
+            Knob(KnobActions::Knob2Pressed)
+        ));
+        assert!(matches!(
+            InputActions::from(knobs::KNOB_3_PRESSED),
+            Knob(KnobActions::Knob3Pressed)
+        ));
+        assert!(matches!(
+            InputActions::from(knobs::KNOB_4_PRESSED),
+            Knob(KnobActions::Knob4Pressed)
         ));
     }
 
