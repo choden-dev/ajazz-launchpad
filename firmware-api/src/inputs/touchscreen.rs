@@ -1,6 +1,9 @@
 use crate::common::ByteArray;
 use crate::inputs::input_buffer::BUFFER_SIZE_13;
 
+///  ### Touchscreen Panel (4×1)
+///  | touchscreen1 | touchscreen2 | touchscreen3 | touchscreen4 |
+///  |--------------|--------------|--------------|--------------|
 #[derive(Debug, Clone)]
 pub enum TouchscreenAction {
     Zone1Pressed,

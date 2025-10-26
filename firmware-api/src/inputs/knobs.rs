@@ -1,6 +1,9 @@
 use crate::common::ByteArray;
 use crate::inputs::input_buffer::BUFFER_SIZE_13;
 
+///  ### Knob layout (4×1)
+///  | knob1 | knob2 | knob3 | knob4 |
+///  |-------|-------|-------|-------|
 #[derive(Debug, Clone)]
 #[allow(clippy::enum_variant_names)]
 pub enum KnobActions {
