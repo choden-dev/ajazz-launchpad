@@ -1,3 +1,5 @@
+/// Used when trying to clear an image that was set on one of the smaller display
+/// zones, this does **not** include the background image.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum DisplayZones {
     Button1,
