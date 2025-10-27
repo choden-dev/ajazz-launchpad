@@ -6,10 +6,10 @@ use crate::inputs::input_buffer::BUFFER_SIZE_13;
 use crate::inputs::knobs::KnobActions;
 use crate::inputs::touchscreen::TouchscreenAction;
 
-mod buttons;
+pub mod buttons;
 pub mod input_buffer;
-mod knobs;
-mod touchscreen;
+pub mod knobs;
+pub mod touchscreen;
 
 #[derive(Debug, Clone)]
 pub enum InputActions {

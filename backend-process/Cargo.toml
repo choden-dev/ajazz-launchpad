@@ -5,6 +5,8 @@ edition = "2024"
 rust-version.workspace = true
 
 [dependencies]
+firmware-api = { path = "../firmware-api" }
+hidapi = "2.6.3"
 
 [lints]
 workspace = true

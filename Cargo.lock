@@ -5,6 +5,10 @@ version = 4
 [[package]]
 name = "backend-process"
 version = "0.1.0"
+dependencies = [
+ "firmware-api",
+ "hidapi",
+]
 
 [[package]]
 name = "cc"
