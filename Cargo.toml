@@ -1,6 +1,6 @@
 [workspace]
 resolver = "3"
-members = ["backend-process","firmware-api"]
+members = ["backend-process","firmware-api", "messaging"]
 
 [workspace.package]
 rust-version = "1.89.0"

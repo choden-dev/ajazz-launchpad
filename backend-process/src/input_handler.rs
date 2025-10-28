@@ -7,9 +7,15 @@ use firmware_api::inputs::touchscreen::TouchscreenAction;
 pub struct LaunchpadInputHandler;
 
 impl LaunchpadInputHandler {
-    fn handle_touchscreen(&self, touchscreen_action: TouchscreenAction) {}
-    fn handle_button(&self, button_action: ButtonActions) {}
-    fn handle_knob(&self, knob_action: KnobActions) {}
+    fn handle_touchscreen(&self, touchscreen_action: TouchscreenAction) {
+        todo!("{:?}", touchscreen_action)
+    }
+    fn handle_button(&self, button_action: ButtonActions) {
+        todo!("{:?}", button_action)
+    }
+    fn handle_knob(&self, knob_action: KnobActions) {
+        todo!("{:?}", knob_action)
+    }
 }
 impl InputHandler for LaunchpadInputHandler {
     fn handle(&self, action: InputActions) {

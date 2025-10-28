@@ -1,5 +1,6 @@
 mod device_management;
 mod input_handler;
+mod database;
 
 use crate::input_handler::LaunchpadInputHandler;
 use firmware_api::device;
