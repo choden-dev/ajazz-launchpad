@@ -11,13 +11,84 @@ pub mod input_buffer;
 pub mod knobs;
 pub mod touchscreen;
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq)]
 pub enum InputActions {
     Button(ButtonActions),
     Knob(KnobActions),
     Touchscreen(TouchscreenAction),
     Unknown,
 }
+
+use ButtonActions::*;
+use TouchscreenAction::*;
+use KnobActions::*;
+
+// Shared lookup table
+const INPUT_ACTION_MAPPINGS: &[(InputActions, u8)] = &[
+    // Button Pressed
+    (Button(Button1Pressed), 1),
+    (Button(Button2Pressed), 2),
+    (Button(Button3Pressed), 3),
+    (Button(Button4Pressed), 4),
+    (Button(Button5Pressed), 5),
+    (Button(Button6Pressed), 6),
+    (Button(Button7Pressed), 7),
+    (Button(Button8Pressed), 8),
+    (Button(Button9Pressed), 9),
+    (Button(Button10Pressed), 10),
+    // Button Released
+    (Button(Button1Released), 11),
+    (Button(Button2Released), 12),
+    (Button(Button3Released), 13),
+    (Button(Button4Released), 14),
+    (Button(Button5Released), 15),
+    (Button(Button6Released), 16),
+    (Button(Button7Released), 17),
+    (Button(Button8Released), 18),
+    (Button(Button9Released), 19),
+    (Button(Button10Released), 20),
+    // Touchscreen
+    (Touchscreen(Zone1Pressed), 21),
+    (Touchscreen(Zone2Pressed), 22),
+    (Touchscreen(Zone3Pressed), 23),
+    (Touchscreen(Zone4Pressed), 24),
+    (Touchscreen(SwipedLeft), 25),
+    (Touchscreen(SwipedRight), 26),
+    // Knob Clockwise
+    (Knob(Knob1Clockwise), 27),
+    (Knob(Knob2Clockwise), 28),
+    (Knob(Knob3Clockwise), 29),
+    (Knob(Knob4Clockwise), 30),
+    // Knob Counter-Clockwise
+    (Knob(Knob1CounterClockwise), 31),
+    (Knob(Knob2CounterClockwise), 32),
+    (Knob(Knob3CounterClockwise), 33),
+    (Knob(Knob4CounterClockwise), 34),
+    // Knob Pressed
+    (Knob(Knob1Pressed), 35),
+    (Knob(Knob2Pressed), 36),
+    (Knob(Knob3Pressed), 37),
+    (Knob(Knob4Pressed), 38),
+];
+impl From<u8> for InputActions {
+    fn from(value: u8) -> Self {
+        INPUT_ACTION_MAPPINGS
+            .iter()
+            .find(|(_, code)| *code == value)
+            .map(|(action, _)| action.clone())
+            .unwrap_or(InputActions::Unknown)
+    }
+}
+impl From<InputActions> for u8 {
+    fn from(value: InputActions) -> Self {
+        INPUT_ACTION_MAPPINGS
+            .iter()
+            .find(|(action, _)| *action == value)
+            .map(|(_, code)| *code)
+            .unwrap_or(0) // or whatever default you prefer for Unknown
+    }
+}
+
 impl From<ByteArray<BUFFER_SIZE_13>> for InputActions {
     fn from(value: ByteArray<BUFFER_SIZE_13>) -> Self {
         match value {

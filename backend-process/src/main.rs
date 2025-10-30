@@ -1,6 +1,7 @@
 mod device_management;
 mod input_handler;
 mod database;
+mod protobuf_conversion;
 
 use crate::input_handler::LaunchpadInputHandler;
 use firmware_api::device;

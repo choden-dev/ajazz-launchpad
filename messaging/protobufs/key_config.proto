@@ -1,0 +1,36 @@
+syntax = "proto3";
+
+import "common/keys.proto";
+import "common/inputs.proto";
+
+package key_config;
+
+message KeyConfig {
+  InputId input_id = 1;           // Identifier for the button (e.g., "button_1", "key_f1")
+  repeated Action actions = 2;    // Sequence of actions to perform
+}
+
+message Action {
+  ActionType type = 1;
+  oneof action_data {
+    KeyAction key_action = 2;
+  }
+}
+
+enum ActionType {
+  ACTION_TYPE_KEY = 0;
+}
+
+message KeyAction {
+  Key key = 1;                   // e.g., "v", "f1", "enter"
+  KeyEventType event_type = 2;   // press, release, or press_and_release
+  optional uint32 unicode = 3;   // only required if we are using a key input
+  optional uint32 other_key_code = 4;
+}
+
+enum KeyEventType {
+  KEY_EVENT_TYPE_UNSPECIFIED = 0;
+  KEY_EVENT_TYPE_PRESS = 1;
+  KEY_EVENT_TYPE_RELEASE = 2;
+  KEY_EVENT_TYPE_PRESS_AND_RELEASE = 3;
+}

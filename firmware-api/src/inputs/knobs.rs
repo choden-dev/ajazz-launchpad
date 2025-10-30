@@ -4,7 +4,7 @@ use crate::inputs::input_buffer::BUFFER_SIZE_13;
 ///  ### Knob layout (4×1)
 ///  | knob1 | knob2 | knob3 | knob4 |
 ///  |-------|-------|-------|-------|
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq)]
 pub enum KnobActions {
     Knob1Clockwise,
     Knob2Clockwise,
