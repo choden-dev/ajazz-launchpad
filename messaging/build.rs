@@ -16,9 +16,6 @@ fn main() {
         .input("protobufs/common/inputs.proto")
         // Specify output directory relative to Cargo output directory.
         .out_dir("./src/protos")
-        .customize(Customize::tokio_bytes(
-            Customize::default(),
-            true,
-        ))
+        .customize(Customize::tokio_bytes(Customize::default(), true))
         .run_from_script();
 }

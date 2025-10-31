@@ -400,8 +400,6 @@ pub struct KeyAction {
     // message fields
     // @@protoc_insertion_point(field:key_config.KeyAction.key)
     pub key: ::protobuf::EnumOrUnknown<super::keys::Key>,
-    // @@protoc_insertion_point(field:key_config.KeyAction.event_type)
-    pub event_type: ::protobuf::EnumOrUnknown<KeyEventType>,
     // @@protoc_insertion_point(field:key_config.KeyAction.unicode)
     pub unicode: ::std::option::Option<u32>,
     // @@protoc_insertion_point(field:key_config.KeyAction.other_key_code)
@@ -423,17 +421,12 @@ impl KeyAction {
     }
 
     fn generated_message_descriptor_data() -> ::protobuf::reflect::GeneratedMessageDescriptorData {
-        let mut fields = ::std::vec::Vec::with_capacity(4);
+        let mut fields = ::std::vec::Vec::with_capacity(3);
         let mut oneofs = ::std::vec::Vec::with_capacity(0);
         fields.push(::protobuf::reflect::rt::v2::make_simpler_field_accessor::<_, _>(
             "key",
             |m: &KeyAction| { &m.key },
             |m: &mut KeyAction| { &mut m.key },
-        ));
-        fields.push(::protobuf::reflect::rt::v2::make_simpler_field_accessor::<_, _>(
-            "event_type",
-            |m: &KeyAction| { &m.event_type },
-            |m: &mut KeyAction| { &mut m.event_type },
         ));
         fields.push(::protobuf::reflect::rt::v2::make_option_accessor::<_, _>(
             "unicode",
@@ -467,12 +460,9 @@ impl ::protobuf::Message for KeyAction {
                     self.key = is.read_enum_or_unknown()?;
                 },
                 16 => {
-                    self.event_type = is.read_enum_or_unknown()?;
-                },
-                24 => {
                     self.unicode = ::std::option::Option::Some(is.read_uint32()?);
                 },
-                32 => {
+                24 => {
                     self.other_key_code = ::std::option::Option::Some(is.read_uint32()?);
                 },
                 tag => {
@@ -490,14 +480,11 @@ impl ::protobuf::Message for KeyAction {
         if self.key != ::protobuf::EnumOrUnknown::new(super::keys::Key::KEY_UNSPECIFIED) {
             my_size += ::protobuf::rt::int32_size(1, self.key.value());
         }
-        if self.event_type != ::protobuf::EnumOrUnknown::new(KeyEventType::KEY_EVENT_TYPE_UNSPECIFIED) {
-            my_size += ::protobuf::rt::int32_size(2, self.event_type.value());
-        }
         if let Some(v) = self.unicode {
-            my_size += ::protobuf::rt::uint32_size(3, v);
+            my_size += ::protobuf::rt::uint32_size(2, v);
         }
         if let Some(v) = self.other_key_code {
-            my_size += ::protobuf::rt::uint32_size(4, v);
+            my_size += ::protobuf::rt::uint32_size(3, v);
         }
         my_size += ::protobuf::rt::unknown_fields_size(self.special_fields.unknown_fields());
         self.special_fields.cached_size().set(my_size as u32);
@@ -508,14 +495,11 @@ impl ::protobuf::Message for KeyAction {
         if self.key != ::protobuf::EnumOrUnknown::new(super::keys::Key::KEY_UNSPECIFIED) {
             os.write_enum(1, ::protobuf::EnumOrUnknown::value(&self.key))?;
         }
-        if self.event_type != ::protobuf::EnumOrUnknown::new(KeyEventType::KEY_EVENT_TYPE_UNSPECIFIED) {
-            os.write_enum(2, ::protobuf::EnumOrUnknown::value(&self.event_type))?;
-        }
         if let Some(v) = self.unicode {
-            os.write_uint32(3, v)?;
+            os.write_uint32(2, v)?;
         }
         if let Some(v) = self.other_key_code {
-            os.write_uint32(4, v)?;
+            os.write_uint32(3, v)?;
         }
         os.write_unknown_fields(self.special_fields.unknown_fields())?;
         ::std::result::Result::Ok(())
@@ -535,7 +519,6 @@ impl ::protobuf::Message for KeyAction {
 
     fn clear(&mut self) {
         self.key = ::protobuf::EnumOrUnknown::new(super::keys::Key::KEY_UNSPECIFIED);
-        self.event_type = ::protobuf::EnumOrUnknown::new(KeyEventType::KEY_EVENT_TYPE_UNSPECIFIED);
         self.unicode = ::std::option::Option::None;
         self.other_key_code = ::std::option::Option::None;
         self.special_fields.clear();
@@ -544,7 +527,6 @@ impl ::protobuf::Message for KeyAction {
     fn default_instance() -> &'static KeyAction {
         static instance: KeyAction = KeyAction {
             key: ::protobuf::EnumOrUnknown::from_i32(0),
-            event_type: ::protobuf::EnumOrUnknown::from_i32(0),
             unicode: ::std::option::Option::None,
             other_key_code: ::std::option::Option::None,
             special_fields: ::protobuf::SpecialFields::new(),
@@ -627,78 +609,6 @@ impl ActionType {
     }
 }
 
-#[derive(Clone,Copy,PartialEq,Eq,Debug,Hash)]
-// @@protoc_insertion_point(enum:key_config.KeyEventType)
-pub enum KeyEventType {
-    // @@protoc_insertion_point(enum_value:key_config.KeyEventType.KEY_EVENT_TYPE_UNSPECIFIED)
-    KEY_EVENT_TYPE_UNSPECIFIED = 0,
-    // @@protoc_insertion_point(enum_value:key_config.KeyEventType.KEY_EVENT_TYPE_PRESS)
-    KEY_EVENT_TYPE_PRESS = 1,
-    // @@protoc_insertion_point(enum_value:key_config.KeyEventType.KEY_EVENT_TYPE_RELEASE)
-    KEY_EVENT_TYPE_RELEASE = 2,
-    // @@protoc_insertion_point(enum_value:key_config.KeyEventType.KEY_EVENT_TYPE_PRESS_AND_RELEASE)
-    KEY_EVENT_TYPE_PRESS_AND_RELEASE = 3,
-}
-
-impl ::protobuf::Enum for KeyEventType {
-    const NAME: &'static str = "KeyEventType";
-
-    fn value(&self) -> i32 {
-        *self as i32
-    }
-
-    fn from_i32(value: i32) -> ::std::option::Option<KeyEventType> {
-        match value {
-            0 => ::std::option::Option::Some(KeyEventType::KEY_EVENT_TYPE_UNSPECIFIED),
-            1 => ::std::option::Option::Some(KeyEventType::KEY_EVENT_TYPE_PRESS),
-            2 => ::std::option::Option::Some(KeyEventType::KEY_EVENT_TYPE_RELEASE),
-            3 => ::std::option::Option::Some(KeyEventType::KEY_EVENT_TYPE_PRESS_AND_RELEASE),
-            _ => ::std::option::Option::None
-        }
-    }
-
-    fn from_str(str: &str) -> ::std::option::Option<KeyEventType> {
-        match str {
-            "KEY_EVENT_TYPE_UNSPECIFIED" => ::std::option::Option::Some(KeyEventType::KEY_EVENT_TYPE_UNSPECIFIED),
-            "KEY_EVENT_TYPE_PRESS" => ::std::option::Option::Some(KeyEventType::KEY_EVENT_TYPE_PRESS),
-            "KEY_EVENT_TYPE_RELEASE" => ::std::option::Option::Some(KeyEventType::KEY_EVENT_TYPE_RELEASE),
-            "KEY_EVENT_TYPE_PRESS_AND_RELEASE" => ::std::option::Option::Some(KeyEventType::KEY_EVENT_TYPE_PRESS_AND_RELEASE),
-            _ => ::std::option::Option::None
-        }
-    }
-
-    const VALUES: &'static [KeyEventType] = &[
-        KeyEventType::KEY_EVENT_TYPE_UNSPECIFIED,
-        KeyEventType::KEY_EVENT_TYPE_PRESS,
-        KeyEventType::KEY_EVENT_TYPE_RELEASE,
-        KeyEventType::KEY_EVENT_TYPE_PRESS_AND_RELEASE,
-    ];
-}
-
-impl ::protobuf::EnumFull for KeyEventType {
-    fn enum_descriptor() -> ::protobuf::reflect::EnumDescriptor {
-        static descriptor: ::protobuf::rt::Lazy<::protobuf::reflect::EnumDescriptor> = ::protobuf::rt::Lazy::new();
-        descriptor.get(|| file_descriptor().enum_by_package_relative_name("KeyEventType").unwrap()).clone()
-    }
-
-    fn descriptor(&self) -> ::protobuf::reflect::EnumValueDescriptor {
-        let index = *self as usize;
-        Self::enum_descriptor().value_by_index(index)
-    }
-}
-
-impl ::std::default::Default for KeyEventType {
-    fn default() -> Self {
-        KeyEventType::KEY_EVENT_TYPE_UNSPECIFIED
-    }
-}
-
-impl KeyEventType {
-    fn generated_enum_descriptor_data() -> ::protobuf::reflect::GeneratedEnumDescriptorData {
-        ::protobuf::reflect::GeneratedEnumDescriptorData::new::<KeyEventType>("KeyEventType")
-    }
-}
-
 static file_descriptor_proto_data: &'static [u8] = b"\
     \n\x10key_config.proto\x12\nkey_config\x1a\x11common/keys.proto\x1a\x13c\
     ommon/inputs.proto\"^\n\tKeyConfig\x12#\n\x08input_id\x18\x01\x20\x01(\
@@ -706,15 +616,11 @@ static file_descriptor_proto_data: &'static [u8] = b"\
     \x12.key_config.ActionR\x07actions\"{\n\x06Action\x12*\n\x04type\x18\x01\
     \x20\x01(\x0e2\x16.key_config.ActionTypeR\x04type\x126\n\nkey_action\x18\
     \x02\x20\x01(\x0b2\x15.key_config.KeyActionH\0R\tkeyActionB\r\n\x0bactio\
-    n_data\"\xc5\x01\n\tKeyAction\x12\x16\n\x03key\x18\x01\x20\x01(\x0e2\x04\
-    .KeyR\x03key\x127\n\nevent_type\x18\x02\x20\x01(\x0e2\x18.key_config.Key\
-    EventTypeR\teventType\x12\x1d\n\x07unicode\x18\x03\x20\x01(\rH\0R\x07uni\
-    code\x88\x01\x01\x12)\n\x0eother_key_code\x18\x04\x20\x01(\rH\x01R\x0cot\
-    herKeyCode\x88\x01\x01B\n\n\x08_unicodeB\x11\n\x0f_other_key_code*!\n\nA\
-    ctionType\x12\x13\n\x0fACTION_TYPE_KEY\x10\0*\x8a\x01\n\x0cKeyEventType\
-    \x12\x1e\n\x1aKEY_EVENT_TYPE_UNSPECIFIED\x10\0\x12\x18\n\x14KEY_EVENT_TY\
-    PE_PRESS\x10\x01\x12\x1a\n\x16KEY_EVENT_TYPE_RELEASE\x10\x02\x12$\n\x20K\
-    EY_EVENT_TYPE_PRESS_AND_RELEASE\x10\x03b\x06proto3\
+    n_data\"\x8c\x01\n\tKeyAction\x12\x16\n\x03key\x18\x01\x20\x01(\x0e2\x04\
+    .KeyR\x03key\x12\x1d\n\x07unicode\x18\x02\x20\x01(\rH\0R\x07unicode\x88\
+    \x01\x01\x12)\n\x0eother_key_code\x18\x03\x20\x01(\rH\x01R\x0cotherKeyCo\
+    de\x88\x01\x01B\n\n\x08_unicodeB\x11\n\x0f_other_key_code*!\n\nActionTyp\
+    e\x12\x13\n\x0fACTION_TYPE_KEY\x10\0b\x06proto3\
 ";
 
 /// `FileDescriptorProto` object which was a source for this generated file
@@ -738,9 +644,8 @@ pub fn file_descriptor() -> &'static ::protobuf::reflect::FileDescriptor {
             messages.push(KeyConfig::generated_message_descriptor_data());
             messages.push(Action::generated_message_descriptor_data());
             messages.push(KeyAction::generated_message_descriptor_data());
-            let mut enums = ::std::vec::Vec::with_capacity(2);
+            let mut enums = ::std::vec::Vec::with_capacity(1);
             enums.push(ActionType::generated_enum_descriptor_data());
-            enums.push(KeyEventType::generated_enum_descriptor_data());
             ::protobuf::reflect::GeneratedFileDescriptor::new_generated(
                 file_descriptor_proto(),
                 deps,

@@ -79,8 +79,8 @@ impl Operations {
 mod tests {
     use super::*;
     use enigo::Key;
-    use firmware_api::inputs::buttons::ButtonActions::{Button1Pressed, Button4Pressed};
     use firmware_api::inputs::InputActions;
+    use firmware_api::inputs::buttons::ButtonActions::{Button1Pressed, Button4Pressed};
 
     #[test]
     fn allows_setting_input_mappings() {
@@ -132,7 +132,5 @@ mod tests {
 
         // Should still contain binding to button 1
         assert!(new_rows.contains(&InputMapping::try_from(to_add[1].clone()).unwrap()));
-
-
     }
 }

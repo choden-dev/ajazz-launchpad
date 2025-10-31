@@ -23,14 +23,6 @@ enum ActionType {
 
 message KeyAction {
   Key key = 1;                   // e.g., "v", "f1", "enter"
-  KeyEventType event_type = 2;   // press, release, or press_and_release
-  optional uint32 unicode = 3;   // only required if we are using a key input
-  optional uint32 other_key_code = 4;
-}
-
-enum KeyEventType {
-  KEY_EVENT_TYPE_UNSPECIFIED = 0;
-  KEY_EVENT_TYPE_PRESS = 1;
-  KEY_EVENT_TYPE_RELEASE = 2;
-  KEY_EVENT_TYPE_PRESS_AND_RELEASE = 3;
+  optional uint32 unicode = 2;   // only required if we are using a key input
+  optional uint32 other_key_code = 3;
 }

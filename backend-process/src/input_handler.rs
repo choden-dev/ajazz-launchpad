@@ -1,20 +1,85 @@
+use enigo::{Enigo, Key, Keyboard};
 use firmware_api::device::InputHandler;
 use firmware_api::inputs::InputActions;
 use firmware_api::inputs::buttons::ButtonActions;
+use firmware_api::inputs::buttons::ButtonActions::Button1Pressed;
 use firmware_api::inputs::knobs::KnobActions;
 use firmware_api::inputs::touchscreen::TouchscreenAction;
+use std::collections::HashMap;
+use std::sync::Mutex;
 
-pub struct LaunchpadInputHandler;
+pub trait KeyActionExecutor {
+    fn execute(&self, actions: &Vec<Key>) -> Result<(), String>;
+}
+
+pub struct EnigoKeyActionHandler {
+    enigo: Mutex<Enigo>,
+}
+
+impl EnigoKeyActionHandler {
+    pub fn new(enigo: Enigo) -> Self {
+        Self {
+            enigo: Mutex::new(enigo),
+        }
+    }
+}
+
+impl Default for EnigoKeyActionHandler {
+    fn default() -> Self {
+        Self {
+            enigo: Mutex::new(Enigo::new(&enigo::Settings::default()).unwrap()),
+        }
+    }
+}
+
+pub struct InputMapping(HashMap<InputActions, Vec<Key>>);
+
+impl Default for InputMapping {
+    fn default() -> Self {
+        Self(HashMap::from([(
+            InputActions::Button(Button1Pressed),
+            vec![Key::VolumeDown],
+        )]))
+    }
+}
+impl KeyActionExecutor for EnigoKeyActionHandler {
+    fn execute(&self, actions: &Vec<Key>) -> Result<(), String> {
+        let mut lock = self.enigo.lock().map_err(|e| e.to_string())?;
+        Ok(actions.iter().for_each(|action| {
+            lock.key(*action, enigo::Direction::Click).ok();
+        }))
+    }
+}
+
+pub struct LaunchpadInputHandler {
+    input_mapping: InputMapping,
+    key_action_executor: Box<dyn KeyActionExecutor>,
+}
 
 impl LaunchpadInputHandler {
+    pub fn new(mapping: InputMapping, key_action_executor: Box<dyn KeyActionExecutor>) -> Self {
+        Self {
+            input_mapping: mapping,
+            key_action_executor,
+        }
+    }
+
+    fn execute_keys(&self, input_action: InputActions) {
+        if let Some(actions) = self.input_mapping.0.get(&input_action) {
+            self.key_action_executor.execute(actions).ok();
+        }
+    }
+
     fn handle_touchscreen(&self, touchscreen_action: TouchscreenAction) {
-        todo!("{:?}", touchscreen_action)
+        self.execute_keys(InputActions::Touchscreen(touchscreen_action));
     }
+
     fn handle_button(&self, button_action: ButtonActions) {
-        todo!("{:?}", button_action)
+        self.execute_keys(InputActions::Button(button_action));
     }
+
     fn handle_knob(&self, knob_action: KnobActions) {
-        todo!("{:?}", knob_action)
+        self.execute_keys(InputActions::Knob(knob_action));
     }
 }
 impl InputHandler for LaunchpadInputHandler {

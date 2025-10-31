@@ -9,8 +9,8 @@ struct DeviceIdentifier {
 }
 
 const AJAZZ_LAUNCHPAD: DeviceIdentifier = DeviceIdentifier {
-    pid: 0x0300,
-    vid: 0x3004,
+    vid: 0x0300,
+    pid: 0x3004,
 };
 
 pub fn scan_for_launchpad() -> HidDeviceWrapper {

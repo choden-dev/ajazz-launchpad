@@ -11,7 +11,7 @@ pub mod input_buffer;
 pub mod knobs;
 pub mod touchscreen;
 
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub enum InputActions {
     Button(ButtonActions),
     Knob(KnobActions),
@@ -20,8 +20,8 @@ pub enum InputActions {
 }
 
 use ButtonActions::*;
-use TouchscreenAction::*;
 use KnobActions::*;
+use TouchscreenAction::*;
 
 // Shared lookup table
 const INPUT_ACTION_MAPPINGS: &[(InputActions, u8)] = &[
