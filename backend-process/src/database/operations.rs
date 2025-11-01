@@ -16,8 +16,7 @@ impl Operations {
     }
 
     fn open_connection(&self) -> Result<&Connection, String> {
-        self
-            .database
+        self.database
             .connection()
             .ok_or(String::from("Operations not initialized"))
     }
