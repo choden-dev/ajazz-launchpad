@@ -26,7 +26,7 @@ pub struct ControlPanel {
 }
 mod commands;
 
-mod inputs;
+pub mod inputs;
 
 mod common;
 

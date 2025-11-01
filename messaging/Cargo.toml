@@ -1,0 +1,18 @@
+[package]
+name = "messaging"
+version = "0.1.0"
+edition = "2024"
+rust-version.workspace = true
+
+[lib]
+name = "messaging"
+
+[dependencies]
+protobuf = "3.7.2"
+
+[build-dependencies]
+protobuf-codegen = "3.7.2"
+protoc-bin-vendored = "3.2.0"
+
+[lints]
+workspace = true

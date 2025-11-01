@@ -6,6 +6,8 @@
       <sourceFolder url="file://$MODULE_DIR$/firmware-api/tests" isTestSource="true" />
       <sourceFolder url="file://$MODULE_DIR$/firmware-api/benches" isTestSource="true" />
       <sourceFolder url="file://$MODULE_DIR$/firmware-api/examples" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/backend-process/src" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/messaging/src" isTestSource="false" />
       <excludeFolder url="file://$MODULE_DIR$/target" />
     </content>
     <orderEntry type="inheritedJdk" />
