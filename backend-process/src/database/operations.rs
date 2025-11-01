@@ -85,7 +85,7 @@ mod tests {
         let sqlite = SqLite::new(false);
         let operations = Operations::new(sqlite.unwrap());
 
-        let to_add = vec![
+        let to_add = &[
             InputMapping::new(InputActions::Button(Button4Pressed), vec![Key::Option]),
             InputMapping::new(InputActions::Button(Button1Pressed), vec![Key::Backspace]),
         ];
@@ -99,9 +99,9 @@ mod tests {
         let all_rows = operations.get_all_input_mappings().unwrap();
 
         assert_eq!(all_rows.len(), 2);
-        for i in 0..to_add.len() {
-            assert!(all_rows.contains(&InputMapping::try_from(to_add[i].clone()).unwrap()));
-        }
+        to_add.iter().for_each(|item| {
+            assert!(all_rows.contains(item));
+        });
 
         // Replace the button 4 bindings
         operations
@@ -114,10 +114,10 @@ mod tests {
         let new_rows = operations.get_all_input_mappings().unwrap();
 
         assert_eq!(new_rows.len(), 2);
-        // Doesn't contain old version of button 4
-        assert!(!new_rows.contains(&InputMapping::try_from(to_add[0].clone()).unwrap()));
+        // Doesn't contain an old version of button 4
+        assert!(!new_rows.contains(&to_add[0]));
 
         // Should still contain binding to button 1
-        assert!(new_rows.contains(&InputMapping::try_from(to_add[1].clone()).unwrap()));
+        assert!(!new_rows.contains(&to_add[1]));
     }
 }
