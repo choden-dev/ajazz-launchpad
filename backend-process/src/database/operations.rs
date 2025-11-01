@@ -118,6 +118,6 @@ mod tests {
         assert!(!new_rows.contains(&to_add[0]));
 
         // Should still contain binding to button 1
-        assert!(!new_rows.contains(&to_add[1]));
+        assert!(new_rows.contains(&to_add[1]));
     }
 }
