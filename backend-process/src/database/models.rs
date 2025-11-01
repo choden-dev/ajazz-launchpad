@@ -2,7 +2,7 @@ use enigo::Key;
 use firmware_api::inputs::InputActions;
 
 /// The format we want to use inside the backend to handle actions
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Clone)]
 pub struct InputMapping {
     input: InputActions,
     actions: Vec<Key>,

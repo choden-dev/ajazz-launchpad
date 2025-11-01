@@ -36,10 +36,8 @@ impl Operations {
         Ok(())
     }
 
-    pub fn set_mapping_for_input(
-        &self,
-        input_mapping: InputMappingStorageFormat,
-    ) -> Result<usize, String> {
+    pub fn set_mapping_for_input(&self, input_mapping: InputMapping) -> Result<usize, String> {
+        let input_mapping: InputMappingStorageFormat = input_mapping.try_into()?;
         const SET_INPUT_MAPPING: &str = "INSERT INTO input_mapping (button_id, actions) VALUES (?1, ?2) \
                                             ON CONFLICT(button_id) DO UPDATE SET actions=?2";
 
@@ -88,16 +86,8 @@ mod tests {
         let operations = Operations::new(sqlite.unwrap());
 
         let to_add = vec![
-            InputMappingStorageFormat::try_from(InputMapping::new(
-                InputActions::Button(Button4Pressed),
-                vec![Key::Option],
-            ))
-            .unwrap(),
-            InputMappingStorageFormat::try_from(InputMapping::new(
-                InputActions::Button(Button1Pressed),
-                vec![Key::Backspace],
-            ))
-            .unwrap(),
+            InputMapping::new(InputActions::Button(Button4Pressed), vec![Key::Option]),
+            InputMapping::new(InputActions::Button(Button1Pressed), vec![Key::Backspace]),
         ];
 
         operations.create_input_mapping_table().unwrap();
@@ -115,13 +105,10 @@ mod tests {
 
         // Replace the button 4 bindings
         operations
-            .set_mapping_for_input(
-                InputMappingStorageFormat::try_from(InputMapping::new(
-                    InputActions::Button(Button4Pressed),
-                    vec![Key::Add, Key::Backspace],
-                ))
-                .unwrap(),
-            )
+            .set_mapping_for_input(InputMapping::new(
+                InputActions::Button(Button4Pressed),
+                vec![Key::Add, Key::Backspace],
+            ))
             .unwrap();
 
         let new_rows = operations.get_all_input_mappings().unwrap();

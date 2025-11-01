@@ -351,6 +351,7 @@ dependencies = [
 name = "messaging"
 version = "0.1.0"
 dependencies = [
+ "firmware-api",
  "protobuf",
  "protobuf-codegen",
  "protoc-bin-vendored",

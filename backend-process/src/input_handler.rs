@@ -8,6 +8,8 @@ use firmware_api::inputs::touchscreen::TouchscreenAction;
 use std::collections::HashMap;
 use std::sync::Mutex;
 
+use crate::database::models;
+
 pub trait KeyActionExecutor {
     fn execute(&self, actions: &Vec<Key>) -> Result<(), String>;
 }
@@ -32,7 +34,17 @@ impl Default for EnigoKeyActionHandler {
     }
 }
 
+/// Used by the application to access the current set of input mappings in-memory,
+/// This should be the object queried when handling input to avoid database queries.
 pub struct InputMapping(HashMap<InputActions, Vec<Key>>);
+
+impl InputMapping {
+    /// Used to set new configs for the keys
+    /// * `new_actions`: The new set of `InputMapping`s which will overwrite any existing mappings
+    pub fn override_config(&mut self, new_actions: InputMapping) {
+        self.0.extend(new_actions.0);
+    }
+}
 
 impl Default for InputMapping {
     fn default() -> Self {
@@ -40,6 +52,16 @@ impl Default for InputMapping {
             InputActions::Button(Button1Pressed),
             vec![Key::VolumeDown],
         )]))
+    }
+}
+impl From<Vec<models::InputMapping>> for InputMapping {
+    fn from(value: Vec<models::InputMapping>) -> Self {
+        Self(
+            value
+                .into_iter()
+                .map(|mapping| (mapping.input(), mapping.actions().to_vec()))
+                .collect(),
+        )
     }
 }
 impl KeyActionExecutor for EnigoKeyActionHandler {

@@ -1,4 +1,4 @@
 mod mappers;
 pub mod models;
-mod operations;
-mod sqlite;
+pub mod operations;
+pub mod sqlite;

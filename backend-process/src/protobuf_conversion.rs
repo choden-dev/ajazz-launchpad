@@ -9,9 +9,11 @@ use messaging::protos;
 use protobuf;
 use protobuf::Enum;
 
+/// Util struct for mapping the protobuf key into an `Enigo` key
 #[derive(Debug, PartialEq)]
 pub struct KeyWrapper(Key);
 
+/// Util struct to convert from the protobuf format to our application model
 #[derive(Debug, PartialEq)]
 pub struct InputActionWrapper(InputActions);
 

@@ -8,6 +8,7 @@ rust-version.workspace = true
 name = "messaging"
 
 [dependencies]
+firmware-api = { path = "../firmware-api" }
 protobuf = "3.7.2"
 
 [build-dependencies]
