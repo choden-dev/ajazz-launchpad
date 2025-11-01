@@ -16,10 +16,10 @@ impl Operations {
     }
 
     fn open_connection(&self) -> Result<&Connection, String> {
-        Ok(self
+        self
             .database
             .connection()
-            .ok_or(String::from("Operations not initialized"))?)
+            .ok_or(String::from("Operations not initialized"))
     }
 
     fn create_input_mapping_table(&self) -> Result<(), String> {
@@ -36,6 +36,7 @@ impl Operations {
         Ok(())
     }
 
+    #[allow(dead_code)]
     pub fn set_mapping_for_input(&self, input_mapping: InputMapping) -> Result<usize, String> {
         let input_mapping: InputMappingStorageFormat = input_mapping.try_into()?;
         const SET_INPUT_MAPPING: &str = "INSERT INTO input_mapping (button_id, actions) VALUES (?1, ?2) \

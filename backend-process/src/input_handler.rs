@@ -11,19 +11,11 @@ use std::sync::Mutex;
 use crate::database::models;
 
 pub trait KeyActionExecutor {
-    fn execute(&self, actions: &Vec<Key>) -> Result<(), String>;
+    fn execute(&self, actions: &[Key]) -> Result<(), String>;
 }
 
 pub struct EnigoKeyActionHandler {
     enigo: Mutex<Enigo>,
-}
-
-impl EnigoKeyActionHandler {
-    pub fn new(enigo: Enigo) -> Self {
-        Self {
-            enigo: Mutex::new(enigo),
-        }
-    }
 }
 
 impl Default for EnigoKeyActionHandler {
@@ -65,11 +57,12 @@ impl From<Vec<models::InputMapping>> for InputMapping {
     }
 }
 impl KeyActionExecutor for EnigoKeyActionHandler {
-    fn execute(&self, actions: &Vec<Key>) -> Result<(), String> {
+    fn execute(&self, actions: &[Key]) -> Result<(), String> {
         let mut lock = self.enigo.lock().map_err(|e| e.to_string())?;
-        Ok(actions.iter().for_each(|action| {
+        let _: () = actions.iter().for_each(|action| {
             lock.key(*action, enigo::Direction::Click).ok();
-        }))
+        });
+        Ok(())
     }
 }
 

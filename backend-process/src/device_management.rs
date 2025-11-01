@@ -1,5 +1,4 @@
 use firmware_api::device::HidDeviceWrapper;
-use hidapi;
 use std::thread::sleep;
 use std::time::Duration;
 
@@ -19,8 +18,8 @@ pub fn scan_for_launchpad() -> HidDeviceWrapper {
     loop {
         let launchpad = hid_api.open(AJAZZ_LAUNCHPAD.vid, AJAZZ_LAUNCHPAD.pid);
 
-        if launchpad.is_ok() {
-            return HidDeviceWrapper::new(launchpad.unwrap());
+        if let Ok(item) = launchpad {
+            return HidDeviceWrapper::new(item);
         }
 
         sleep(Duration::from_millis(500));

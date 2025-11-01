@@ -20,19 +20,10 @@ impl SqLite {
         }
         Ok(())
     }
-    pub fn is_connected(&self) -> bool {
-        self.connection.is_some()
-    }
     pub fn connection(&self) -> Option<&Connection> {
         self.connection.as_ref()
     }
 }
-
-struct DataOperations {
-    database: SqLite,
-}
-
-impl DataOperations {}
 impl Drop for SqLite {
     fn drop(&mut self) {
         if self.connection.is_some() {

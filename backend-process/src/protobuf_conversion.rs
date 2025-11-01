@@ -6,7 +6,6 @@ use firmware_api::inputs::buttons::ButtonActions;
 use firmware_api::inputs::knobs::KnobActions;
 use firmware_api::inputs::touchscreen::TouchscreenAction;
 use messaging::protos;
-use protobuf;
 use protobuf::Enum;
 
 /// Util struct for mapping the protobuf key into an `Enigo` key
@@ -171,7 +170,6 @@ impl TryFrom<protos::key_config::KeyAction> for KeyWrapper {
                 protos::keys::Key::KEY_ALT => Ok(KeyWrapper(Key::Alt)),
                 protos::keys::Key::KEY_BACKSPACE => Ok(KeyWrapper(Key::Backspace)),
                 protos::keys::Key::KEY_CAPS_LOCK => Ok(KeyWrapper(Key::CapsLock)),
-                protos::keys::Key::KEY_COMMAND => Ok(KeyWrapper(Key::Command)),
                 protos::keys::Key::KEY_CONTROL => Ok(KeyWrapper(Key::Control)),
                 protos::keys::Key::KEY_DECIMAL => Ok(KeyWrapper(Key::Decimal)),
                 protos::keys::Key::KEY_DELETE => Ok(KeyWrapper(Key::Delete)),
@@ -229,13 +227,11 @@ impl TryFrom<protos::key_config::KeyAction> for KeyWrapper {
                 protos::keys::Key::KEY_SHIFT => Ok(KeyWrapper(Key::Shift)),
                 protos::keys::Key::KEY_SPACE => Ok(KeyWrapper(Key::Space)),
                 protos::keys::Key::KEY_SUBTRACT => Ok(KeyWrapper(Key::Subtract)),
-                protos::keys::Key::KEY_SUPER => Ok(KeyWrapper(Key::Super)),
                 protos::keys::Key::KEY_TAB => Ok(KeyWrapper(Key::Tab)),
                 protos::keys::Key::KEY_UP_ARROW => Ok(KeyWrapper(Key::UpArrow)),
                 protos::keys::Key::KEY_VOLUME_DOWN => Ok(KeyWrapper(Key::VolumeDown)),
                 protos::keys::Key::KEY_VOLUME_MUTE => Ok(KeyWrapper(Key::VolumeMute)),
                 protos::keys::Key::KEY_VOLUME_UP => Ok(KeyWrapper(Key::VolumeUp)),
-                protos::keys::Key::KEY_WINDOWS => Ok(KeyWrapper(Key::Windows)),
                 protos::keys::Key::KEY_UNICODE => match value.unicode {
                     Some(unicode) => match char::try_from(unicode) {
                         Ok(c) => Ok(KeyWrapper(Key::Unicode(c))),
