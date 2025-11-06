@@ -24,6 +24,7 @@ pub trait MessageReceiver {
     fn read_message(&mut self) -> Result<Vec<u8>, Error>;
 }
 
+/// A blocking (by default) consumer connection to the server.
 impl Client {
     pub fn new() -> Result<Self, Error> {
         Ok(Self {
