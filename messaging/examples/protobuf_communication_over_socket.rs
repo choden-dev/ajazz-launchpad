@@ -18,8 +18,8 @@ fn main() {
             match server.read_message() {
                 Ok(msg) => {
                     println!("Received message (byte form): {:?}", msg);
-                    if let Some(parsed) =
-                        protos::key_config::KeyConfig::parse_from_bytes(msg.as_slice()).ok()
+                    if let Ok(parsed) =
+                        protos::key_config::KeyConfig::parse_from_bytes(msg.as_slice())
                     {
                         println!("{}", parsed);
                     }
@@ -44,7 +44,7 @@ fn main() {
     }
 
     match client.send_message(
-        &protos::key_config::KeyConfig {
+        protos::key_config::KeyConfig {
             input_id: protobuf::EnumOrUnknown::new(
                 protos::inputs::InputId::KNOB_1_COUNTER_CLOCKWISE,
             ),
