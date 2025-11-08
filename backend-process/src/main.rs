@@ -6,29 +6,72 @@ mod socket;
 
 use crate::database::operations::Operations;
 use crate::input_handler::{EnigoKeyActionHandler, InputMapping, LaunchpadInputHandler};
+use crate::socket::commands::IncomingCommands;
 use firmware_api::device;
+use firmware_api::device::HidDeviceWrapper;
 use log::info;
+
+#[derive(Clone)]
+enum States {
+    EstablishConnection,
+    ReadClientMessages,
+    HandleDeviceInput,
+}
+
+struct StateMachine {
+    current_state: States,
+}
+
+impl StateMachine {
+    fn new() -> Self {
+        Self {
+            current_state: States::EstablishConnection,
+        }
+    }
+    fn next_state(&mut self, current_connections: u8) {
+        match self.current_state {
+            States::EstablishConnection => match current_connections {
+                connections if connections > 0 => self.current_state = States::ReadClientMessages,
+                _ => self.current_state = States::HandleDeviceInput,
+            },
+            States::HandleDeviceInput => {
+                self.current_state = States::EstablishConnection;
+            }
+            States::ReadClientMessages => {
+                self.current_state = States::HandleDeviceInput;
+            }
+        }
+    }
+
+    fn current_state(&self) -> States {
+        self.current_state.clone()
+    }
+}
 
 fn main() {
     env_logger::init();
 
     let db = Operations::new(database::sqlite::SqLite::new(true).unwrap());
     let mut default_mappings = InputMapping::default();
-    let stored_mappings = db.get_all_input_mappings().unwrap();
-    default_mappings.override_config(stored_mappings.into());
+    default_mappings.override_config(db.get_all_input_mappings().unwrap().into());
 
     let mut server = socket::connection::ServerHandler::new(&db).expect("Failed to create server");
 
     let hid_device = device_management::scan_for_launchpad();
-    let device = device::Device::new(
-        hid_device,
+
+    let mut device = device::Device::new(
+        HidDeviceWrapper::new(&hid_device, false),
         LaunchpadInputHandler::new(default_mappings, Box::new(EnigoKeyActionHandler::default())),
     );
     device.refresh().unwrap();
 
+    let mut state_machine = StateMachine::new();
+
     loop {
-        match server.server().connected_clients() {
-            connections if connections == 0 => match server.add_new_connection_if_exists() {
+        let current_state = state_machine.current_state();
+
+        match current_state {
+            States::EstablishConnection => match server.add_new_connection_if_exists() {
                 Ok(_) => {
                     info!("New connection added");
                 }
@@ -36,13 +79,27 @@ fn main() {
                     info!("New connection could not be added: {}", e);
                 }
             },
-            _ => {
-                match server.handle_next_message() {
-                    Ok(messageType) => {}
-                    Err(e) => {}
-                };
+            States::ReadClientMessages => match server.handle_next_message() {
+                Ok(message_type) => match message_type {
+                    IncomingCommands::SetKeyConfig => {
+                        device = device::Device::new(
+                            HidDeviceWrapper::new(&hid_device, false),
+                            LaunchpadInputHandler::new(
+                                db.get_all_input_mappings().unwrap().into(),
+                                Box::new(EnigoKeyActionHandler::default()),
+                            ),
+                        );
+                    }
+                },
+                Err(e) => {
+                    info!("No known command was handled: {}", e);
+                }
+            },
+            States::HandleDeviceInput => {
+                device.read_input().ok();
             }
         }
-        device.read_input().ok();
+
+        state_machine.next_state(server.server().connected_clients() as u8);
     }
 }

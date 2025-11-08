@@ -29,11 +29,10 @@ impl<'a> ServerHandler<'a> {
         let message = self.server.read_message()?;
 
         if let Ok(key_config) = protos::key_config::KeyConfig::parse_from_bytes(message.as_slice())
+            && let Ok(mapping) = key_config.try_into()
         {
-            if let Ok(mapping) = key_config.try_into() {
-                self.operations.set_mapping_for_input(mapping).ok();
-                return Ok(IncomingCommands::SetKeyConfig);
-            }
+            self.operations.set_mapping_for_input(mapping).ok();
+            return Ok(IncomingCommands::SetKeyConfig);
         }
 
         Err(Error::new(
