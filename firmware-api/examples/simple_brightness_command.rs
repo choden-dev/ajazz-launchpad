@@ -11,7 +11,7 @@ fn main() {
         .unwrap_or_else(|e| panic!("Failed to open device: {}", e));
 
     let device = Device::new(
-        HidDeviceWrapper::new(hid_device),
+        HidDeviceWrapper::new(hid_device, false),
         FunctionHandler::new(|_| {}),
     );
     device

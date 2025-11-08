@@ -18,8 +18,8 @@ pub fn scan_for_launchpad() -> HidDeviceWrapper {
     loop {
         let launchpad = hid_api.open(AJAZZ_LAUNCHPAD.vid, AJAZZ_LAUNCHPAD.pid);
 
-        if let Ok(item) = launchpad {
-            return HidDeviceWrapper::new(item);
+        if let Ok(device) = launchpad {
+            return HidDeviceWrapper::new(device, false);
         }
 
         sleep(Duration::from_millis(500));

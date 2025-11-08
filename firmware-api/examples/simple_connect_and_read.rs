@@ -11,7 +11,7 @@ fn main() {
         .unwrap_or_else(|e| panic!("Failed to open device: {}", e));
 
     let device = Device::new(
-        HidDeviceWrapper::new(hid_device),
+        HidDeviceWrapper::new(hid_device, false),
         FunctionHandler::new(|action| println!("{:?}", action)),
     );
 
@@ -23,6 +23,5 @@ fn main() {
         device
             .read_input()
             .unwrap_or_else(|e| println!("Failed to read input: {}", e));
-        sleep(Duration::from_millis(500));
     }
 }

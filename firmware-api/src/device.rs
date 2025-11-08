@@ -22,8 +22,10 @@ pub struct HidDeviceWrapper {
     device: hidapi::HidDevice,
 }
 
+/// Warning: this device will read in non-blocking mode
 impl HidDeviceWrapper {
-    pub fn new(device: hidapi::HidDevice) -> Self {
+    pub fn new(device: hidapi::HidDevice, blocking_read: bool) -> Self {
+        device.set_blocking_mode(blocking_read).ok();
         Self { device }
     }
 }
@@ -79,8 +81,12 @@ impl<H: HidDeviceOperations, I: InputHandler> Device<H, I> {
         let mut buffer: ByteArray<BUFFER_SIZE_13> = [0; BUFFER_SIZE_13];
         self.hid_device.read(&mut buffer)?;
 
-        let action = InputActions::from(buffer);
-        self.handler.handle(action);
+        // If we have empty buffer means that no available message was there
+        if !buffer.iter().all(|&bit| bit == 0) {
+            let action = InputActions::from(buffer);
+            self.handler.handle(action);
+        }
+
         Ok(())
     }
 
@@ -156,9 +162,13 @@ impl<H: HidDeviceOperations, I: InputHandler> Device<H, I> {
 }
 
 impl Device<HidDeviceWrapper, FunctionHandler> {
-    pub fn from_hid_device(hid_device: hidapi::HidDevice, handler: fn(InputActions)) -> Self {
+    pub fn from_hid_device(
+        hid_device: hidapi::HidDevice,
+        handler: fn(InputActions),
+        blocking_read: bool,
+    ) -> Self {
         Self::new(
-            HidDeviceWrapper::new(hid_device),
+            HidDeviceWrapper::new(hid_device, blocking_read),
             FunctionHandler::new(handler),
         )
     }
