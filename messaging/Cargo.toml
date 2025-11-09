@@ -8,6 +8,7 @@ rust-version.workspace = true
 name = "messaging"
 
 [dependencies]
+log = "0.4.28"
 protobuf = "3.7.2"
 
 [build-dependencies]

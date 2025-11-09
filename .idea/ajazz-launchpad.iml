@@ -9,6 +9,8 @@
       <sourceFolder url="file://$MODULE_DIR$/backend-process/src" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/messaging/src" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/messaging/examples" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/configuration-cli/src" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/service-layer/src" isTestSource="false" />
       <excludeFolder url="file://$MODULE_DIR$/target" />
     </content>
     <orderEntry type="inheritedJdk" />

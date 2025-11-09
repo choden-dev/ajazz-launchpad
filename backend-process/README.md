@@ -6,3 +6,4 @@ This is a binary crate that handles inputs from the launchpad and any config tha
 
 - Database (SQLite)
 - Usage of `firmware-api` crate
+- Integration of the `messaging` crate to allow processing commands from consumers

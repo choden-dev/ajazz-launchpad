@@ -1,6 +1,7 @@
 //! This module is only concerned with the communication protocol primitives
 //! meaning read/write - it only makes sure the correct number of bytes is being read
 //! Any protobuf operations (serialization/deserialization) should be handled by consumers
+use log::info;
 use std::io::{Error, ErrorKind, Read, Write};
 use std::os::unix::net::{UnixListener, UnixStream};
 use std::path::Path;
@@ -85,10 +86,31 @@ impl Server {
     /// to the list of connections if it is added successfully, otherwise the resulting
     /// error will need to be handled accordingly
     pub fn accept_connection(&mut self) -> Result<(), Error> {
+        self.unix_listener.set_nonblocking(false)?;
         match self.unix_listener.accept() {
             Ok((stream, _addr)) => {
                 stream.set_nonblocking(true)?;
                 self.unix_streams.push(stream);
+            }
+            Err(e) => return Err(e),
+        }
+
+        Ok(())
+    }
+
+    /// _Non-blocking_ call to accept an incoming connection. Will add the connection
+    /// to the list of connections if it is added successfully, otherwise the resulting
+    /// error from either a genuine failure or no connection detected will need to be handled accordingly
+    pub fn accept_connection_async(&mut self) -> Result<(), Error> {
+        self.unix_listener.set_nonblocking(true)?;
+        match self.unix_listener.accept() {
+            Ok((stream, _addr)) => {
+                stream.set_nonblocking(true)?;
+                self.unix_streams.push(stream);
+            }
+            Err(e) if e.kind() == ErrorKind::WouldBlock => {
+                info!("No connections to accept from");
+                return Err(e);
             }
             Err(e) => return Err(e),
         }

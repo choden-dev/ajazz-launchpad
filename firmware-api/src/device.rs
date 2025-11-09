@@ -18,17 +18,19 @@ pub trait HidDeviceOperations {
     fn write(&self, data: &[u8]) -> HidResult<usize>;
 }
 
-pub struct HidDeviceWrapper {
-    device: hidapi::HidDevice,
+pub struct HidDeviceWrapper<'a> {
+    device: &'a hidapi::HidDevice,
 }
 
-impl HidDeviceWrapper {
-    pub fn new(device: hidapi::HidDevice) -> Self {
+/// Warning: this device will read in non-blocking mode
+impl<'a> HidDeviceWrapper<'a> {
+    pub fn new(device: &'a hidapi::HidDevice, blocking_read: bool) -> Self {
+        device.set_blocking_mode(blocking_read).ok();
         Self { device }
     }
 }
 
-impl HidDeviceOperations for HidDeviceWrapper {
+impl HidDeviceOperations for HidDeviceWrapper<'_> {
     fn read(&self, buffer: &mut [u8]) -> HidResult<usize> {
         self.device.read(buffer)
     }
@@ -79,8 +81,12 @@ impl<H: HidDeviceOperations, I: InputHandler> Device<H, I> {
         let mut buffer: ByteArray<BUFFER_SIZE_13> = [0; BUFFER_SIZE_13];
         self.hid_device.read(&mut buffer)?;
 
-        let action = InputActions::from(buffer);
-        self.handler.handle(action);
+        // If we have empty buffer means that no available message was there
+        if !buffer.iter().all(|&bit| bit == 0) {
+            let action = InputActions::from(buffer);
+            self.handler.handle(action);
+        }
+
         Ok(())
     }
 
@@ -155,10 +161,14 @@ impl<H: HidDeviceOperations, I: InputHandler> Device<H, I> {
     }
 }
 
-impl Device<HidDeviceWrapper, FunctionHandler> {
-    pub fn from_hid_device(hid_device: hidapi::HidDevice, handler: fn(InputActions)) -> Self {
+impl<'a> Device<HidDeviceWrapper<'a>, FunctionHandler> {
+    pub fn from_hid_device(
+        hid_device: &'a hidapi::HidDevice,
+        handler: fn(InputActions),
+        blocking_read: bool,
+    ) -> Self {
         Self::new(
-            HidDeviceWrapper::new(hid_device),
+            HidDeviceWrapper::new(hid_device, blocking_read),
             FunctionHandler::new(handler),
         )
     }
