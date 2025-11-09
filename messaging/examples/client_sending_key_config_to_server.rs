@@ -5,7 +5,7 @@ use messaging::socket;
 use std::thread::sleep;
 use std::time::Duration;
 
-use messaging::client_wrapper::ClientWrapper;
+use messaging::client_wrapper::{ClientCommands, ClientWrapper};
 
 use messaging::proto_builders::KeyConfigActionBuilder;
 use messaging::protos::inputs::InputId;

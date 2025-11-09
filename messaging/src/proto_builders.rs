@@ -11,6 +11,7 @@ impl KeyConfigActionBuilder {
             actions: Vec::new(),
         }
     }
+    /// Appends the given `key` to the current protobuf
     pub fn add_key_action(mut self, key: protos::keys::Key) -> Self {
         let action = protos::key_config::Action {
             action_data: Some(protos::key_config::action::Action_data::KeyAction(
@@ -25,6 +26,7 @@ impl KeyConfigActionBuilder {
         self
     }
 
+    /// Vector of built protobuf actions
     pub fn actions(&self) -> &Vec<protos::key_config::Action> {
         &self.actions
     }
