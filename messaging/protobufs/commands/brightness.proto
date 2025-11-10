@@ -1,0 +1,7 @@
+syntax = "proto3";
+
+package brightness;
+
+message SetBrightness {
+  uint32 brightness_value = 1;
+}

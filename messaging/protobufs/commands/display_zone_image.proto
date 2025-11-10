@@ -1,0 +1,16 @@
+syntax = "proto3";
+
+import "commands/common/display_zones.proto";
+
+package display_zone_image;
+
+message SetDisplayZoneImage {
+  DisplayZone display_zone = 1;
+  string image_path = 2;
+}
+
+message ClearDisplayZoneImage {
+  DisplayZone display_zone = 1;
+}
+
+message ClearAllDisplayZoneImages {}

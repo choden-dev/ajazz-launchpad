@@ -18,7 +18,7 @@
 #![allow(unused_results)]
 #![allow(unused_mut)]
 
-//! Generated file from `key_config.proto`
+//! Generated file from `commands/key_config.proto`
 
 /// Generated files are compatible only with the same version
 /// of protobuf runtime.
@@ -610,17 +610,18 @@ impl ActionType {
 }
 
 static file_descriptor_proto_data: &'static [u8] = b"\
-    \n\x10key_config.proto\x12\nkey_config\x1a\x11common/keys.proto\x1a\x13c\
-    ommon/inputs.proto\"^\n\tKeyConfig\x12#\n\x08input_id\x18\x01\x20\x01(\
-    \x0e2\x08.InputIdR\x07inputId\x12,\n\x07actions\x18\x02\x20\x03(\x0b2\
-    \x12.key_config.ActionR\x07actions\"{\n\x06Action\x12*\n\x04type\x18\x01\
-    \x20\x01(\x0e2\x16.key_config.ActionTypeR\x04type\x126\n\nkey_action\x18\
-    \x02\x20\x01(\x0b2\x15.key_config.KeyActionH\0R\tkeyActionB\r\n\x0bactio\
-    n_data\"\x8c\x01\n\tKeyAction\x12\x16\n\x03key\x18\x01\x20\x01(\x0e2\x04\
-    .KeyR\x03key\x12\x1d\n\x07unicode\x18\x02\x20\x01(\rH\0R\x07unicode\x88\
-    \x01\x01\x12)\n\x0eother_key_code\x18\x03\x20\x01(\rH\x01R\x0cotherKeyCo\
-    de\x88\x01\x01B\n\n\x08_unicodeB\x11\n\x0f_other_key_code*!\n\nActionTyp\
-    e\x12\x13\n\x0fACTION_TYPE_KEY\x10\0b\x06proto3\
+    \n\x19commands/key_config.proto\x12\nkey_config\x1a\x1acommands/common/k\
+    eys.proto\x1a\x1ccommands/common/inputs.proto\"^\n\tKeyConfig\x12#\n\x08\
+    input_id\x18\x01\x20\x01(\x0e2\x08.InputIdR\x07inputId\x12,\n\x07actions\
+    \x18\x02\x20\x03(\x0b2\x12.key_config.ActionR\x07actions\"{\n\x06Action\
+    \x12*\n\x04type\x18\x01\x20\x01(\x0e2\x16.key_config.ActionTypeR\x04type\
+    \x126\n\nkey_action\x18\x02\x20\x01(\x0b2\x15.key_config.KeyActionH\0R\t\
+    keyActionB\r\n\x0baction_data\"\x8c\x01\n\tKeyAction\x12\x16\n\x03key\
+    \x18\x01\x20\x01(\x0e2\x04.KeyR\x03key\x12\x1d\n\x07unicode\x18\x02\x20\
+    \x01(\rH\0R\x07unicode\x88\x01\x01\x12)\n\x0eother_key_code\x18\x03\x20\
+    \x01(\rH\x01R\x0cotherKeyCode\x88\x01\x01B\n\n\x08_unicodeB\x11\n\x0f_ot\
+    her_key_code*!\n\nActionType\x12\x13\n\x0fACTION_TYPE_KEY\x10\0b\x06prot\
+    o3\
 ";
 
 /// `FileDescriptorProto` object which was a source for this generated file

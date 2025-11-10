@@ -1,4 +1,5 @@
 use enigo::Key;
+use firmware_api::display_zones::DisplayZones;
 use firmware_api::inputs::InputActions;
 
 /// The format we want to use inside the backend to handle actions
@@ -6,6 +7,12 @@ use firmware_api::inputs::InputActions;
 pub struct InputMapping {
     input: InputActions,
     actions: Vec<Key>,
+}
+
+#[derive(Debug, PartialEq, Clone)]
+pub struct ImageMapping {
+    pub display_zone: DisplayZones,
+    pub image_path: String,
 }
 
 impl InputMapping {

@@ -34,9 +34,10 @@ impl StateMachine {
                 connections if connections > 0 => self.current_state = States::ReadClientMessages,
                 _ => self.current_state = States::HandleDeviceInput,
             },
-            States::HandleDeviceInput => {
-                self.current_state = States::EstablishConnection;
-            }
+            States::HandleDeviceInput => match current_connections {
+                connections if connections > 0 => self.current_state = States::ReadClientMessages,
+                _ => self.current_state = States::EstablishConnection,
+            },
             States::ReadClientMessages => {
                 self.current_state = States::HandleDeviceInput;
             }
@@ -89,6 +90,9 @@ fn main() {
                                 Box::new(EnigoKeyActionHandler::default()),
                             ),
                         );
+                    }
+                    _ => {
+                        // TODO: handle all message types
                     }
                 },
                 Err(e) => {

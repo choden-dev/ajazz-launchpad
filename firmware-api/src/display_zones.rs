@@ -1,3 +1,5 @@
+use std::io::{Error, ErrorKind};
+
 /// Used when trying to clear or set an image that was set on one of the
 /// smaller display zones, this does **not** include the background image.
 ///
@@ -45,5 +47,36 @@ impl From<DisplayZones> for u8 {
             DisplayZones::Touchscreen3 => 3,
             DisplayZones::Touchscreen4 => 4,
         }
+    }
+}
+
+impl TryFrom<u8> for DisplayZones {
+    type Error = Error;
+
+    fn try_from(value: u8) -> Result<Self, Self::Error> {
+        let display_zone = match value {
+            11 => DisplayZones::Button1,
+            12 => DisplayZones::Button2,
+            13 => DisplayZones::Button3,
+            14 => DisplayZones::Button4,
+            15 => DisplayZones::Button5,
+            16 => DisplayZones::Button6,
+            17 => DisplayZones::Button7,
+            18 => DisplayZones::Button8,
+            19 => DisplayZones::Button9,
+            20 => DisplayZones::Button10,
+
+            1 => DisplayZones::Touchscreen1,
+            2 => DisplayZones::Touchscreen2,
+            3 => DisplayZones::Touchscreen3,
+            4 => DisplayZones::Touchscreen4,
+
+            _ => Err(Error::new(
+                ErrorKind::InvalidInput,
+                "not a recognised display zone",
+            ))?,
+        };
+
+        Ok(display_zone)
     }
 }

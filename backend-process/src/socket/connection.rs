@@ -1,6 +1,7 @@
 use crate::database::operations::Operations;
 use crate::socket::commands::IncomingCommands;
-use messaging::protos;
+use messaging::protos::top_level::TopLevel;
+use messaging::protos::top_level::top_level::Command;
 use messaging::socket;
 use messaging::socket::MessageReceiver;
 use protobuf::Message;
@@ -25,14 +26,30 @@ impl<'a> ServerHandler<'a> {
     /// - Return `Ok` with the successfully parsed command
     /// - An Error if there is no message or the received command could not be parsed
     pub fn handle_next_message(&mut self) -> Result<IncomingCommands, Error> {
-        // Will propagate error if there is no message.
         let message = self.server.read_message()?;
 
-        if let Ok(key_config) = protos::key_config::KeyConfig::parse_from_bytes(message.as_slice())
-            && let Ok(mapping) = key_config.try_into()
-        {
-            self.operations.set_mapping_for_input(mapping).ok();
-            return Ok(IncomingCommands::SetKeyConfig);
+        let top_level = TopLevel::parse_from_bytes(message.as_slice())?;
+
+        match top_level.command {
+            Some(command) => match command {
+                Command::ClearDisplayZoneImageCommand(command) => {}
+                Command::KeyConfigCommand(command) => {
+                    if let Ok(storage_format_command) = command.try_into() {
+                        self.operations
+                            .set_mapping_for_input(storage_format_command)
+                            .map_err(|e| Error::new(ErrorKind::Other, e))?;
+                    }
+                    return Ok(IncomingCommands::SetKeyConfig);
+                }
+                Command::SetBootLogoCommand(command) => {}
+                Command::SetBrightnessCommand(command) => {}
+                Command::SetDisplayZoneImageCommand(command) => {}
+                Command::ClearAllDisplayZoneImagesCommand(command) => {}
+                _ => {}
+            },
+            None => {
+                return Err(Error::new(ErrorKind::Other, "no command found"));
+            }
         }
 
         Err(Error::new(
