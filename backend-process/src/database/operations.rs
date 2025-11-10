@@ -2,6 +2,7 @@ use crate::database::mappers::{ImageMappingStorageFormat, InputMappingStorageFor
 use crate::database::models::{ImageMapping, InputMapping};
 use crate::database::sqlite::SqLite;
 use rusqlite::Connection;
+use std::io::{Error, ErrorKind};
 
 pub struct Operations {
     database: SqLite,
@@ -63,18 +64,20 @@ impl Operations {
             .map_err(|e| e.to_string())
     }
 
-    pub fn set_image_for_display_zone(&self, image_mapping: ImageMapping) -> Result<usize, String> {
-        let input_mapping: ImageMappingStorageFormat =
-            image_mapping.try_into().map_err(|e| format!("{}", e))?;
+    pub fn set_image_for_display_zone(&self, image_mapping: ImageMapping) -> Result<usize, Error> {
+        let input_mapping: ImageMappingStorageFormat = image_mapping
+            .try_into()
+            .map_err(|e| Error::new(ErrorKind::Other, e))?;
         const SET_INPUT_MAPPING: &str = "INSERT INTO image_mapping (display_zone_id, image_path) VALUES (?1, ?2) \
                                             ON CONFLICT(display_zone_id) DO UPDATE SET image_path=?2";
 
-        self.open_connection()?
+        self.open_connection()
+            .map_err(|e| Error::new(ErrorKind::ConnectionRefused, e))?
             .execute(
                 SET_INPUT_MAPPING,
                 (&input_mapping.display_zone, &input_mapping.image_path),
             )
-            .map_err(|e| e.to_string())
+            .map_err(|e| Error::new(ErrorKind::Other, e))
     }
 
     pub fn get_all_image_mappings(&self) -> Result<Vec<ImageMapping>, String> {

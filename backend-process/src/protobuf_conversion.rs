@@ -1,5 +1,6 @@
-use crate::database::models::InputMapping;
+use crate::database::models::{ImageMapping, InputMapping};
 use enigo::Key;
+use firmware_api::display_zones::DisplayZones;
 use firmware_api::inputs::InputActions;
 use firmware_api::inputs::InputActions::Unknown;
 use firmware_api::inputs::buttons::ButtonActions;
@@ -7,10 +8,14 @@ use firmware_api::inputs::knobs::KnobActions;
 use firmware_api::inputs::touchscreen::TouchscreenAction;
 use messaging::protos;
 use protobuf::Enum;
+use std::io::{Error, ErrorKind};
 
 /// Util struct for mapping the protobuf key into an `Enigo` key
 #[derive(Debug, PartialEq)]
 pub struct KeyWrapper(Key);
+
+#[derive(Debug, PartialEq)]
+pub struct DisplayZoneWrapper(DisplayZones);
 
 /// Util struct to convert from the protobuf format to our application model
 #[derive(Debug, PartialEq)]
@@ -158,6 +163,79 @@ impl TryFrom<protos::key_config::KeyConfig> for InputMapping {
             input_id.0,
             actions.iter().map(|a| a.0).collect(),
         ))
+    }
+}
+
+impl TryFrom<protos::display_zone_image::SetDisplayZoneImage> for ImageMapping {
+    type Error = Error;
+    fn try_from(
+        value: protos::display_zone_image::SetDisplayZoneImage,
+    ) -> Result<Self, Self::Error> {
+        let display_zone_id: DisplayZoneWrapper =
+            value.display_zone.enum_value().unwrap().try_into()?;
+
+        Ok(ImageMapping {
+            display_zone: display_zone_id.0,
+            image_path: value.image_path.clone(),
+        })
+    }
+}
+
+impl TryFrom<protos::display_zones::DisplayZone> for DisplayZoneWrapper {
+    type Error = Error;
+
+    fn try_from(value: protos::display_zones::DisplayZone) -> Result<Self, Self::Error> {
+        let value = match value {
+            protos::display_zones::DisplayZone::BUTTON_1 => {
+                DisplayZoneWrapper(DisplayZones::Button1)
+            }
+            protos::display_zones::DisplayZone::BUTTON_2 => {
+                DisplayZoneWrapper(DisplayZones::Button2)
+            }
+            protos::display_zones::DisplayZone::BUTTON_3 => {
+                DisplayZoneWrapper(DisplayZones::Button3)
+            }
+            protos::display_zones::DisplayZone::BUTTON_4 => {
+                DisplayZoneWrapper(DisplayZones::Button4)
+            }
+            protos::display_zones::DisplayZone::BUTTON_5 => {
+                DisplayZoneWrapper(DisplayZones::Button5)
+            }
+            protos::display_zones::DisplayZone::BUTTON_6 => {
+                DisplayZoneWrapper(DisplayZones::Button6)
+            }
+            protos::display_zones::DisplayZone::BUTTON_7 => {
+                DisplayZoneWrapper(DisplayZones::Button7)
+            }
+            protos::display_zones::DisplayZone::BUTTON_8 => {
+                DisplayZoneWrapper(DisplayZones::Button8)
+            }
+            protos::display_zones::DisplayZone::BUTTON_9 => {
+                DisplayZoneWrapper(DisplayZones::Button9)
+            }
+            protos::display_zones::DisplayZone::BUTTON_10 => {
+                DisplayZoneWrapper(DisplayZones::Button10)
+            }
+            protos::display_zones::DisplayZone::TOUCHSCREEN_ZONE_1 => {
+                DisplayZoneWrapper(DisplayZones::Touchscreen1)
+            }
+            protos::display_zones::DisplayZone::TOUCHSCREEN_ZONE_2 => {
+                DisplayZoneWrapper(DisplayZones::Touchscreen2)
+            }
+            protos::display_zones::DisplayZone::TOUCHSCREEN_ZONE_3 => {
+                DisplayZoneWrapper(DisplayZones::Touchscreen3)
+            }
+            protos::display_zones::DisplayZone::TOUCHSCREEN_ZONE_4 => {
+                DisplayZoneWrapper(DisplayZones::Touchscreen4)
+            }
+
+            _ => Err(Error::new(
+                ErrorKind::InvalidData,
+                "Not a valid display zone",
+            ))?,
+        };
+
+        Ok(value)
     }
 }
 

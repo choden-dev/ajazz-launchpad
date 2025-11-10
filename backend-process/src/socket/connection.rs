@@ -1,4 +1,5 @@
 use crate::database::operations::Operations;
+use crate::input_handler::{InputMapping};
 use crate::socket::commands::IncomingCommands;
 use messaging::protos::top_level::TopLevel;
 use messaging::protos::top_level::top_level::Command;
@@ -34,16 +35,26 @@ impl<'a> ServerHandler<'a> {
             Some(command) => match command {
                 Command::ClearDisplayZoneImageCommand(command) => {}
                 Command::KeyConfigCommand(command) => {
-                    if let Ok(storage_format_command) = command.try_into() {
+                    let fuck: crate::database::models::InputMapping =
+                        command.clone().try_into().unwrap();
+                    let mappings: InputMapping = fuck.into();
+
+                    if let Ok(key_config_model) = command.try_into() {
                         self.operations
-                            .set_mapping_for_input(storage_format_command)
+                            .set_mapping_for_input(key_config_model)
                             .map_err(|e| Error::new(ErrorKind::Other, e))?;
                     }
-                    return Ok(IncomingCommands::SetKeyConfig);
+                    return Ok(IncomingCommands::SetKeyConfig(mappings));
                 }
                 Command::SetBootLogoCommand(command) => {}
                 Command::SetBrightnessCommand(command) => {}
-                Command::SetDisplayZoneImageCommand(command) => {}
+                Command::SetDisplayZoneImageCommand(command) => {
+                    if let Ok(display_zone_image_model) = command.try_into() {
+                        self.operations
+                            .set_image_for_display_zone(display_zone_image_model)
+                            .map_err(|e| Error::new(ErrorKind::Other, e))?;
+                    }
+                }
                 Command::ClearAllDisplayZoneImagesCommand(command) => {}
                 _ => {}
             },

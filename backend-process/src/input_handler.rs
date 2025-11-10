@@ -28,6 +28,7 @@ impl Default for EnigoKeyActionHandler {
 
 /// Used by the application to access the current set of input mappings in-memory,
 /// This should be the object queried when handling input to avoid database queries.
+#[derive(Clone)]
 pub struct InputMapping(HashMap<InputActions, Vec<Key>>);
 
 impl InputMapping {
@@ -56,6 +57,16 @@ impl From<Vec<models::InputMapping>> for InputMapping {
         )
     }
 }
+impl From<models::InputMapping> for InputMapping {
+    fn from(value: models::InputMapping) -> Self {
+        Self(
+            vec![value]
+                .into_iter()
+                .map(|mapping| (mapping.input(), mapping.actions().to_vec()))
+                .collect(),
+        )
+    }
+}
 impl KeyActionExecutor for EnigoKeyActionHandler {
     fn execute(&self, actions: &[Key]) -> Result<(), String> {
         let mut lock = self.enigo.lock().map_err(|e| e.to_string())?;
@@ -77,6 +88,13 @@ impl LaunchpadInputHandler {
             input_mapping: mapping,
             key_action_executor,
         }
+    }
+
+    pub fn new_updated_mappings(&self, new_mapping: InputMapping) -> InputMapping {
+        let mut new_created_mappings = self.input_mapping.clone();
+        new_created_mappings.override_config(new_mapping);
+
+        new_created_mappings
     }
 
     fn execute_keys(&self, input_action: InputActions) {

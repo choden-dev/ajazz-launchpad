@@ -1,28 +1,11 @@
-use std::io::{Error, ErrorKind};
+use crate::database::models::ImageMapping;
+use crate::input_handler::InputMapping;
 
 pub enum IncomingCommands {
-    SetKeyConfig,
+    SetKeyConfig(InputMapping),
     SetDisplayZoneImage,
     ClearDisplayZoneImage,
-    ClearAllDisplayZoneImages,
+    ClearAllDisplayZoneImages(ImageMapping),
     SetBootLogo,
     SetBrightness,
-}
-
-impl TryFrom<&str> for IncomingCommands {
-    type Error = Error;
-    fn try_from(value: &str) -> Result<Self, Self::Error> {
-        match value {
-            "SetKeyConfig" => Ok(IncomingCommands::SetKeyConfig),
-            "SetDisplayZoneImage" => Ok(IncomingCommands::SetDisplayZoneImage),
-            "ClearDisplayZoneImage" => Ok(IncomingCommands::ClearDisplayZoneImage),
-            "ClearAllDisplayZoneImages" => Ok(IncomingCommands::ClearAllDisplayZoneImages),
-            "SetBootLogo" => Ok(IncomingCommands::SetBootLogo),
-            "SetBrightness" => Ok(IncomingCommands::SetBrightness),
-            _ => Err(Error::new(
-                ErrorKind::InvalidInput,
-                format!("Unknown incoming command: {}", value),
-            )),
-        }
-    }
 }

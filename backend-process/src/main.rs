@@ -8,7 +8,7 @@ use crate::database::operations::Operations;
 use crate::input_handler::{EnigoKeyActionHandler, InputMapping, LaunchpadInputHandler};
 use crate::socket::commands::IncomingCommands;
 use firmware_api::device;
-use firmware_api::device::HidDeviceWrapper;
+use firmware_api::device::{HidDeviceWrapper};
 use log::info;
 
 #[derive(Clone)]
@@ -56,15 +56,15 @@ fn main() {
     let mut default_mappings = InputMapping::default();
     default_mappings.override_config(db.get_all_input_mappings().unwrap().into());
 
-    let mut server = socket::connection::ServerHandler::new(&db).expect("Failed to create server");
-
     let hid_device = device_management::scan_for_launchpad();
 
-    let mut device = device::Device::new(
-        HidDeviceWrapper::new(&hid_device, false),
-        LaunchpadInputHandler::new(default_mappings, Box::new(EnigoKeyActionHandler::default())),
-    );
+    let input_handler =
+        LaunchpadInputHandler::new(default_mappings, Box::new(EnigoKeyActionHandler::default()));
+
+    let mut device = device::Device::new(HidDeviceWrapper::new(&hid_device, false), input_handler);
     device.refresh().unwrap();
+
+    let mut server = socket::connection::ServerHandler::new(&db).expect("Failed to create server");
 
     let mut state_machine = StateMachine::new();
 
@@ -82,15 +82,14 @@ fn main() {
             },
             States::ReadClientMessages => match server.handle_next_message() {
                 Ok(message_type) => match message_type {
-                    IncomingCommands::SetKeyConfig => {
-                        device = device::Device::new(
-                            HidDeviceWrapper::new(&hid_device, false),
-                            LaunchpadInputHandler::new(
-                                db.get_all_input_mappings().unwrap().into(),
-                                Box::new(EnigoKeyActionHandler::default()),
-                            ),
+                    IncomingCommands::SetKeyConfig(mapping) => {
+                        let input_handler = LaunchpadInputHandler::new(
+                            device.handler().new_updated_mappings(mapping),
+                            Box::new(EnigoKeyActionHandler::default()),
                         );
+                        device.update_handler(input_handler);
                     }
+                    IncomingCommands::SetDisplayZoneImage => {}
                     _ => {
                         // TODO: handle all message types
                     }

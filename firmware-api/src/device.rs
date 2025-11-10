@@ -65,7 +65,7 @@ pub struct Device<H: HidDeviceOperations, I: InputHandler> {
     handler: I,
 }
 
-impl<H: HidDeviceOperations, I: InputHandler> Device<H, I> {
+impl<'a, H: HidDeviceOperations, I: InputHandler> Device<H, I> {
     /// * `hid_device`: an opened HID device that is the launchpad and contains the required operations (read/write)
     /// * `handler`: callback which accepts an `InputAction` (will be called everytime there is a hardware action)
     pub fn new(hid_device: H, handler: I) -> Self {
@@ -73,6 +73,14 @@ impl<H: HidDeviceOperations, I: InputHandler> Device<H, I> {
             hid_device,
             handler,
         }
+    }
+
+    pub fn handler(&self) -> &I {
+        &self.handler
+    }
+
+    pub fn update_handler(&mut self, handler: I) {
+        self.handler = handler;
     }
 
     /// Processes a hardware action performed by the launchpad.
@@ -164,12 +172,9 @@ impl<H: HidDeviceOperations, I: InputHandler> Device<H, I> {
 impl<'a> Device<HidDeviceWrapper<'a>, FunctionHandler> {
     pub fn from_hid_device(
         hid_device: &'a hidapi::HidDevice,
-        handler: fn(InputActions),
+        handler: FunctionHandler,
         blocking_read: bool,
     ) -> Self {
-        Self::new(
-            HidDeviceWrapper::new(hid_device, blocking_read),
-            FunctionHandler::new(handler),
-        )
+        Self::new(HidDeviceWrapper::new(hid_device, blocking_read), handler)
     }
 }
