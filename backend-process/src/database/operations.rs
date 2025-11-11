@@ -65,9 +65,7 @@ impl Operations {
     }
 
     pub fn set_image_for_display_zone(&self, image_mapping: ImageMapping) -> Result<usize, Error> {
-        let input_mapping: ImageMappingStorageFormat = image_mapping
-            .try_into()
-            .map_err(|e| Error::new(ErrorKind::Other, e))?;
+        let input_mapping: ImageMappingStorageFormat = image_mapping.into();
         const SET_INPUT_MAPPING: &str = "INSERT INTO image_mapping (display_zone_id, image_path) VALUES (?1, ?2) \
                                             ON CONFLICT(display_zone_id) DO UPDATE SET image_path=?2";
 
@@ -77,7 +75,7 @@ impl Operations {
                 SET_INPUT_MAPPING,
                 (&input_mapping.display_zone, &input_mapping.image_path),
             )
-            .map_err(|e| Error::new(ErrorKind::Other, e))
+            .map_err(Error::other)
     }
 
     #[allow(dead_code)]

@@ -79,11 +79,11 @@ impl KeyActionExecutor for EnigoKeyActionHandler {
 
 pub struct LaunchpadInputHandler<'a> {
     input_mapping: InputMapping,
-    key_action_executor: &'a Box<dyn KeyActionExecutor>,
+    key_action_executor: &'a dyn KeyActionExecutor,
 }
 
 impl<'a> LaunchpadInputHandler<'a> {
-    pub fn new(mapping: InputMapping, key_action_executor: &'a Box<dyn KeyActionExecutor>) -> Self {
+    pub fn new(mapping: InputMapping, key_action_executor: &'a dyn KeyActionExecutor) -> Self {
         Self {
             input_mapping: mapping,
             key_action_executor,

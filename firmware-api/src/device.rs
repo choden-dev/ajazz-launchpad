@@ -65,7 +65,7 @@ pub struct Device<H: HidDeviceOperations, I: InputHandler> {
     handler: I,
 }
 
-impl<'a, H: HidDeviceOperations, I: InputHandler> Device<H, I> {
+impl<H: HidDeviceOperations, I: InputHandler> Device<H, I> {
     /// * `hid_device`: an opened HID device that is the launchpad and contains the required operations (read/write)
     /// * `handler`: callback which accepts an `InputAction` (will be called everytime there is a hardware action)
     pub fn new(hid_device: H, handler: I) -> Self {

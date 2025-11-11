@@ -67,7 +67,7 @@ fn main() {
     let mut server = socket::connection::ServerHandler::new(&db).expect("Failed to create server");
 
     let key_action_handler: Box<dyn KeyActionExecutor> = Box::new(EnigoKeyActionHandler::default());
-    let input_handler = LaunchpadInputHandler::new(default_mappings, &key_action_handler);
+    let input_handler = LaunchpadInputHandler::new(default_mappings, key_action_handler.as_ref());
     let hid_device = device_management::scan_for_launchpad();
     let mut device = device::Device::new(HidDeviceWrapper::new(&hid_device, false), input_handler);
     device.refresh().unwrap();
@@ -89,7 +89,7 @@ fn main() {
                     IncomingCommands::SetKeyConfig(mapping) => {
                         let input_handler = LaunchpadInputHandler::new(
                             device.handler().new_updated_mappings(mapping),
-                            &key_action_handler,
+                            key_action_handler.as_ref(),
                         );
                         device.update_handler(input_handler);
                     }

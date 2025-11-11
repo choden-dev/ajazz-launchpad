@@ -48,12 +48,7 @@ impl<'a> ServerHandler<'a> {
 
                     self.operations
                         .set_mapping_for_input(key_config_model)
-                        .map_err(|e| {
-                            Error::new(
-                                ErrorKind::Other,
-                                format!("Database operation failed: {}", e),
-                            )
-                        })?;
+                        .map_err(|e| Error::other(format!("Database operation failed: {}", e)))?;
 
                     return Ok(IncomingCommands::SetKeyConfig(mappings));
                 }
@@ -70,7 +65,7 @@ impl<'a> ServerHandler<'a> {
                         let database_copy: ImageMapping = display_zone_image_model;
                         self.operations
                             .set_image_for_display_zone(database_copy.clone())
-                            .map_err(|e| Error::new(ErrorKind::Other, e))?;
+                            .map_err(Error::other)?;
 
                         return Ok(IncomingCommands::SetDisplayZoneImage(database_copy));
                     }
@@ -91,7 +86,7 @@ impl<'a> ServerHandler<'a> {
                 _ => {}
             },
             None => {
-                return Err(Error::new(ErrorKind::Other, "no command found"));
+                return Err(Error::other("no command found"));
             }
         }
 
@@ -106,7 +101,8 @@ impl<'a> ServerHandler<'a> {
     }
 
     pub fn prune_connections(&mut self) -> Result<(), Error> {
-        Ok(self.server.cleanup_disconnected())
+        self.server.cleanup_disconnected();
+        Ok(())
     }
 
     pub fn server(&self) -> &socket::Server {
