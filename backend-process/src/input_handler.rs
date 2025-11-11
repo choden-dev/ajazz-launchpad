@@ -77,13 +77,13 @@ impl KeyActionExecutor for EnigoKeyActionHandler {
     }
 }
 
-pub struct LaunchpadInputHandler {
+pub struct LaunchpadInputHandler<'a> {
     input_mapping: InputMapping,
-    key_action_executor: Box<dyn KeyActionExecutor>,
+    key_action_executor: &'a Box<dyn KeyActionExecutor>,
 }
 
-impl LaunchpadInputHandler {
-    pub fn new(mapping: InputMapping, key_action_executor: Box<dyn KeyActionExecutor>) -> Self {
+impl<'a> LaunchpadInputHandler<'a> {
+    pub fn new(mapping: InputMapping, key_action_executor: &'a Box<dyn KeyActionExecutor>) -> Self {
         Self {
             input_mapping: mapping,
             key_action_executor,
@@ -115,7 +115,7 @@ impl LaunchpadInputHandler {
         self.execute_keys(InputActions::Knob(knob_action));
     }
 }
-impl InputHandler for LaunchpadInputHandler {
+impl InputHandler for LaunchpadInputHandler<'_> {
     fn handle(&self, action: InputActions) {
         match action {
             InputActions::Touchscreen(touchscreen_action) => {

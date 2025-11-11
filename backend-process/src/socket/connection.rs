@@ -1,5 +1,7 @@
+use crate::database::models::ImageMapping;
 use crate::database::operations::Operations;
-use crate::input_handler::{InputMapping};
+use crate::input_handler::InputMapping;
+use crate::protobuf_conversion::DisplayZoneWrapper;
 use crate::socket::commands::IncomingCommands;
 use messaging::protos::top_level::TopLevel;
 use messaging::protos::top_level::top_level::Command;
@@ -33,29 +35,59 @@ impl<'a> ServerHandler<'a> {
 
         match top_level.command {
             Some(command) => match command {
-                Command::ClearDisplayZoneImageCommand(command) => {}
                 Command::KeyConfigCommand(command) => {
-                    let fuck: crate::database::models::InputMapping =
-                        command.clone().try_into().unwrap();
-                    let mappings: InputMapping = fuck.into();
+                    let key_config_model: crate::database::models::InputMapping =
+                        command.clone().try_into().map_err(|_| {
+                            Error::new(
+                                ErrorKind::InvalidData,
+                                "Failed to convert command".to_string(),
+                            )
+                        })?;
 
-                    if let Ok(key_config_model) = command.try_into() {
-                        self.operations
-                            .set_mapping_for_input(key_config_model)
-                            .map_err(|e| Error::new(ErrorKind::Other, e))?;
-                    }
+                    let mappings: InputMapping = key_config_model.clone().into();
+
+                    self.operations
+                        .set_mapping_for_input(key_config_model)
+                        .map_err(|e| {
+                            Error::new(
+                                ErrorKind::Other,
+                                format!("Database operation failed: {}", e),
+                            )
+                        })?;
+
                     return Ok(IncomingCommands::SetKeyConfig(mappings));
                 }
-                Command::SetBootLogoCommand(command) => {}
-                Command::SetBrightnessCommand(command) => {}
+                Command::SetBootLogoCommand(command) => {
+                    return Ok(IncomingCommands::SetBootLogo(command.image_path));
+                }
+                Command::SetBrightnessCommand(command) => {
+                    return Ok(IncomingCommands::SetBrightness(
+                        command.brightness_value as u8,
+                    ));
+                }
                 Command::SetDisplayZoneImageCommand(command) => {
                     if let Ok(display_zone_image_model) = command.try_into() {
+                        let database_copy: ImageMapping = display_zone_image_model;
                         self.operations
-                            .set_image_for_display_zone(display_zone_image_model)
+                            .set_image_for_display_zone(database_copy.clone())
                             .map_err(|e| Error::new(ErrorKind::Other, e))?;
+
+                        return Ok(IncomingCommands::SetDisplayZoneImage(database_copy));
                     }
                 }
-                Command::ClearAllDisplayZoneImagesCommand(command) => {}
+                Command::ClearAllDisplayZoneImagesCommand(_) => {
+                    return Ok(IncomingCommands::ClearAllDisplayZoneImages);
+                }
+                Command::ClearDisplayZoneImageCommand(command) => {
+                    if let Ok(protobuf_enum) = command.display_zone.enum_value()
+                        && let Ok(display_zone_wrapper) =
+                            DisplayZoneWrapper::try_from(protobuf_enum)
+                    {
+                        return Ok(IncomingCommands::ClearDisplayZoneImage(
+                            display_zone_wrapper.display_zone(),
+                        ));
+                    }
+                }
                 _ => {}
             },
             None => {

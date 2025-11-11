@@ -181,6 +181,12 @@ impl TryFrom<protos::display_zone_image::SetDisplayZoneImage> for ImageMapping {
     }
 }
 
+impl DisplayZoneWrapper {
+    pub fn display_zone(&self) -> DisplayZones {
+        self.0
+    }
+}
+
 impl TryFrom<protos::display_zones::DisplayZone> for DisplayZoneWrapper {
     type Error = Error;
 

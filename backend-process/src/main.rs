@@ -5,11 +5,14 @@ mod protobuf_conversion;
 mod socket;
 
 use crate::database::operations::Operations;
-use crate::input_handler::{EnigoKeyActionHandler, InputMapping, LaunchpadInputHandler};
+use crate::input_handler::{
+    EnigoKeyActionHandler, InputMapping, KeyActionExecutor, LaunchpadInputHandler,
+};
 use crate::socket::commands::IncomingCommands;
 use firmware_api::device;
-use firmware_api::device::{HidDeviceWrapper};
+use firmware_api::device::HidDeviceWrapper;
 use log::info;
+use std::fs::File;
 
 #[derive(Clone)]
 enum States {
@@ -58,8 +61,8 @@ fn main() {
 
     let hid_device = device_management::scan_for_launchpad();
 
-    let input_handler =
-        LaunchpadInputHandler::new(default_mappings, Box::new(EnigoKeyActionHandler::default()));
+    let key_action_handler: Box<dyn KeyActionExecutor> = Box::new(EnigoKeyActionHandler::default());
+    let input_handler = LaunchpadInputHandler::new(default_mappings, &key_action_handler);
 
     let mut device = device::Device::new(HidDeviceWrapper::new(&hid_device, false), input_handler);
     device.refresh().unwrap();
@@ -85,13 +88,30 @@ fn main() {
                     IncomingCommands::SetKeyConfig(mapping) => {
                         let input_handler = LaunchpadInputHandler::new(
                             device.handler().new_updated_mappings(mapping),
-                            Box::new(EnigoKeyActionHandler::default()),
+                            &key_action_handler,
                         );
                         device.update_handler(input_handler);
                     }
-                    IncomingCommands::SetDisplayZoneImage => {}
-                    _ => {
-                        // TODO: handle all message types
+                    IncomingCommands::SetDisplayZoneImage(mapping) => {
+                        if let Ok(image) = File::open(mapping.image_path) {
+                            device
+                                .set_display_zone_image(mapping.display_zone, image)
+                                .ok();
+                        }
+                    }
+                    IncomingCommands::SetBrightness(brightness) => {
+                        device.set_brightness(brightness).ok();
+                    }
+                    IncomingCommands::ClearDisplayZoneImage(display_zone) => {
+                        device.clear_display_zone_image(display_zone).ok();
+                    }
+                    IncomingCommands::SetBootLogo(file_path) => {
+                        if let Ok(image) = File::open(file_path) {
+                            device.set_background_image(image).ok();
+                        }
+                    }
+                    IncomingCommands::ClearAllDisplayZoneImages => {
+                        device.clear_all_images().ok();
                     }
                 },
                 Err(e) => {
