@@ -10,9 +10,14 @@ fn main() {
         // All inputs and imports from the inputs must reside in `includes` directories.
         .includes(["protobufs"])
         // Inputs must reside in some of include paths.
-        .input("protobufs/key_config.proto")
-        .input("protobufs/common/keys.proto")
-        .input("protobufs/common/inputs.proto")
+        .input("protobufs/top_level.proto")
+        .input("protobufs/commands/key_config.proto")
+        .input("protobufs/commands/boot_logo.proto")
+        .input("protobufs/commands/brightness.proto")
+        .input("protobufs/commands/display_zone_image.proto")
+        .input("protobufs/commands/common/keys.proto")
+        .input("protobufs/commands/common/inputs.proto")
+        .input("protobufs/commands/common/display_zones.proto")
         // Specify output directory relative to Cargo output directory.
         .out_dir("./src/protos")
         .customize(Customize::tokio_bytes(Customize::default(), true))

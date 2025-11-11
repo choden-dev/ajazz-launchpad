@@ -7,6 +7,10 @@ Contains the shared components that allow the `backend-process` to communicate w
 These messages are defined using [`protobuf`] and compiled to rust types for (de)serialization in any crate. There is
 also the option for compiling to other languages; however, this is not used in this repo.
 
+> [!WARNING]
+> Because protobuf doesn't provide a way to distinguish between messages when sending, we make use of the [`oneof`] type
+> to allow one command type at a time. This is defined in the `top_level.proto` file.
+
 ### `Client Wrapper`
 
 This module (demonstrated by `client_sending_key_config_to_client`) helps to provide an api that any consumer that needs
@@ -39,3 +43,5 @@ inside their `Cargo.toml`.
 [`protobuf`]: https://protobuf.dev/reference/rust/rust-generated/
 
 [unix sockets]: https://doc.rust-lang.org/std/os/unix/net/struct.UnixStream.html
+
+[`oneof`]: https://protobuf.dev/programming-guides/proto3/#oneof

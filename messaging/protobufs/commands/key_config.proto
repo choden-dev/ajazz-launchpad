@@ -1,7 +1,7 @@
 syntax = "proto3";
 
-import "common/keys.proto";
-import "common/inputs.proto";
+import "commands/common/keys.proto";
+import "commands/common/inputs.proto";
 
 package key_config;
 

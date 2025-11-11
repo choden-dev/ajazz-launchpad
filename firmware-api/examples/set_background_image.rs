@@ -32,10 +32,9 @@ fn main() {
         "./firmware-api/examples/assets/example-background-image.jpg",
     ))
     .unwrap();
-    let metadata = background_image.metadata().unwrap();
 
     device
-        .set_background_image(metadata.len() as u32, background_image)
+        .set_background_image(background_image)
         .unwrap_or_else(|e| panic!("Failed to set background image: {}", e));
     device
         .refresh()

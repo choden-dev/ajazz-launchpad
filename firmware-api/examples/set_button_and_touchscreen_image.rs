@@ -53,9 +53,8 @@ fn main() {
             "./firmware-api/examples/assets/example-button-image.jpg",
         ))
         .unwrap();
-        let metadata = button_image.metadata().unwrap();
         device
-            .set_display_zone_image(metadata.len() as u32, *button, button_image)
+            .set_display_zone_image(*button, button_image)
             .unwrap_or_else(|e| panic!("Failed to set button image: {}", e));
         device
             .refresh()
@@ -72,9 +71,8 @@ fn main() {
             "firmware-api/examples/assets/example-touchscreen-zone-image.jpg",
         ))
         .unwrap();
-        let metadata = touchscreen_image.metadata().unwrap();
         device
-            .set_display_zone_image(metadata.len() as u32, *touchscreen_zone, touchscreen_image)
+            .set_display_zone_image(*touchscreen_zone, touchscreen_image)
             .unwrap_or_else(|e| panic!("Failed to set button image: {}", e));
         device
             .refresh()

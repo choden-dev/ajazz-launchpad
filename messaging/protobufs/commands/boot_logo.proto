@@ -1,0 +1,7 @@
+syntax = "proto3";
+
+package boot_logo;
+
+message SetBootLogo {
+  string image_path = 2;
+}

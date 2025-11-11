@@ -1,0 +1,17 @@
+syntax = "proto3";
+
+import 'commands/boot_logo.proto';
+import 'commands/display_zone_image.proto';
+import 'commands/brightness.proto';
+import 'commands/key_config.proto';
+
+message TopLevel {
+  oneof command {
+    key_config.KeyConfig key_config_command = 1;
+    display_zone_image.SetDisplayZoneImage set_display_zone_image_command = 2;
+    display_zone_image.ClearDisplayZoneImage clear_display_zone_image_command = 3;
+    display_zone_image.ClearAllDisplayZoneImages clear_all_display_zone_images_command = 4;
+    brightness.SetBrightness set_brightness_command = 5;
+    boot_logo.SetBootLogo set_boot_logo_command = 6;
+  }
+}

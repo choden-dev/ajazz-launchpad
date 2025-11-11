@@ -75,6 +75,14 @@ impl<H: HidDeviceOperations, I: InputHandler> Device<H, I> {
         }
     }
 
+    pub fn handler(&self) -> &I {
+        &self.handler
+    }
+
+    pub fn update_handler(&mut self, handler: I) {
+        self.handler = handler;
+    }
+
     /// Processes a hardware action performed by the launchpad.
     /// This will return an `InputAction` that is to be handled by a callback
     pub fn read_input(&self) -> Result<(), Box<dyn Error>> {
@@ -122,20 +130,21 @@ impl<H: HidDeviceOperations, I: InputHandler> Device<H, I> {
         clear_display_zone_image_command.execute(|buf| self.hid_device.write(buf))
     }
 
-    pub fn set_background_image(&self, image_size: u32, file: File) -> HidResult<usize> {
+    pub fn set_background_image(&self, file: File) -> HidResult<usize> {
         // Let the device know to prepare
-        let init_command = initiate_set_background_command_factory(image_size);
+        let init_command = initiate_set_background_command_factory(file.metadata()?.len() as u32);
         self.write_image_to_device_command(init_command, file)
     }
 
     pub fn set_display_zone_image(
         &self,
-        image_size: u32,
         display_zone: DisplayZones,
         file: File,
     ) -> HidResult<usize> {
-        let init_command =
-            initiate_set_display_zone_image_command_factory(image_size, display_zone);
+        let init_command = initiate_set_display_zone_image_command_factory(
+            file.metadata()?.len() as u32,
+            display_zone,
+        );
         self.write_image_to_device_command(init_command, file)
     }
 
@@ -164,12 +173,9 @@ impl<H: HidDeviceOperations, I: InputHandler> Device<H, I> {
 impl<'a> Device<HidDeviceWrapper<'a>, FunctionHandler> {
     pub fn from_hid_device(
         hid_device: &'a hidapi::HidDevice,
-        handler: fn(InputActions),
+        handler: FunctionHandler,
         blocking_read: bool,
     ) -> Self {
-        Self::new(
-            HidDeviceWrapper::new(hid_device, blocking_read),
-            FunctionHandler::new(handler),
-        )
+        Self::new(HidDeviceWrapper::new(hid_device, blocking_read), handler)
     }
 }
