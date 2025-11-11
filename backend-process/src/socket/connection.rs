@@ -10,6 +10,9 @@ use messaging::socket::MessageReceiver;
 use protobuf::Message;
 use std::io::{Error, ErrorKind};
 
+/// Responsible for handling the database writes and reading from sockets
+///
+/// Should _not_ be concerned with device operations.
 pub struct ServerHandler<'a> {
     server: socket::Server,
     operations: &'a Operations,
@@ -26,9 +29,10 @@ impl<'a> ServerHandler<'a> {
     /// Checks if there is a message from the connected clients.
     ///
     /// It will either:
-    /// - Return `Ok` with the successfully parsed command
+    /// - Return `Ok` with the successfully parsed command type and its data (see `IncomingCommands`)
+    ///   - The database is written to if the message contains data that should be persisted (i.e. key mappings)
     /// - An Error if there is no message or the received command could not be parsed
-    pub fn handle_next_message(&mut self) -> Result<IncomingCommands, Error> {
+    pub fn handle_command_and_persist_config(&mut self) -> Result<IncomingCommands, Error> {
         let message = self.server.read_message()?;
 
         let top_level = TopLevel::parse_from_bytes(message.as_slice())?;
@@ -100,6 +104,8 @@ impl<'a> ServerHandler<'a> {
         self.server.accept_connection_async()
     }
 
+    /// Removes connections that are no longer valid so that the server
+    /// can scan for new ones using `add_new_connection_if_exists`
     pub fn prune_connections(&mut self) -> Result<(), Error> {
         self.server.cleanup_disconnected();
         Ok(())

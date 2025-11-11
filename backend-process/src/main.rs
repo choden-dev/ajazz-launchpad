@@ -84,7 +84,7 @@ fn main() {
                     info!("New connection could not be added: {}", e);
                 }
             },
-            States::ReadClientMessages => match server.handle_next_message() {
+            States::ReadClientMessages => match server.handle_command_and_persist_config() {
                 Ok(message_type) => match message_type {
                     IncomingCommands::SetKeyConfig(mapping) => {
                         let input_handler = LaunchpadInputHandler::new(
