@@ -80,6 +80,7 @@ impl Operations {
             .map_err(|e| Error::new(ErrorKind::Other, e))
     }
 
+    #[allow(dead_code)]
     pub fn get_all_image_mappings(&self) -> Result<Vec<ImageMapping>, String> {
         const GET_ALL_IMAGE_MAPPINGS: &str = "SELECT * FROM image_mapping";
 
