@@ -19,6 +19,7 @@ enum States {
     EstablishConnection,
     ReadClientMessages,
     HandleDeviceInput,
+    PruneConnections,
 }
 
 struct StateMachine {
@@ -42,6 +43,9 @@ impl StateMachine {
                 _ => self.current_state = States::EstablishConnection,
             },
             States::ReadClientMessages => {
+                self.current_state = States::PruneConnections;
+            }
+            States::PruneConnections => {
                 self.current_state = States::HandleDeviceInput;
             }
         }
@@ -120,6 +124,10 @@ fn main() {
             },
             States::HandleDeviceInput => {
                 device.read_input().ok();
+            }
+
+            States::PruneConnections => {
+                server.prune_connections().ok();
             }
         }
 

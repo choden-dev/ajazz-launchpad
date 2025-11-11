@@ -105,6 +105,10 @@ impl<'a> ServerHandler<'a> {
         self.server.accept_connection_async()
     }
 
+    pub fn prune_connections(&mut self) -> Result<(), Error> {
+        Ok(self.server.cleanup_disconnected())
+    }
+
     pub fn server(&self) -> &socket::Server {
         &self.server
     }
