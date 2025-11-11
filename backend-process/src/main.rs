@@ -58,22 +58,19 @@ impl StateMachine {
 
 fn main() {
     env_logger::init();
+    let mut state_machine = StateMachine::new();
 
     let db = Operations::new(database::sqlite::SqLite::new(true).unwrap());
     let mut default_mappings = InputMapping::default();
     default_mappings.override_config(db.get_all_input_mappings().unwrap().into());
 
-    let hid_device = device_management::scan_for_launchpad();
+    let mut server = socket::connection::ServerHandler::new(&db).expect("Failed to create server");
 
     let key_action_handler: Box<dyn KeyActionExecutor> = Box::new(EnigoKeyActionHandler::default());
     let input_handler = LaunchpadInputHandler::new(default_mappings, &key_action_handler);
-
+    let hid_device = device_management::scan_for_launchpad();
     let mut device = device::Device::new(HidDeviceWrapper::new(&hid_device, false), input_handler);
     device.refresh().unwrap();
-
-    let mut server = socket::connection::ServerHandler::new(&db).expect("Failed to create server");
-
-    let mut state_machine = StateMachine::new();
 
     loop {
         let current_state = state_machine.current_state();
