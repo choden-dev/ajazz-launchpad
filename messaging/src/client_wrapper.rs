@@ -46,7 +46,9 @@ pub trait ClientCommands {
     ) -> Result<(), Error>;
 
     /// Clears all images from all display zones, resetting them to default/blank state
-    fn clear_all_images(&mut self) -> Result<(), Error>;
+    ///
+    /// * `unpersist_image` whether the stored images should not show again on the next boot
+    fn clear_all_images(&mut self, unpersist_image: bool) -> Result<(), Error>;
 
     /// Clears the image from a specific display zone, resetting it to default/blank state
     ///
@@ -113,10 +115,11 @@ impl ClientCommands for ClientWrapper {
         )
     }
 
-    fn clear_all_images(&mut self) -> Result<(), Error> {
+    fn clear_all_images(&mut self, unpersist_images: bool) -> Result<(), Error> {
         self.client.send_message(
             create_command(Command::ClearAllDisplayZoneImagesCommand(
                 ClearAllDisplayZoneImages {
+                    unpersist_images,
                     ..ClearAllDisplayZoneImages::default()
                 },
             ))

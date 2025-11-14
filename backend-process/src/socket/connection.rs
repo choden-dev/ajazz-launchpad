@@ -60,9 +60,21 @@ impl<'a> ServerHandler<'a> {
                     return Ok(IncomingCommands::SetBootLogo(command.image_path));
                 }
                 Command::SetBrightnessCommand(command) => {
-                    return Ok(IncomingCommands::SetBrightness(
-                        command.brightness_value as u8,
-                    ));
+                    return match command.brightness_value {
+                        0..=100 => {
+                            self.operations
+                                .set_brightness(command.brightness_value as u8)
+                                .ok();
+                            Ok(IncomingCommands::SetBrightness(
+                                command.brightness_value as u8,
+                            ))
+                        }
+
+                        _ => Err(Error::new(
+                            ErrorKind::InvalidInput,
+                            "Brightness value was not in the range 0 to 100!",
+                        )),
+                    };
                 }
                 Command::SetDisplayZoneImageCommand(command) => {
                     if let Ok(display_zone_image_model) = command.try_into() {
@@ -74,7 +86,10 @@ impl<'a> ServerHandler<'a> {
                         return Ok(IncomingCommands::SetDisplayZoneImage(database_copy));
                     }
                 }
-                Command::ClearAllDisplayZoneImagesCommand(_) => {
+                Command::ClearAllDisplayZoneImagesCommand(command) => {
+                    if command.unpersist_images {
+                        self.operations.clear_all_display_zone_images().ok();
+                    }
                     return Ok(IncomingCommands::ClearAllDisplayZoneImages);
                 }
                 Command::ClearDisplayZoneImageCommand(command) => {
@@ -82,6 +97,9 @@ impl<'a> ServerHandler<'a> {
                         && let Ok(display_zone_wrapper) =
                             DisplayZoneWrapper::try_from(protobuf_enum)
                     {
+                        self.operations
+                            .clear_image_for_display_zone(display_zone_wrapper.display_zone())
+                            .ok();
                         return Ok(IncomingCommands::ClearDisplayZoneImage(
                             display_zone_wrapper.display_zone(),
                         ));

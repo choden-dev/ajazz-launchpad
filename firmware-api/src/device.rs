@@ -18,19 +18,19 @@ pub trait HidDeviceOperations {
     fn write(&self, data: &[u8]) -> HidResult<usize>;
 }
 
-pub struct HidDeviceWrapper<'a> {
-    device: &'a hidapi::HidDevice,
+pub struct HidDeviceWrapper {
+    device: hidapi::HidDevice,
 }
 
 /// Warning: this device will read in non-blocking mode
-impl<'a> HidDeviceWrapper<'a> {
-    pub fn new(device: &'a hidapi::HidDevice, blocking_read: bool) -> Self {
+impl HidDeviceWrapper {
+    pub fn new(device: hidapi::HidDevice, blocking_read: bool) -> Self {
         device.set_blocking_mode(blocking_read).ok();
         Self { device }
     }
 }
 
-impl HidDeviceOperations for HidDeviceWrapper<'_> {
+impl HidDeviceOperations for HidDeviceWrapper {
     fn read(&self, buffer: &mut [u8]) -> HidResult<usize> {
         self.device.read(buffer)
     }
@@ -170,9 +170,9 @@ impl<H: HidDeviceOperations, I: InputHandler> Device<H, I> {
     }
 }
 
-impl<'a> Device<HidDeviceWrapper<'a>, FunctionHandler> {
+impl Device<HidDeviceWrapper, FunctionHandler> {
     pub fn from_hid_device(
-        hid_device: &'a hidapi::HidDevice,
+        hid_device: hidapi::HidDevice,
         handler: FunctionHandler,
         blocking_read: bool,
     ) -> Self {

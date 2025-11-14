@@ -289,6 +289,9 @@ impl ::protobuf::reflect::ProtobufValue for ClearDisplayZoneImage {
 // @@protoc_insertion_point(message:display_zone_image.ClearAllDisplayZoneImages)
 #[derive(PartialEq,Clone,Default,Debug)]
 pub struct ClearAllDisplayZoneImages {
+    // message fields
+    // @@protoc_insertion_point(field:display_zone_image.ClearAllDisplayZoneImages.unpersist_images)
+    pub unpersist_images: bool,
     // special fields
     // @@protoc_insertion_point(special_field:display_zone_image.ClearAllDisplayZoneImages.special_fields)
     pub special_fields: ::protobuf::SpecialFields,
@@ -306,8 +309,13 @@ impl ClearAllDisplayZoneImages {
     }
 
     fn generated_message_descriptor_data() -> ::protobuf::reflect::GeneratedMessageDescriptorData {
-        let mut fields = ::std::vec::Vec::with_capacity(0);
+        let mut fields = ::std::vec::Vec::with_capacity(1);
         let mut oneofs = ::std::vec::Vec::with_capacity(0);
+        fields.push(::protobuf::reflect::rt::v2::make_simpler_field_accessor::<_, _>(
+            "unpersist_images",
+            |m: &ClearAllDisplayZoneImages| { &m.unpersist_images },
+            |m: &mut ClearAllDisplayZoneImages| { &mut m.unpersist_images },
+        ));
         ::protobuf::reflect::GeneratedMessageDescriptorData::new_2::<ClearAllDisplayZoneImages>(
             "ClearAllDisplayZoneImages",
             fields,
@@ -326,6 +334,9 @@ impl ::protobuf::Message for ClearAllDisplayZoneImages {
     fn merge_from(&mut self, is: &mut ::protobuf::CodedInputStream<'_>) -> ::protobuf::Result<()> {
         while let Some(tag) = is.read_raw_tag_or_eof()? {
             match tag {
+                8 => {
+                    self.unpersist_images = is.read_bool()?;
+                },
                 tag => {
                     ::protobuf::rt::read_unknown_or_skip_group(tag, is, self.special_fields.mut_unknown_fields())?;
                 },
@@ -338,12 +349,18 @@ impl ::protobuf::Message for ClearAllDisplayZoneImages {
     #[allow(unused_variables)]
     fn compute_size(&self) -> u64 {
         let mut my_size = 0;
+        if self.unpersist_images != false {
+            my_size += 1 + 1;
+        }
         my_size += ::protobuf::rt::unknown_fields_size(self.special_fields.unknown_fields());
         self.special_fields.cached_size().set(my_size as u32);
         my_size
     }
 
     fn write_to_with_cached_sizes(&self, os: &mut ::protobuf::CodedOutputStream<'_>) -> ::protobuf::Result<()> {
+        if self.unpersist_images != false {
+            os.write_bool(1, self.unpersist_images)?;
+        }
         os.write_unknown_fields(self.special_fields.unknown_fields())?;
         ::std::result::Result::Ok(())
     }
@@ -361,11 +378,13 @@ impl ::protobuf::Message for ClearAllDisplayZoneImages {
     }
 
     fn clear(&mut self) {
+        self.unpersist_images = false;
         self.special_fields.clear();
     }
 
     fn default_instance() -> &'static ClearAllDisplayZoneImages {
         static instance: ClearAllDisplayZoneImages = ClearAllDisplayZoneImages {
+            unpersist_images: false,
             special_fields: ::protobuf::SpecialFields::new(),
         };
         &instance
@@ -395,7 +414,8 @@ static file_descriptor_proto_data: &'static [u8] = b"\
     play_zone\x18\x01\x20\x01(\x0e2\x0c.DisplayZoneR\x0bdisplayZone\x12\x1d\
     \n\nimage_path\x18\x02\x20\x01(\tR\timagePath\"H\n\x15ClearDisplayZoneIm\
     age\x12/\n\x0cdisplay_zone\x18\x01\x20\x01(\x0e2\x0c.DisplayZoneR\x0bdis\
-    playZone\"\x1b\n\x19ClearAllDisplayZoneImagesb\x06proto3\
+    playZone\"F\n\x19ClearAllDisplayZoneImages\x12)\n\x10unpersist_images\
+    \x18\x01\x20\x01(\x08R\x0funpersistImagesb\x06proto3\
 ";
 
 /// `FileDescriptorProto` object which was a source for this generated file

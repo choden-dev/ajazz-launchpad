@@ -13,4 +13,6 @@ message ClearDisplayZoneImage {
   DisplayZone display_zone = 1;
 }
 
-message ClearAllDisplayZoneImages {}
+message ClearAllDisplayZoneImages {
+  bool unpersist_images = 1;
+}
