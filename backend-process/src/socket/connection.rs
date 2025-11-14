@@ -59,23 +59,23 @@ impl<'a> ServerHandler<'a> {
                 Command::SetBootLogoCommand(command) => {
                     return Ok(IncomingCommands::SetBootLogo(command.image_path));
                 }
-                Command::SetBrightnessCommand(command) => match command.brightness_value {
-                    0..=100 => {
-                        self.operations
-                            .set_brightness(command.brightness_value as u8)
-                            .ok();
-                        return Ok(IncomingCommands::SetBrightness(
-                            command.brightness_value as u8,
-                        ));
-                    }
+                Command::SetBrightnessCommand(command) => {
+                    return match command.brightness_value {
+                        0..=100 => {
+                            self.operations
+                                .set_brightness(command.brightness_value as u8)
+                                .ok();
+                            Ok(IncomingCommands::SetBrightness(
+                                command.brightness_value as u8,
+                            ))
+                        }
 
-                    _ => {
-                        return Err(Error::new(
+                        _ => Err(Error::new(
                             ErrorKind::InvalidInput,
                             "Brightness value was not in the range 0 to 100!",
-                        ));
-                    }
-                },
+                        )),
+                    };
+                }
                 Command::SetDisplayZoneImageCommand(command) => {
                     if let Ok(display_zone_image_model) = command.try_into() {
                         let database_copy: ImageMapping = display_zone_image_model;
@@ -86,7 +86,10 @@ impl<'a> ServerHandler<'a> {
                         return Ok(IncomingCommands::SetDisplayZoneImage(database_copy));
                     }
                 }
-                Command::ClearAllDisplayZoneImagesCommand(_) => {
+                Command::ClearAllDisplayZoneImagesCommand(command) => {
+                    if command.unpersist_images {
+                        self.operations.clear_all_display_zone_images().ok();
+                    }
                     return Ok(IncomingCommands::ClearAllDisplayZoneImages);
                 }
                 Command::ClearDisplayZoneImageCommand(command) => {

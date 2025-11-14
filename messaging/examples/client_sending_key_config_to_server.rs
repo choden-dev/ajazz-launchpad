@@ -87,7 +87,7 @@ fn main() {
                 )
                 .unwrap(),
             4 => handler.set_brightness(2).unwrap(),
-            5 => handler.clear_all_images().unwrap(),
+            5 => handler.clear_all_images(false).unwrap(),
             6 => handler
                 .clear_display_zone_image(DisplayZone::BUTTON_2)
                 .unwrap(),

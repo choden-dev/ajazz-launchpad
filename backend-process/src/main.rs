@@ -88,6 +88,9 @@ fn main() {
                 let input_handler =
                     LaunchpadInputHandler::new(default_mappings, key_action_handler.as_ref());
 
+                // Brightness config fetching
+                let stored_brightness = db.get_stored_brightness().unwrap();
+
                 let new_device = device::Device::new(
                     device::HidDeviceWrapper::new(hid_device, false), // No borrowing here
                     input_handler,
@@ -99,6 +102,9 @@ fn main() {
                             .set_display_zone_image(default_mapping.display_zone, image)
                             .ok();
                     }
+                }
+                if let Some(brightness) = stored_brightness {
+                    new_device.set_brightness(brightness).ok();
                 }
                 device = Some(new_device);
             }
@@ -150,7 +156,7 @@ fn main() {
             States::HandleDeviceInput => {
                 if let Some(ref mut dev) = device {
                     dev.read_input().unwrap_or_else(|e| {
-                        debug!("Error reading input: {}", e.to_string());
+                        debug!("Error reading input: {}", e);
                         if e.to_string() == "hidapi error: hid_read_timeout: device disconnected" {
                             info!("Disconnected from device");
                             device_disconnected_during_read = true;

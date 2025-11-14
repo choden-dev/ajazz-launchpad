@@ -11,6 +11,8 @@ pub struct Operations {
 }
 
 impl Operations {
+    /// Creates a new Operations instance and initializes required database tables.
+    /// Panics if table creation fails.
     pub fn new(db: SqLite) -> Self {
         let instance = Operations { database: db };
         instance
@@ -26,12 +28,14 @@ impl Operations {
         instance
     }
 
+    /// Returns a reference to the database connection.
     fn open_connection(&self) -> Result<&Connection, String> {
         self.database
             .connection()
             .ok_or(String::from("Operations not initialized"))
     }
 
+    /// Creates input_mapping table (button_id, actions) if it doesn't exist.
     fn create_input_mapping_table(&self) -> Result<(), String> {
         const CREATE_INPUT_MAPPING_TABLE: &str = "
             CREATE TABLE IF NOT EXISTS input_mapping (
@@ -46,6 +50,7 @@ impl Operations {
         Ok(())
     }
 
+    /// Creates image_mapping table (display_zone_id, image_path) if it doesn't exist.
     fn create_image_mapping_table(&self) -> Result<(), String> {
         const CREATE_IMAGE_MAPPING_TABLE: &str = "
             CREATE TABLE IF NOT EXISTS image_mapping (
@@ -60,6 +65,7 @@ impl Operations {
         Ok(())
     }
 
+    /// Creates config_mapping table (id, brightness) as singleton if it doesn't exist.
     fn create_config_mapping_table(&self) -> Result<(), String> {
         // Extend this with any other params if required
         const CREATE_CONFIG_MAPPING_TABLE: &str = "
@@ -75,6 +81,7 @@ impl Operations {
         Ok(())
     }
 
+    /// Sets or updates button-to-action mapping using UPSERT.
     pub fn set_mapping_for_input(&self, input_mapping: InputMapping) -> Result<usize, String> {
         let input_mapping: InputMappingStorageFormat = input_mapping.try_into()?;
         const SET_INPUT_MAPPING: &str = "INSERT INTO input_mapping (button_id, actions) VALUES (?1, ?2) \
@@ -88,6 +95,7 @@ impl Operations {
             .map_err(|e| e.to_string())
     }
 
+    /// Sets or updates display zone image mapping using UPSERT.
     pub fn set_image_for_display_zone(&self, image_mapping: ImageMapping) -> Result<usize, Error> {
         let input_mapping: ImageMappingStorageFormat = image_mapping.into();
         const SET_INPUT_MAPPING: &str = "INSERT INTO image_mapping (display_zone_id, image_path) VALUES (?1, ?2) \
@@ -102,6 +110,7 @@ impl Operations {
             .map_err(Error::other)
     }
 
+    /// Deletes image mapping for specified display zone.
     pub fn clear_image_for_display_zone(
         &self,
         display_zones: DisplayZones,
@@ -117,6 +126,7 @@ impl Operations {
             .map_err(Error::other)
     }
 
+    /// Sets or updates brightness config value using UPSERT.
     pub fn set_brightness(&self, brightness: u8) -> Result<usize, Error> {
         const SET_BRIGHTNESS: &str = "INSERT INTO config_mapping (id, brightness) VALUES (1, ?1)\
                                         ON CONFLICT(id) DO UPDATE SET brightness=?1";
@@ -126,6 +136,7 @@ impl Operations {
             .map_err(Error::other)
     }
 
+    /// Gets stored brightness value, returns None if not set.
     pub fn get_stored_brightness(&self) -> Result<Option<u8>, Error> {
         const GET_BRIGHTNESS_VALUE: &str = "SELECT brightness FROM config_mapping WHERE id = 1";
 
@@ -135,7 +146,10 @@ impl Operations {
         let mut stmt = conn.prepare(GET_BRIGHTNESS_VALUE).map_err(Error::other)?;
 
         let mut rows = stmt.query(params![]).map_err(Error::other)?;
-        let singleton_row = rows.nth(0).map_err(Error::other)?;
+        let singleton_row = match rows.nth(0) {
+            Ok(row) => row,
+            _ => return Ok(None),
+        };
         if let Some(row) = singleton_row {
             let brightness: u8 = row.get(0).map_err(Error::other)?;
             return Ok(Some(brightness));
@@ -144,6 +158,7 @@ impl Operations {
         Ok(None)
     }
 
+    /// Deletes all image mappings from database.
     pub fn clear_all_display_zone_images(&self) -> Result<usize, Error> {
         const CLEAR_ALL_DISPLAY_ZONE_IMAGES: &str = "DELETE FROM image_mapping";
 
@@ -153,7 +168,7 @@ impl Operations {
             .map_err(Error::other)
     }
 
-    #[allow(dead_code)]
+    /// Returns all image mappings from database.
     pub fn get_all_image_mappings(&self) -> Result<Vec<ImageMapping>, String> {
         const GET_ALL_IMAGE_MAPPINGS: &str = "SELECT * FROM image_mapping";
 
@@ -177,6 +192,7 @@ impl Operations {
             .collect()
     }
 
+    /// Returns all input mappings from database.
     pub fn get_all_input_mappings(&self) -> Result<Vec<InputMapping>, String> {
         const GET_ALL_INPUT_MAPPINGS: &str = "SELECT * FROM input_mapping";
 
@@ -342,6 +358,11 @@ mod tests {
     fn allows_setting_brightness_value() {
         let sqlite = SqLite::new(false);
         let operations = Operations::new(sqlite.unwrap());
+
+        // When there is no stored brightness
+        let brightness = operations.get_stored_brightness().unwrap();
+
+        assert_eq!(brightness, None);
 
         operations.set_brightness(69).unwrap();
 
