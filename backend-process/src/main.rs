@@ -11,7 +11,7 @@ use crate::input_handler::{
 };
 use crate::socket::commands::IncomingCommands;
 use firmware_api::device;
-use log::{debug, info};
+use log::{debug, error, info};
 use std::fs::File;
 
 #[derive(Clone)]
@@ -96,11 +96,20 @@ fn main() {
                     input_handler,
                 );
                 new_device.refresh().unwrap();
+
+                // Stop showing background image
+                new_device.clear_all_images().ok();
+
                 for default_mapping in default_images {
-                    if let Ok(image) = File::open(default_mapping.image_path) {
-                        new_device
-                            .set_display_zone_image(default_mapping.display_zone, image)
-                            .ok();
+                    match File::open(default_mapping.image_path) {
+                        Ok(image) => {
+                            new_device
+                                .set_display_zone_image(default_mapping.display_zone, image)
+                                .ok();
+                        }
+                        Err(e) => {
+                            error!("Failed to process image {}", e)
+                        }
                     }
                 }
                 if let Some(brightness) = stored_brightness {
