@@ -106,6 +106,7 @@ fn main() {
                             new_device
                                 .set_display_zone_image(default_mapping.display_zone, image)
                                 .ok();
+                            new_device.refresh().ok();
                         }
                         Err(e) => {
                             error!("Failed to process image {}", e)
@@ -139,6 +140,7 @@ fn main() {
                             IncomingCommands::SetDisplayZoneImage(mapping) => {
                                 if let Ok(image) = File::open(mapping.image_path) {
                                     dev.set_display_zone_image(mapping.display_zone, image).ok();
+                                    dev.refresh().ok();
                                 }
                             }
                             IncomingCommands::SetBrightness(brightness) => {
@@ -146,14 +148,17 @@ fn main() {
                             }
                             IncomingCommands::ClearDisplayZoneImage(display_zone) => {
                                 dev.clear_display_zone_image(display_zone).ok();
+                                dev.refresh().ok();
                             }
                             IncomingCommands::SetBootLogo(file_path) => {
                                 if let Ok(image) = File::open(file_path) {
                                     dev.set_background_image(image).ok();
+                                    dev.refresh().ok();
                                 }
                             }
                             IncomingCommands::ClearAllDisplayZoneImages => {
                                 dev.clear_all_images().ok();
+                                dev.refresh().ok();
                             }
                         },
                         Err(e) => {

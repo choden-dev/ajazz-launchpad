@@ -1,0 +1,13 @@
+[package]
+name = "config-frontend"
+version = "0.1.0"
+edition = "2024"
+rust-version.workspace = true
+
+[dependencies]
+iced = { version = "0.13.1", features = ["tokio"] }
+messaging = { path = "../messaging" }
+rfd = "0.15.4"
+
+[lints]
+workspace = true
