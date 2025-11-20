@@ -1,7 +1,10 @@
+mod common;
+mod components;
 mod messages;
 mod tasks;
 mod views;
 
+use crate::common::ConfigurableZones;
 use crate::messages::Messages;
 use crate::tasks::{connect_to_backend, select_image_blocking};
 use iced::task::Task;
@@ -14,7 +17,7 @@ use std::time::Duration;
 enum View {
     #[default]
     Initialise,
-    Configure,
+    Configure(ConfigurableZones),
     Settings,
 }
 
@@ -36,9 +39,11 @@ impl LaunchpadConfigApp {
 }
 
 fn view(application_state: &'_ LaunchpadConfigApp) -> Element<'_, Messages> {
-    match application_state.view {
+    match &application_state.view {
         View::Initialise => views::initialise::Initialise.view(),
-        View::Configure => views::config::Config.view(application_state.brightness),
+        View::Configure(modal_zone) => {
+            views::config::Config.view(application_state.brightness, modal_zone.clone())
+        }
         _ => todo!(),
     }
 }
@@ -65,7 +70,7 @@ fn update(application_state: &mut LaunchpadConfigApp, message: Messages) -> Task
         }
         Messages::BackendInitialised => {
             application_state.connecting_to_backend = false;
-            application_state.view = View::Configure;
+            application_state.view = View::Configure(ConfigurableZones::None);
         }
 
         Messages::SetBrightness(new_brightness) => {
@@ -103,6 +108,13 @@ fn update(application_state: &mut LaunchpadConfigApp, message: Messages) -> Task
             }
         }
 
+        Messages::OpenConfigurationPanel(zone) => {
+            application_state.view = View::Configure(zone);
+        }
+
+        Messages::CloseConfigurationPanel => {
+            application_state.view = View::Configure(ConfigurableZones::None);
+        }
         _ => todo!(),
     }
     Task::none()
