@@ -70,5 +70,4 @@ pub fn knob_config_settings<'a>(zone: ConfigurableZones) -> widget::Column<'a, M
         knob_counter_clockwise_config,
         knob_pressed_config
     ]
-    .into()
 }

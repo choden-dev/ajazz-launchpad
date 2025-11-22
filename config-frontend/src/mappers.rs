@@ -31,11 +31,7 @@ impl From<(IcedKey, Modifiers)> for ProtoKeyActionWrapper {
             key: EnumOrUnknown::from(ProtoKeyWrapper::from(key.clone()).key()),
             unicode: match key {
                 IcedKey::Character(char) => {
-                    if let Some(key_code) = char.as_bytes().get(0) {
-                        Some(u32::from(key_code.clone()))
-                    } else {
-                        None
-                    }
+                    char.as_bytes().first().map(|key_code| u32::from(*key_code))
                 }
                 _ => None,
             },
@@ -137,9 +133,9 @@ impl From<IcedKey> for ProtoKeyWrapper {
     }
 }
 
-impl Into<InputId> for ConfigurableZones {
-    fn into(self) -> InputId {
-        match self {
+impl From<ConfigurableZones> for InputId {
+    fn from(zones: ConfigurableZones) -> Self {
+        match zones {
             ConfigurableZones::Button1(ButtonInput::Pressed) => InputId::BUTTON_1_PRESSED,
             ConfigurableZones::Button1(ButtonInput::Released) => InputId::BUTTON_1_RELEASED,
             ConfigurableZones::Button2(ButtonInput::Pressed) => InputId::BUTTON_2_PRESSED,

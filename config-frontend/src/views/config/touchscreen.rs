@@ -81,7 +81,6 @@ pub fn touchscreen_zone_config_settings<'a>(
         key_mapping_config_button,
         clear_image_button
     ]
-    .into()
 }
 
 pub fn touchscreen_extra<'a>() -> widget::Row<'a, Messages> {
@@ -102,5 +101,5 @@ pub fn touchscreen_swipe_settings<'a>() -> widget::Column<'a, Messages> {
             ConfigurableZones::TouchscreenExtra(TouchscreenInput::SwipeRight),
         ));
 
-    iced::widget::column![row![left_swipe_config_button, right_swipe_config_button]].into()
+    iced::widget::column![row![left_swipe_config_button, right_swipe_config_button]]
 }

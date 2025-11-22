@@ -6,7 +6,7 @@ mod tasks;
 mod views;
 
 use crate::common::{ConfigurableZones, ExtraConfigMode};
-use crate::mappers::{ProtoKeyActionWrapper};
+use crate::mappers::ProtoKeyActionWrapper;
 use crate::messages::Messages;
 use crate::tasks::{connect_to_backend, select_image_blocking};
 use iced::keyboard::{Key, Modifiers};
@@ -16,6 +16,7 @@ use messaging::client_wrapper::{ClientCommands, ClientWrapper};
 use std::cmp::PartialEq;
 use std::time::Duration;
 
+#[allow(dead_code)]
 #[derive(Default, PartialEq)]
 enum View {
     #[default]
@@ -35,10 +36,7 @@ struct LaunchpadConfigApp {
 
 impl LaunchpadConfigApp {
     fn get_client(&mut self) -> Option<&mut ClientWrapper> {
-        match self.socket_client {
-            Some(ref mut client) => Some(client),
-            None => None,
-        }
+        self.socket_client.as_mut()
     }
 }
 
@@ -66,13 +64,12 @@ fn subscriptions(_: &LaunchpadConfigApp) -> Subscription<Messages> {
 
 fn update(application_state: &mut LaunchpadConfigApp, message: Messages) -> Task<Messages> {
     match message {
-        Messages::Tick => match application_state.socket_client {
-            None => {
+        Messages::Tick => {
+            if application_state.socket_client.is_none() {
                 application_state.connecting_to_backend = true;
                 return Task::done(Messages::InitialiseBackend);
             }
-            _ => {}
-        },
+        }
         Messages::InitialiseBackend => {
             application_state.socket_client = Some(connect_to_backend());
             return Task::done(Messages::BackendInitialised);
@@ -108,7 +105,7 @@ fn update(application_state: &mut LaunchpadConfigApp, message: Messages) -> Task
             if let Some(absolute_path) = selected_image
                 && let Some(client) = application_state.get_client()
             {
-                client.set_boot_logo(String::from(absolute_path)).ok();
+                client.set_boot_logo(absolute_path).ok();
             }
         }
 
@@ -119,7 +116,7 @@ fn update(application_state: &mut LaunchpadConfigApp, message: Messages) -> Task
                 && let Some(client) = application_state.get_client()
             {
                 client
-                    .set_display_zone_image(display_zone, String::from(absolute_path))
+                    .set_display_zone_image(display_zone, absolute_path)
                     .ok();
             }
         }
