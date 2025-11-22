@@ -735,6 +735,7 @@ version = "0.1.0"
 dependencies = [
  "iced",
  "messaging",
+ "protobuf",
  "rfd",
 ]
 

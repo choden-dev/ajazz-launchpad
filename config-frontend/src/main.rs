@@ -1,10 +1,12 @@
 mod common;
 mod components;
+mod mappers;
 mod messages;
 mod tasks;
 mod views;
 
 use crate::common::{ConfigurableZones, ExtraConfigMode};
+use crate::mappers::{ProtoKeyActionWrapper, ProtoKeyWrapper};
 use crate::messages::Messages;
 use crate::tasks::{connect_to_backend, select_image_blocking};
 use iced::keyboard::{Key, Modifiers};
@@ -152,6 +154,22 @@ fn update(application_state: &mut LaunchpadConfigApp, message: Messages) -> Task
                 }
                 _ => {}
             };
+        }
+        Messages::SetKeyConfig(input_id, sequence) => {
+            let key_actions = sequence
+                .iter()
+                .map(|mapping| ProtoKeyActionWrapper::from(mapping.clone()).key_action())
+                .collect::<Vec<_>>();
+
+            let builder = messaging::proto_builders::KeyConfigActionBuilder::from(key_actions);
+
+            if let Some(client) = application_state.get_client() {
+                client
+                    .send_key_config(input_id, builder.actions().to_owned())
+                    .ok();
+            }
+
+            return Task::done(Messages::ResetInputBuffer);
         }
         _ => todo!(),
     }
