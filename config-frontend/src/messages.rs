@@ -1,11 +1,11 @@
 use crate::common::ConfigurableZones;
+use iced::keyboard::{Key, Modifiers};
 use messaging::protos::display_zones::DisplayZone;
 use messaging::protos::inputs::InputId;
-use messaging::protos::key_config::KeyAction;
 
 #[derive(Debug, Clone)]
 pub enum Messages {
-    SetKeyConfig(InputId, Vec<KeyAction>),
+    SetKeyConfig(InputId, Vec<(Key, Modifiers)>),
     SetDisplayZoneImage(DisplayZone),
     ClearDisplayZoneImage(DisplayZone),
     ClearAllDisplayZoneImages,
@@ -16,7 +16,12 @@ pub enum Messages {
     BackendInitialised,
 
     OpenConfigurationPanel(ConfigurableZones),
+    OpenInputMappingConfigurationPanel(ConfigurableZones),
     CloseConfigurationPanel,
+
+    ResetInputBuffer,
+
+    KeyboardInput(Key, Modifiers),
 
     Tick,
 }
