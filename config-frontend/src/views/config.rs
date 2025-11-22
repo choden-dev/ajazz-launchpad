@@ -199,7 +199,16 @@ impl<'a> Config {
             Messages::OpenInputMappingConfigurationPanel(button_mapping.3),
         );
 
-        column![title, button, pressed_action_button, released_action_button]
+        let clear_image_button = widget::button("Clear Image")
+            .on_press(Messages::ClearDisplayZoneImage(button_mapping.1));
+
+        column![
+            title,
+            button,
+            pressed_action_button,
+            released_action_button,
+            clear_image_button
+        ]
     }
     fn button_grid_second_row() -> widget::Row<'a, Messages> {
         (BUTTON_COUNT / 2..BUTTON_COUNT).fold(row![], |row, i| {
@@ -284,10 +293,14 @@ impl<'a> Config {
             Messages::OpenInputMappingConfigurationPanel(touchscreen_zone_mapping.2),
         );
 
+        let clear_image_button = widget::button("Clear Image")
+            .on_press(Messages::ClearDisplayZoneImage(touchscreen_zone_mapping.1));
+
         column![
             widget::text!("{} config", touchscreen_zone_mapping.0),
             display_zone_config,
-            key_mapping_config_button
+            key_mapping_config_button,
+            clear_image_button
         ]
         .into()
     }

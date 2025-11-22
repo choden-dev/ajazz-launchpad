@@ -96,6 +96,12 @@ fn update(application_state: &mut LaunchpadConfigApp, message: Messages) -> Task
             }
         }
 
+        Messages::ClearDisplayZoneImage(display_zone) => {
+            if let Some(client) = application_state.get_client() {
+                client.clear_display_zone_image(display_zone).ok();
+            }
+        }
+
         Messages::SetBootLogo => {
             let selected_image = select_image_blocking();
 
