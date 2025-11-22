@@ -4,6 +4,22 @@ use crate::protos;
 pub struct KeyConfigActionBuilder {
     actions: Vec<protos::key_config::Action>,
 }
+impl From<Vec<protos::key_config::KeyAction>> for KeyConfigActionBuilder {
+    fn from(key_actions: Vec<protos::key_config::KeyAction>) -> Self {
+        Self {
+            actions: key_actions
+                .iter()
+                .map(|action| protos::key_config::Action {
+                    action_data: Some(protos::key_config::action::Action_data::KeyAction(
+                        action.clone(),
+                    )),
+                    ..protos::key_config::Action::default()
+                })
+                .collect(),
+        }
+    }
+}
+
 /// Used to handle creating the vector of Actions to turn into a protobuf
 impl KeyConfigActionBuilder {
     pub fn new() -> Self {

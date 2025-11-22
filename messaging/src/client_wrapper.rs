@@ -13,6 +13,7 @@ use crate::socket::MessageSender;
 use protobuf::{EnumOrUnknown, Message};
 use std::io::Error;
 
+#[derive(Debug)]
 pub struct ClientWrapper {
     client: socket::Client,
 }

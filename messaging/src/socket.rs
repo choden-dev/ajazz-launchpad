@@ -8,6 +8,7 @@ use std::path::Path;
 
 const SOCKET_PATH: &str = "/tmp/ajazz-launchpad-socket";
 
+#[derive(Debug)]
 pub struct Client {
     unix_stream: UnixStream,
 }

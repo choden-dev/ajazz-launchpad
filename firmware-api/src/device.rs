@@ -114,6 +114,7 @@ impl<H: HidDeviceOperations, I: InputHandler> Device<H, I> {
         wake_screen_command.execute(|buf| self.hid_device.write(buf))
     }
 
+    /// This must be called on first connection of the device boot, AND after any image operations
     pub fn refresh(&self) -> HidResult<usize> {
         let refresh_command = refresh_command_factory();
         refresh_command.execute(|buf| self.hid_device.write(buf))
@@ -136,6 +137,7 @@ impl<H: HidDeviceOperations, I: InputHandler> Device<H, I> {
         self.write_image_to_device_command(init_command, file)
     }
 
+    /// Note: you **MUST** call `refresh` after this to have the image show up!
     pub fn set_display_zone_image(
         &self,
         display_zone: DisplayZones,
