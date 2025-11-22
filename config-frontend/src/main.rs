@@ -6,7 +6,7 @@ mod tasks;
 mod views;
 
 use crate::common::{ConfigurableZones, ExtraConfigMode};
-use crate::mappers::{ProtoKeyActionWrapper, ProtoKeyWrapper};
+use crate::mappers::{ProtoKeyActionWrapper};
 use crate::messages::Messages;
 use crate::tasks::{connect_to_backend, select_image_blocking};
 use iced::keyboard::{Key, Modifiers};
@@ -177,7 +177,6 @@ fn update(application_state: &mut LaunchpadConfigApp, message: Messages) -> Task
 
             return Task::done(Messages::ResetInputBuffer);
         }
-        _ => todo!(),
     }
     Task::none()
 }

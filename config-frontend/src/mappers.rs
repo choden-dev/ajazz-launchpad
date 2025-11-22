@@ -1,5 +1,9 @@
+use crate::common::{
+    ButtonInput, ConfigurableZones, KnobInput, TouchscreenInput, TouchscreenZoneInput,
+};
 use iced::keyboard::key::Named;
 use iced::keyboard::{Key as IcedKey, Modifiers};
+use messaging::protos::inputs::InputId;
 use messaging::protos::key_config::KeyAction;
 use messaging::protos::keys::Key;
 use protobuf::EnumOrUnknown;
@@ -130,5 +134,76 @@ impl From<IcedKey> for ProtoKeyWrapper {
             IcedKey::Character(_) => Key::KEY_UNICODE,
             IcedKey::Unidentified => Key::KEY_UNSPECIFIED,
         })
+    }
+}
+
+impl Into<InputId> for ConfigurableZones {
+    fn into(self) -> InputId {
+        match self {
+            ConfigurableZones::Button1(ButtonInput::Pressed) => InputId::BUTTON_1_PRESSED,
+            ConfigurableZones::Button1(ButtonInput::Released) => InputId::BUTTON_1_RELEASED,
+            ConfigurableZones::Button2(ButtonInput::Pressed) => InputId::BUTTON_2_PRESSED,
+            ConfigurableZones::Button2(ButtonInput::Released) => InputId::BUTTON_2_RELEASED,
+            ConfigurableZones::Button3(ButtonInput::Pressed) => InputId::BUTTON_3_PRESSED,
+            ConfigurableZones::Button3(ButtonInput::Released) => InputId::BUTTON_3_RELEASED,
+            ConfigurableZones::Button4(ButtonInput::Pressed) => InputId::BUTTON_4_PRESSED,
+            ConfigurableZones::Button4(ButtonInput::Released) => InputId::BUTTON_4_RELEASED,
+            ConfigurableZones::Button5(ButtonInput::Pressed) => InputId::BUTTON_5_PRESSED,
+            ConfigurableZones::Button5(ButtonInput::Released) => InputId::BUTTON_5_RELEASED,
+            ConfigurableZones::Button6(ButtonInput::Pressed) => InputId::BUTTON_6_PRESSED,
+            ConfigurableZones::Button6(ButtonInput::Released) => InputId::BUTTON_6_RELEASED,
+            ConfigurableZones::Button7(ButtonInput::Pressed) => InputId::BUTTON_7_PRESSED,
+            ConfigurableZones::Button7(ButtonInput::Released) => InputId::BUTTON_7_RELEASED,
+            ConfigurableZones::Button8(ButtonInput::Pressed) => InputId::BUTTON_8_PRESSED,
+            ConfigurableZones::Button8(ButtonInput::Released) => InputId::BUTTON_8_RELEASED,
+            ConfigurableZones::Button9(ButtonInput::Pressed) => InputId::BUTTON_9_PRESSED,
+            ConfigurableZones::Button9(ButtonInput::Released) => InputId::BUTTON_9_RELEASED,
+            ConfigurableZones::Button10(ButtonInput::Pressed) => InputId::BUTTON_10_PRESSED,
+            ConfigurableZones::Button10(ButtonInput::Released) => InputId::BUTTON_10_RELEASED,
+
+            ConfigurableZones::Knob1(KnobInput::Pressed) => InputId::KNOB_1_PRESSED,
+            ConfigurableZones::Knob1(KnobInput::Clockwise) => InputId::KNOB_1_CLOCKWISE,
+            ConfigurableZones::Knob1(KnobInput::CounterClockwise) => {
+                InputId::KNOB_1_COUNTER_CLOCKWISE
+            }
+            ConfigurableZones::Knob2(KnobInput::Pressed) => InputId::KNOB_2_PRESSED,
+            ConfigurableZones::Knob2(KnobInput::Clockwise) => InputId::KNOB_2_CLOCKWISE,
+            ConfigurableZones::Knob2(KnobInput::CounterClockwise) => {
+                InputId::KNOB_2_COUNTER_CLOCKWISE
+            }
+            ConfigurableZones::Knob3(KnobInput::Pressed) => InputId::KNOB_3_PRESSED,
+            ConfigurableZones::Knob3(KnobInput::Clockwise) => InputId::KNOB_3_CLOCKWISE,
+            ConfigurableZones::Knob3(KnobInput::CounterClockwise) => {
+                InputId::KNOB_3_COUNTER_CLOCKWISE
+            }
+            ConfigurableZones::Knob4(KnobInput::Pressed) => InputId::KNOB_4_PRESSED,
+            ConfigurableZones::Knob4(KnobInput::Clockwise) => InputId::KNOB_4_CLOCKWISE,
+            ConfigurableZones::Knob4(KnobInput::CounterClockwise) => {
+                InputId::KNOB_4_COUNTER_CLOCKWISE
+            }
+
+            ConfigurableZones::Touchscreen1(TouchscreenZoneInput::Pressed) => {
+                InputId::TOUCHSCREEN_ZONE_1_PRESSED
+            }
+            ConfigurableZones::Touchscreen2(TouchscreenZoneInput::Pressed) => {
+                InputId::TOUCHSCREEN_ZONE_2_PRESSED
+            }
+            ConfigurableZones::Touchscreen3(TouchscreenZoneInput::Pressed) => {
+                InputId::TOUCHSCREEN_ZONE_3_PRESSED
+            }
+            ConfigurableZones::Touchscreen4(TouchscreenZoneInput::Pressed) => {
+                InputId::TOUCHSCREEN_ZONE_4_PRESSED
+            }
+
+            ConfigurableZones::TouchscreenExtra(TouchscreenInput::SwipeLeft) => {
+                InputId::TOUCHSCREEN_SWIPED_LEFT
+            }
+
+            ConfigurableZones::TouchscreenExtra(TouchscreenInput::SwipeRight) => {
+                InputId::TOUCHSCREEN_SWIPED_RIGHT
+            }
+
+            _ => InputId::INPUT_ACTION_UNSPECIFIED,
+        }
     }
 }
