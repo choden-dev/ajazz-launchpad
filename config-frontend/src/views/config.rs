@@ -16,7 +16,7 @@ use crate::views::config::touchscreen::{
     touchscreen_zones_row,
 };
 use iced::keyboard::{Key, Modifiers};
-use iced::widget::{column};
+use iced::widget::column;
 use iced::{Length, widget};
 use messaging::protos::inputs::InputId;
 
