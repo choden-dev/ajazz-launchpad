@@ -1,3 +1,5 @@
+use crate::database::models;
+use crate::database::models::Action;
 use enigo::{Enigo, Key, Keyboard};
 use firmware_api::device::InputHandler;
 use firmware_api::inputs::InputActions;
@@ -7,8 +9,6 @@ use firmware_api::inputs::knobs::KnobActions;
 use firmware_api::inputs::touchscreen::TouchscreenAction;
 use std::collections::HashMap;
 use std::sync::Mutex;
-
-use crate::database::models;
 
 pub trait KeyActionExecutor {
     fn execute(&self, actions: &[Key]) -> Result<(), String>;
@@ -29,7 +29,7 @@ impl Default for EnigoKeyActionHandler {
 /// Used by the application to access the current set of input mappings in-memory,
 /// This should be the object queried when handling input to avoid database queries.
 #[derive(Clone)]
-pub struct InputMapping(HashMap<InputActions, Vec<Key>>);
+pub struct InputMapping(HashMap<InputActions, Vec<Action>>);
 
 impl InputMapping {
     /// Used to set new configs for the keys
@@ -43,7 +43,7 @@ impl Default for InputMapping {
     fn default() -> Self {
         Self(HashMap::from([(
             InputActions::Button(Button1Pressed),
-            vec![Key::VolumeDown],
+            vec![Action::Key(Key::VolumeDown)],
         )]))
     }
 }
@@ -99,7 +99,16 @@ impl<'a> LaunchpadInputHandler<'a> {
 
     fn execute_keys(&self, input_action: InputActions) {
         if let Some(actions) = self.input_mapping.0.get(&input_action) {
-            self.key_action_executor.execute(actions).ok();
+            for action in actions {
+                match action {
+                    Action::Key(key) => {
+                        self.key_action_executor.execute(&[*key]).ok();
+                    }
+                    Action::Command(command) => {
+                        todo!("{}", command)
+                    }
+                }
+            }
         }
     }
 

@@ -238,8 +238,57 @@ impl Action {
         }
     }
 
+    // .key_config.CommandAction command_action = 3;
+
+    pub fn command_action(&self) -> &CommandAction {
+        match self.action_data {
+            ::std::option::Option::Some(action::Action_data::CommandAction(ref v)) => v,
+            _ => <CommandAction as ::protobuf::Message>::default_instance(),
+        }
+    }
+
+    pub fn clear_command_action(&mut self) {
+        self.action_data = ::std::option::Option::None;
+    }
+
+    pub fn has_command_action(&self) -> bool {
+        match self.action_data {
+            ::std::option::Option::Some(action::Action_data::CommandAction(..)) => true,
+            _ => false,
+        }
+    }
+
+    // Param is passed by value, moved
+    pub fn set_command_action(&mut self, v: CommandAction) {
+        self.action_data = ::std::option::Option::Some(action::Action_data::CommandAction(v))
+    }
+
+    // Mutable pointer to the field.
+    pub fn mut_command_action(&mut self) -> &mut CommandAction {
+        if let ::std::option::Option::Some(action::Action_data::CommandAction(_)) = self.action_data {
+        } else {
+            self.action_data = ::std::option::Option::Some(action::Action_data::CommandAction(CommandAction::new()));
+        }
+        match self.action_data {
+            ::std::option::Option::Some(action::Action_data::CommandAction(ref mut v)) => v,
+            _ => panic!(),
+        }
+    }
+
+    // Take field
+    pub fn take_command_action(&mut self) -> CommandAction {
+        if self.has_command_action() {
+            match self.action_data.take() {
+                ::std::option::Option::Some(action::Action_data::CommandAction(v)) => v,
+                _ => panic!(),
+            }
+        } else {
+            CommandAction::new()
+        }
+    }
+
     fn generated_message_descriptor_data() -> ::protobuf::reflect::GeneratedMessageDescriptorData {
-        let mut fields = ::std::vec::Vec::with_capacity(2);
+        let mut fields = ::std::vec::Vec::with_capacity(3);
         let mut oneofs = ::std::vec::Vec::with_capacity(1);
         fields.push(::protobuf::reflect::rt::v2::make_simpler_field_accessor::<_, _>(
             "type",
@@ -252,6 +301,13 @@ impl Action {
             Action::key_action,
             Action::mut_key_action,
             Action::set_key_action,
+        ));
+        fields.push(::protobuf::reflect::rt::v2::make_oneof_message_has_get_mut_set_accessor::<_, CommandAction>(
+            "command_action",
+            Action::has_command_action,
+            Action::command_action,
+            Action::mut_command_action,
+            Action::set_command_action,
         ));
         oneofs.push(action::Action_data::generated_oneof_descriptor_data());
         ::protobuf::reflect::GeneratedMessageDescriptorData::new_2::<Action>(
@@ -278,6 +334,9 @@ impl ::protobuf::Message for Action {
                 18 => {
                     self.action_data = ::std::option::Option::Some(action::Action_data::KeyAction(is.read_message()?));
                 },
+                26 => {
+                    self.action_data = ::std::option::Option::Some(action::Action_data::CommandAction(is.read_message()?));
+                },
                 tag => {
                     ::protobuf::rt::read_unknown_or_skip_group(tag, is, self.special_fields.mut_unknown_fields())?;
                 },
@@ -299,6 +358,10 @@ impl ::protobuf::Message for Action {
                     let len = v.compute_size();
                     my_size += 1 + ::protobuf::rt::compute_raw_varint64_size(len) + len;
                 },
+                &action::Action_data::CommandAction(ref v) => {
+                    let len = v.compute_size();
+                    my_size += 1 + ::protobuf::rt::compute_raw_varint64_size(len) + len;
+                },
             };
         }
         my_size += ::protobuf::rt::unknown_fields_size(self.special_fields.unknown_fields());
@@ -314,6 +377,9 @@ impl ::protobuf::Message for Action {
             match v {
                 &action::Action_data::KeyAction(ref v) => {
                     ::protobuf::rt::write_message_field_with_cached_size(2, v, os)?;
+                },
+                &action::Action_data::CommandAction(ref v) => {
+                    ::protobuf::rt::write_message_field_with_cached_size(3, v, os)?;
                 },
             };
         }
@@ -335,6 +401,7 @@ impl ::protobuf::Message for Action {
 
     fn clear(&mut self) {
         self.type_ = ::protobuf::EnumOrUnknown::new(ActionType::ACTION_TYPE_KEY);
+        self.action_data = ::std::option::Option::None;
         self.action_data = ::std::option::Option::None;
         self.special_fields.clear();
     }
@@ -375,6 +442,8 @@ pub mod action {
     pub enum Action_data {
         // @@protoc_insertion_point(oneof_field:key_config.Action.key_action)
         KeyAction(super::KeyAction),
+        // @@protoc_insertion_point(oneof_field:key_config.Action.command_action)
+        CommandAction(super::CommandAction),
     }
 
     impl ::protobuf::Oneof for Action_data {
@@ -400,6 +469,8 @@ pub struct KeyAction {
     // message fields
     // @@protoc_insertion_point(field:key_config.KeyAction.key)
     pub key: ::protobuf::EnumOrUnknown<super::keys::Key>,
+    // @@protoc_insertion_point(field:key_config.KeyAction.modifier)
+    pub modifier: ::std::option::Option<::protobuf::EnumOrUnknown<super::keys::Key>>,
     // @@protoc_insertion_point(field:key_config.KeyAction.unicode)
     pub unicode: ::std::option::Option<u32>,
     // @@protoc_insertion_point(field:key_config.KeyAction.other_key_code)
@@ -421,12 +492,17 @@ impl KeyAction {
     }
 
     fn generated_message_descriptor_data() -> ::protobuf::reflect::GeneratedMessageDescriptorData {
-        let mut fields = ::std::vec::Vec::with_capacity(3);
+        let mut fields = ::std::vec::Vec::with_capacity(4);
         let mut oneofs = ::std::vec::Vec::with_capacity(0);
         fields.push(::protobuf::reflect::rt::v2::make_simpler_field_accessor::<_, _>(
             "key",
             |m: &KeyAction| { &m.key },
             |m: &mut KeyAction| { &mut m.key },
+        ));
+        fields.push(::protobuf::reflect::rt::v2::make_option_accessor::<_, _>(
+            "modifier",
+            |m: &KeyAction| { &m.modifier },
+            |m: &mut KeyAction| { &mut m.modifier },
         ));
         fields.push(::protobuf::reflect::rt::v2::make_option_accessor::<_, _>(
             "unicode",
@@ -460,9 +536,12 @@ impl ::protobuf::Message for KeyAction {
                     self.key = is.read_enum_or_unknown()?;
                 },
                 16 => {
-                    self.unicode = ::std::option::Option::Some(is.read_uint32()?);
+                    self.modifier = ::std::option::Option::Some(is.read_enum_or_unknown()?);
                 },
                 24 => {
+                    self.unicode = ::std::option::Option::Some(is.read_uint32()?);
+                },
+                32 => {
                     self.other_key_code = ::std::option::Option::Some(is.read_uint32()?);
                 },
                 tag => {
@@ -480,11 +559,14 @@ impl ::protobuf::Message for KeyAction {
         if self.key != ::protobuf::EnumOrUnknown::new(super::keys::Key::KEY_UNSPECIFIED) {
             my_size += ::protobuf::rt::int32_size(1, self.key.value());
         }
+        if let Some(v) = self.modifier {
+            my_size += ::protobuf::rt::int32_size(2, v.value());
+        }
         if let Some(v) = self.unicode {
-            my_size += ::protobuf::rt::uint32_size(2, v);
+            my_size += ::protobuf::rt::uint32_size(3, v);
         }
         if let Some(v) = self.other_key_code {
-            my_size += ::protobuf::rt::uint32_size(3, v);
+            my_size += ::protobuf::rt::uint32_size(4, v);
         }
         my_size += ::protobuf::rt::unknown_fields_size(self.special_fields.unknown_fields());
         self.special_fields.cached_size().set(my_size as u32);
@@ -495,11 +577,14 @@ impl ::protobuf::Message for KeyAction {
         if self.key != ::protobuf::EnumOrUnknown::new(super::keys::Key::KEY_UNSPECIFIED) {
             os.write_enum(1, ::protobuf::EnumOrUnknown::value(&self.key))?;
         }
+        if let Some(v) = self.modifier {
+            os.write_enum(2, ::protobuf::EnumOrUnknown::value(&v))?;
+        }
         if let Some(v) = self.unicode {
-            os.write_uint32(2, v)?;
+            os.write_uint32(3, v)?;
         }
         if let Some(v) = self.other_key_code {
-            os.write_uint32(3, v)?;
+            os.write_uint32(4, v)?;
         }
         os.write_unknown_fields(self.special_fields.unknown_fields())?;
         ::std::result::Result::Ok(())
@@ -519,6 +604,7 @@ impl ::protobuf::Message for KeyAction {
 
     fn clear(&mut self) {
         self.key = ::protobuf::EnumOrUnknown::new(super::keys::Key::KEY_UNSPECIFIED);
+        self.modifier = ::std::option::Option::None;
         self.unicode = ::std::option::Option::None;
         self.other_key_code = ::std::option::Option::None;
         self.special_fields.clear();
@@ -527,6 +613,7 @@ impl ::protobuf::Message for KeyAction {
     fn default_instance() -> &'static KeyAction {
         static instance: KeyAction = KeyAction {
             key: ::protobuf::EnumOrUnknown::from_i32(0),
+            modifier: ::std::option::Option::None,
             unicode: ::std::option::Option::None,
             other_key_code: ::std::option::Option::None,
             special_fields: ::protobuf::SpecialFields::new(),
@@ -549,6 +636,128 @@ impl ::std::fmt::Display for KeyAction {
 }
 
 impl ::protobuf::reflect::ProtobufValue for KeyAction {
+    type RuntimeType = ::protobuf::reflect::rt::RuntimeTypeMessage<Self>;
+}
+
+// @@protoc_insertion_point(message:key_config.CommandAction)
+#[derive(PartialEq,Clone,Default,Debug)]
+pub struct CommandAction {
+    // message fields
+    // @@protoc_insertion_point(field:key_config.CommandAction.command)
+    pub command: ::std::string::String,
+    // special fields
+    // @@protoc_insertion_point(special_field:key_config.CommandAction.special_fields)
+    pub special_fields: ::protobuf::SpecialFields,
+}
+
+impl<'a> ::std::default::Default for &'a CommandAction {
+    fn default() -> &'a CommandAction {
+        <CommandAction as ::protobuf::Message>::default_instance()
+    }
+}
+
+impl CommandAction {
+    pub fn new() -> CommandAction {
+        ::std::default::Default::default()
+    }
+
+    fn generated_message_descriptor_data() -> ::protobuf::reflect::GeneratedMessageDescriptorData {
+        let mut fields = ::std::vec::Vec::with_capacity(1);
+        let mut oneofs = ::std::vec::Vec::with_capacity(0);
+        fields.push(::protobuf::reflect::rt::v2::make_simpler_field_accessor::<_, _>(
+            "command",
+            |m: &CommandAction| { &m.command },
+            |m: &mut CommandAction| { &mut m.command },
+        ));
+        ::protobuf::reflect::GeneratedMessageDescriptorData::new_2::<CommandAction>(
+            "CommandAction",
+            fields,
+            oneofs,
+        )
+    }
+}
+
+impl ::protobuf::Message for CommandAction {
+    const NAME: &'static str = "CommandAction";
+
+    fn is_initialized(&self) -> bool {
+        true
+    }
+
+    fn merge_from(&mut self, is: &mut ::protobuf::CodedInputStream<'_>) -> ::protobuf::Result<()> {
+        while let Some(tag) = is.read_raw_tag_or_eof()? {
+            match tag {
+                18 => {
+                    self.command = is.read_string()?;
+                },
+                tag => {
+                    ::protobuf::rt::read_unknown_or_skip_group(tag, is, self.special_fields.mut_unknown_fields())?;
+                },
+            };
+        }
+        ::std::result::Result::Ok(())
+    }
+
+    // Compute sizes of nested messages
+    #[allow(unused_variables)]
+    fn compute_size(&self) -> u64 {
+        let mut my_size = 0;
+        if !self.command.is_empty() {
+            my_size += ::protobuf::rt::string_size(2, &self.command);
+        }
+        my_size += ::protobuf::rt::unknown_fields_size(self.special_fields.unknown_fields());
+        self.special_fields.cached_size().set(my_size as u32);
+        my_size
+    }
+
+    fn write_to_with_cached_sizes(&self, os: &mut ::protobuf::CodedOutputStream<'_>) -> ::protobuf::Result<()> {
+        if !self.command.is_empty() {
+            os.write_string(2, &self.command)?;
+        }
+        os.write_unknown_fields(self.special_fields.unknown_fields())?;
+        ::std::result::Result::Ok(())
+    }
+
+    fn special_fields(&self) -> &::protobuf::SpecialFields {
+        &self.special_fields
+    }
+
+    fn mut_special_fields(&mut self) -> &mut ::protobuf::SpecialFields {
+        &mut self.special_fields
+    }
+
+    fn new() -> CommandAction {
+        CommandAction::new()
+    }
+
+    fn clear(&mut self) {
+        self.command.clear();
+        self.special_fields.clear();
+    }
+
+    fn default_instance() -> &'static CommandAction {
+        static instance: CommandAction = CommandAction {
+            command: ::std::string::String::new(),
+            special_fields: ::protobuf::SpecialFields::new(),
+        };
+        &instance
+    }
+}
+
+impl ::protobuf::MessageFull for CommandAction {
+    fn descriptor() -> ::protobuf::reflect::MessageDescriptor {
+        static descriptor: ::protobuf::rt::Lazy<::protobuf::reflect::MessageDescriptor> = ::protobuf::rt::Lazy::new();
+        descriptor.get(|| file_descriptor().message_by_package_relative_name("CommandAction").unwrap()).clone()
+    }
+}
+
+impl ::std::fmt::Display for CommandAction {
+    fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
+        ::protobuf::text_format::fmt(self, f)
+    }
+}
+
+impl ::protobuf::reflect::ProtobufValue for CommandAction {
     type RuntimeType = ::protobuf::reflect::rt::RuntimeTypeMessage<Self>;
 }
 
@@ -613,15 +822,18 @@ static file_descriptor_proto_data: &'static [u8] = b"\
     \n\x19commands/key_config.proto\x12\nkey_config\x1a\x1acommands/common/k\
     eys.proto\x1a\x1ccommands/common/inputs.proto\"^\n\tKeyConfig\x12#\n\x08\
     input_id\x18\x01\x20\x01(\x0e2\x08.InputIdR\x07inputId\x12,\n\x07actions\
-    \x18\x02\x20\x03(\x0b2\x12.key_config.ActionR\x07actions\"{\n\x06Action\
-    \x12*\n\x04type\x18\x01\x20\x01(\x0e2\x16.key_config.ActionTypeR\x04type\
-    \x126\n\nkey_action\x18\x02\x20\x01(\x0b2\x15.key_config.KeyActionH\0R\t\
-    keyActionB\r\n\x0baction_data\"\x8c\x01\n\tKeyAction\x12\x16\n\x03key\
-    \x18\x01\x20\x01(\x0e2\x04.KeyR\x03key\x12\x1d\n\x07unicode\x18\x02\x20\
-    \x01(\rH\0R\x07unicode\x88\x01\x01\x12)\n\x0eother_key_code\x18\x03\x20\
-    \x01(\rH\x01R\x0cotherKeyCode\x88\x01\x01B\n\n\x08_unicodeB\x11\n\x0f_ot\
-    her_key_code*!\n\nActionType\x12\x13\n\x0fACTION_TYPE_KEY\x10\0b\x06prot\
-    o3\
+    \x18\x02\x20\x03(\x0b2\x12.key_config.ActionR\x07actions\"\xbf\x01\n\x06\
+    Action\x12*\n\x04type\x18\x01\x20\x01(\x0e2\x16.key_config.ActionTypeR\
+    \x04type\x126\n\nkey_action\x18\x02\x20\x01(\x0b2\x15.key_config.KeyActi\
+    onH\0R\tkeyAction\x12B\n\x0ecommand_action\x18\x03\x20\x01(\x0b2\x19.key\
+    _config.CommandActionH\0R\rcommandActionB\r\n\x0baction_data\"\xc0\x01\n\
+    \tKeyAction\x12\x16\n\x03key\x18\x01\x20\x01(\x0e2\x04.KeyR\x03key\x12%\
+    \n\x08modifier\x18\x02\x20\x01(\x0e2\x04.KeyH\0R\x08modifier\x88\x01\x01\
+    \x12\x1d\n\x07unicode\x18\x03\x20\x01(\rH\x01R\x07unicode\x88\x01\x01\
+    \x12)\n\x0eother_key_code\x18\x04\x20\x01(\rH\x02R\x0cotherKeyCode\x88\
+    \x01\x01B\x0b\n\t_modifierB\n\n\x08_unicodeB\x11\n\x0f_other_key_code\")\
+    \n\rCommandAction\x12\x18\n\x07command\x18\x02\x20\x01(\tR\x07command*!\
+    \n\nActionType\x12\x13\n\x0fACTION_TYPE_KEY\x10\0b\x06proto3\
 ";
 
 /// `FileDescriptorProto` object which was a source for this generated file
@@ -641,10 +853,11 @@ pub fn file_descriptor() -> &'static ::protobuf::reflect::FileDescriptor {
             let mut deps = ::std::vec::Vec::with_capacity(2);
             deps.push(super::keys::file_descriptor().clone());
             deps.push(super::inputs::file_descriptor().clone());
-            let mut messages = ::std::vec::Vec::with_capacity(3);
+            let mut messages = ::std::vec::Vec::with_capacity(4);
             messages.push(KeyConfig::generated_message_descriptor_data());
             messages.push(Action::generated_message_descriptor_data());
             messages.push(KeyAction::generated_message_descriptor_data());
+            messages.push(CommandAction::generated_message_descriptor_data());
             let mut enums = ::std::vec::Vec::with_capacity(1);
             enums.push(ActionType::generated_enum_descriptor_data());
             ::protobuf::reflect::GeneratedFileDescriptor::new_generated(

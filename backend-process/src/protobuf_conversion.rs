@@ -1,4 +1,4 @@
-use crate::database::models::{ImageMapping, InputMapping};
+use crate::database::models::{Action, ImageMapping, InputMapping};
 use enigo::Key;
 use firmware_api::display_zones::DisplayZones;
 use firmware_api::inputs::InputActions;
@@ -7,6 +7,7 @@ use firmware_api::inputs::buttons::ButtonActions;
 use firmware_api::inputs::knobs::KnobActions;
 use firmware_api::inputs::touchscreen::TouchscreenAction;
 use messaging::protos;
+use messaging::protos::key_config::action::Action_data;
 use protobuf::Enum;
 use std::io::{Error, ErrorKind};
 
@@ -153,16 +154,28 @@ impl TryFrom<protos::key_config::KeyConfig> for InputMapping {
 
     fn try_from(value: protos::key_config::KeyConfig) -> Result<Self, Self::Error> {
         let input_id: InputActionWrapper = value.input_id.enum_value().unwrap().into();
-        let actions: Vec<KeyWrapper> = value
+        let actions = value
             .actions
             .iter()
-            .map(|a| a.key_action().clone().try_into().map_err(|_| ()))
-            .collect::<Result<Vec<_>, _>>()?;
+            .map(|a| {
+                match a.clone().action_data {
+                    Some(item) => match item {
+                        Action_data::CommandAction(command) => Action::Command(command.command),
+                        Action_data::KeyAction(key) => {
+                            if let Ok(key_val) = KeyWrapper::try_from(key) {
+                                return Action::Key(key_val.0);
+                            }
+                            // Stub out invalid values
+                            Action::Command(String::new())
+                        }
+                        _ => Action::Command(String::new()),
+                    },
+                    _ => Action::Command(String::new()),
+                }
+            })
+            .collect::<Vec<Action>>();
 
-        Ok(InputMapping::new(
-            input_id.0,
-            actions.iter().map(|a| a.0).collect(),
-        ))
+        Ok(InputMapping::new(input_id.0, actions))
     }
 }
 
@@ -384,19 +397,17 @@ mod tests {
 
     fn create_proto_fixture(
         proto_input_id: protos::inputs::InputId,
-        proto_key: protos::keys::Key,
+        action_data: Vec<Action_data>,
     ) -> protos::key_config::KeyConfig {
         protos::key_config::KeyConfig {
             input_id: protobuf::EnumOrUnknown::new(proto_input_id),
-            actions: vec![protos::key_config::Action {
-                action_data: Some(protos::key_config::action::Action_data::KeyAction(
-                    protos::key_config::KeyAction {
-                        key: protobuf::EnumOrUnknown::from(proto_key),
-                        ..protos::key_config::KeyAction::default()
-                    },
-                )),
-                ..protos::key_config::Action::default()
-            }],
+            actions: action_data
+                .iter()
+                .map(|item| protos::key_config::Action {
+                    action_data: Some(item.clone()),
+                    ..protos::key_config::Action::default()
+                })
+                .collect(),
             ..protos::key_config::KeyConfig::default()
         }
     }
@@ -404,14 +415,17 @@ mod tests {
     fn converts_mapping_into_model() {
         let proto = create_proto_fixture(
             protos::inputs::InputId::KNOB_1_CLOCKWISE,
-            protos::keys::Key::KEY_ADD,
+            vec![Action_data::KeyAction(protos::key_config::KeyAction {
+                key: protos::keys::Key::KEY_ADD.into(),
+                ..protos::key_config::KeyAction::default()
+            })],
         );
 
         assert_eq!(
             InputMapping::try_from(proto).unwrap(),
             InputMapping::new(
-                InputActions::Knob(KnobActions::Knob1Clockwise),
-                vec![Key::Add]
+                Knob(KnobActions::Knob1Clockwise),
+                vec![Action::Key(Key::Add)]
             )
         )
     }
@@ -420,12 +434,24 @@ mod tests {
     fn converts_mapping_into_model_with_invalid_input() {
         let proto = create_proto_fixture(
             protos::inputs::InputId::INPUT_ACTION_UNSPECIFIED,
-            protos::keys::Key::KEY_ADD,
+            vec![
+                Action_data::KeyAction(protos::key_config::KeyAction {
+                    key: protos::keys::Key::KEY_ADD.into(),
+                    ..protos::key_config::KeyAction::default()
+                }),
+                Action_data::CommandAction(protos::key_config::CommandAction {
+                    command: String::from("NAH"),
+                    ..protos::key_config::CommandAction::default()
+                }),
+            ],
         );
 
         assert_eq!(
             InputMapping::try_from(proto).unwrap(),
-            InputMapping::new(Unknown, vec![Key::Add])
+            InputMapping::new(
+                Unknown,
+                vec![Action::Key(Key::Add), Action::Command(String::from("NAH"))]
+            )
         )
     }
 }

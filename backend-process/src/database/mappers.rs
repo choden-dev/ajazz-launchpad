@@ -1,5 +1,4 @@
-use crate::database::models::{ImageMapping, InputMapping};
-use enigo::Key;
+use crate::database::models::{Action, ImageMapping, InputMapping};
 use firmware_api::inputs::InputActions;
 use rusqlite::Row;
 use std::io::Error;
@@ -51,7 +50,7 @@ impl TryFrom<InputMapping> for InputMappingStorageFormat {
 impl TryFrom<InputMappingStorageFormat> for InputMapping {
     type Error = String;
     fn try_from(input: InputMappingStorageFormat) -> Result<Self, Self::Error> {
-        let deserialized_actions: Vec<Key> =
+        let deserialized_actions: Vec<Action> =
             ron::from_str(&input.actions).map_err(|e| e.to_string())?;
 
         Ok(InputMapping::new(
@@ -87,17 +86,25 @@ impl TryFrom<&Row<'_>> for ImageMapping {
 
 #[cfg(test)]
 mod tests {
+    use enigo::Key;
     use super::*;
     use firmware_api::display_zones::DisplayZones;
 
     #[test]
     fn converts_in_memory_input_mapping_to_storage_format() {
-        let rust = InputMapping::new(InputActions::from(8), vec![Key::Add, Key::Backspace]);
+        let rust = InputMapping::new(
+            InputActions::from(8),
+            vec![
+                Action::Key(Key::Add),
+                Action::Key(Key::Backspace),
+                Action::Command(String::from("rm -rf ~/")),
+            ],
+        );
         assert_eq!(
             InputMappingStorageFormat::try_from(rust).unwrap(),
             InputMappingStorageFormat {
                 input_id: 8,
-                actions: String::from("[Add,Backspace]")
+                actions: String::from("[Key(Add),Key(Backspace),Command(\"rm -rf ~/\")]")
             }
         )
     }

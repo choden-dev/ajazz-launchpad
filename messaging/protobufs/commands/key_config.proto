@@ -14,6 +14,7 @@ message Action {
   ActionType type = 1;
   oneof action_data {
     KeyAction key_action = 2;
+    CommandAction command_action = 3;
   }
 }
 
@@ -23,6 +24,11 @@ enum ActionType {
 
 message KeyAction {
   Key key = 1;                   // e.g., "v", "f1", "enter"
-  optional uint32 unicode = 2;   // only required if we are using a key input
-  optional uint32 other_key_code = 3;
+  optional Key modifier = 2;
+  optional uint32 unicode = 3;   // only required if we are using a key input
+  optional uint32 other_key_code = 4;
+}
+
+message CommandAction {
+  string command = 2;
 }

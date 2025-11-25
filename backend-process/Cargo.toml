@@ -14,6 +14,7 @@ messaging = { path = "../messaging" }
 protobuf = "3.7.2"
 ron = "0.11.0"
 rusqlite = { version = "0.37.0", features = ["bundled"] }
+serde = { version = "1.0.228", features = ["derive"] }
 
 [lints]
 workspace = true

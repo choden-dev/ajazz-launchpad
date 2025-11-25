@@ -400,6 +400,7 @@ dependencies = [
  "protobuf",
  "ron",
  "rusqlite",
+ "serde",
 ]
 
 [[package]]
