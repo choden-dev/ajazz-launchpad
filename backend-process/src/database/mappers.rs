@@ -97,14 +97,14 @@ mod tests {
             vec![
                 Action::Key(Key::Add),
                 Action::Key(Key::Backspace),
-                Action::Command(String::from("rm -rf ~/")),
+                Action::Command(String::from("rm -rf ~/"), vec![]),
             ],
         );
         assert_eq!(
             InputMappingStorageFormat::try_from(rust).unwrap(),
             InputMappingStorageFormat {
                 input_id: 8,
-                actions: String::from("[Key(Add),Key(Backspace),Command(\"rm -rf ~/\")]")
+                actions: String::from("[Key(Add),Key(Backspace),Command(\"rm -rf ~/\",[])]")
             }
         )
     }

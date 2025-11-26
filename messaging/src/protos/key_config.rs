@@ -639,12 +639,273 @@ impl ::protobuf::reflect::ProtobufValue for KeyAction {
     type RuntimeType = ::protobuf::reflect::rt::RuntimeTypeMessage<Self>;
 }
 
+// @@protoc_insertion_point(message:key_config.OpenAppCommand)
+#[derive(PartialEq,Clone,Default,Debug)]
+pub struct OpenAppCommand {
+    // message fields
+    // @@protoc_insertion_point(field:key_config.OpenAppCommand.app_path)
+    pub app_path: ::std::string::String,
+    // special fields
+    // @@protoc_insertion_point(special_field:key_config.OpenAppCommand.special_fields)
+    pub special_fields: ::protobuf::SpecialFields,
+}
+
+impl<'a> ::std::default::Default for &'a OpenAppCommand {
+    fn default() -> &'a OpenAppCommand {
+        <OpenAppCommand as ::protobuf::Message>::default_instance()
+    }
+}
+
+impl OpenAppCommand {
+    pub fn new() -> OpenAppCommand {
+        ::std::default::Default::default()
+    }
+
+    fn generated_message_descriptor_data() -> ::protobuf::reflect::GeneratedMessageDescriptorData {
+        let mut fields = ::std::vec::Vec::with_capacity(1);
+        let mut oneofs = ::std::vec::Vec::with_capacity(0);
+        fields.push(::protobuf::reflect::rt::v2::make_simpler_field_accessor::<_, _>(
+            "app_path",
+            |m: &OpenAppCommand| { &m.app_path },
+            |m: &mut OpenAppCommand| { &mut m.app_path },
+        ));
+        ::protobuf::reflect::GeneratedMessageDescriptorData::new_2::<OpenAppCommand>(
+            "OpenAppCommand",
+            fields,
+            oneofs,
+        )
+    }
+}
+
+impl ::protobuf::Message for OpenAppCommand {
+    const NAME: &'static str = "OpenAppCommand";
+
+    fn is_initialized(&self) -> bool {
+        true
+    }
+
+    fn merge_from(&mut self, is: &mut ::protobuf::CodedInputStream<'_>) -> ::protobuf::Result<()> {
+        while let Some(tag) = is.read_raw_tag_or_eof()? {
+            match tag {
+                10 => {
+                    self.app_path = is.read_string()?;
+                },
+                tag => {
+                    ::protobuf::rt::read_unknown_or_skip_group(tag, is, self.special_fields.mut_unknown_fields())?;
+                },
+            };
+        }
+        ::std::result::Result::Ok(())
+    }
+
+    // Compute sizes of nested messages
+    #[allow(unused_variables)]
+    fn compute_size(&self) -> u64 {
+        let mut my_size = 0;
+        if !self.app_path.is_empty() {
+            my_size += ::protobuf::rt::string_size(1, &self.app_path);
+        }
+        my_size += ::protobuf::rt::unknown_fields_size(self.special_fields.unknown_fields());
+        self.special_fields.cached_size().set(my_size as u32);
+        my_size
+    }
+
+    fn write_to_with_cached_sizes(&self, os: &mut ::protobuf::CodedOutputStream<'_>) -> ::protobuf::Result<()> {
+        if !self.app_path.is_empty() {
+            os.write_string(1, &self.app_path)?;
+        }
+        os.write_unknown_fields(self.special_fields.unknown_fields())?;
+        ::std::result::Result::Ok(())
+    }
+
+    fn special_fields(&self) -> &::protobuf::SpecialFields {
+        &self.special_fields
+    }
+
+    fn mut_special_fields(&mut self) -> &mut ::protobuf::SpecialFields {
+        &mut self.special_fields
+    }
+
+    fn new() -> OpenAppCommand {
+        OpenAppCommand::new()
+    }
+
+    fn clear(&mut self) {
+        self.app_path.clear();
+        self.special_fields.clear();
+    }
+
+    fn default_instance() -> &'static OpenAppCommand {
+        static instance: OpenAppCommand = OpenAppCommand {
+            app_path: ::std::string::String::new(),
+            special_fields: ::protobuf::SpecialFields::new(),
+        };
+        &instance
+    }
+}
+
+impl ::protobuf::MessageFull for OpenAppCommand {
+    fn descriptor() -> ::protobuf::reflect::MessageDescriptor {
+        static descriptor: ::protobuf::rt::Lazy<::protobuf::reflect::MessageDescriptor> = ::protobuf::rt::Lazy::new();
+        descriptor.get(|| file_descriptor().message_by_package_relative_name("OpenAppCommand").unwrap()).clone()
+    }
+}
+
+impl ::std::fmt::Display for OpenAppCommand {
+    fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
+        ::protobuf::text_format::fmt(self, f)
+    }
+}
+
+impl ::protobuf::reflect::ProtobufValue for OpenAppCommand {
+    type RuntimeType = ::protobuf::reflect::rt::RuntimeTypeMessage<Self>;
+}
+
+// @@protoc_insertion_point(message:key_config.FreeformCommand)
+#[derive(PartialEq,Clone,Default,Debug)]
+pub struct FreeformCommand {
+    // message fields
+    // @@protoc_insertion_point(field:key_config.FreeformCommand.command)
+    pub command: ::std::string::String,
+    // @@protoc_insertion_point(field:key_config.FreeformCommand.args)
+    pub args: ::std::vec::Vec<::std::string::String>,
+    // special fields
+    // @@protoc_insertion_point(special_field:key_config.FreeformCommand.special_fields)
+    pub special_fields: ::protobuf::SpecialFields,
+}
+
+impl<'a> ::std::default::Default for &'a FreeformCommand {
+    fn default() -> &'a FreeformCommand {
+        <FreeformCommand as ::protobuf::Message>::default_instance()
+    }
+}
+
+impl FreeformCommand {
+    pub fn new() -> FreeformCommand {
+        ::std::default::Default::default()
+    }
+
+    fn generated_message_descriptor_data() -> ::protobuf::reflect::GeneratedMessageDescriptorData {
+        let mut fields = ::std::vec::Vec::with_capacity(2);
+        let mut oneofs = ::std::vec::Vec::with_capacity(0);
+        fields.push(::protobuf::reflect::rt::v2::make_simpler_field_accessor::<_, _>(
+            "command",
+            |m: &FreeformCommand| { &m.command },
+            |m: &mut FreeformCommand| { &mut m.command },
+        ));
+        fields.push(::protobuf::reflect::rt::v2::make_vec_simpler_accessor::<_, _>(
+            "args",
+            |m: &FreeformCommand| { &m.args },
+            |m: &mut FreeformCommand| { &mut m.args },
+        ));
+        ::protobuf::reflect::GeneratedMessageDescriptorData::new_2::<FreeformCommand>(
+            "FreeformCommand",
+            fields,
+            oneofs,
+        )
+    }
+}
+
+impl ::protobuf::Message for FreeformCommand {
+    const NAME: &'static str = "FreeformCommand";
+
+    fn is_initialized(&self) -> bool {
+        true
+    }
+
+    fn merge_from(&mut self, is: &mut ::protobuf::CodedInputStream<'_>) -> ::protobuf::Result<()> {
+        while let Some(tag) = is.read_raw_tag_or_eof()? {
+            match tag {
+                10 => {
+                    self.command = is.read_string()?;
+                },
+                18 => {
+                    self.args.push(is.read_string()?);
+                },
+                tag => {
+                    ::protobuf::rt::read_unknown_or_skip_group(tag, is, self.special_fields.mut_unknown_fields())?;
+                },
+            };
+        }
+        ::std::result::Result::Ok(())
+    }
+
+    // Compute sizes of nested messages
+    #[allow(unused_variables)]
+    fn compute_size(&self) -> u64 {
+        let mut my_size = 0;
+        if !self.command.is_empty() {
+            my_size += ::protobuf::rt::string_size(1, &self.command);
+        }
+        for value in &self.args {
+            my_size += ::protobuf::rt::string_size(2, &value);
+        };
+        my_size += ::protobuf::rt::unknown_fields_size(self.special_fields.unknown_fields());
+        self.special_fields.cached_size().set(my_size as u32);
+        my_size
+    }
+
+    fn write_to_with_cached_sizes(&self, os: &mut ::protobuf::CodedOutputStream<'_>) -> ::protobuf::Result<()> {
+        if !self.command.is_empty() {
+            os.write_string(1, &self.command)?;
+        }
+        for v in &self.args {
+            os.write_string(2, &v)?;
+        };
+        os.write_unknown_fields(self.special_fields.unknown_fields())?;
+        ::std::result::Result::Ok(())
+    }
+
+    fn special_fields(&self) -> &::protobuf::SpecialFields {
+        &self.special_fields
+    }
+
+    fn mut_special_fields(&mut self) -> &mut ::protobuf::SpecialFields {
+        &mut self.special_fields
+    }
+
+    fn new() -> FreeformCommand {
+        FreeformCommand::new()
+    }
+
+    fn clear(&mut self) {
+        self.command.clear();
+        self.args.clear();
+        self.special_fields.clear();
+    }
+
+    fn default_instance() -> &'static FreeformCommand {
+        static instance: FreeformCommand = FreeformCommand {
+            command: ::std::string::String::new(),
+            args: ::std::vec::Vec::new(),
+            special_fields: ::protobuf::SpecialFields::new(),
+        };
+        &instance
+    }
+}
+
+impl ::protobuf::MessageFull for FreeformCommand {
+    fn descriptor() -> ::protobuf::reflect::MessageDescriptor {
+        static descriptor: ::protobuf::rt::Lazy<::protobuf::reflect::MessageDescriptor> = ::protobuf::rt::Lazy::new();
+        descriptor.get(|| file_descriptor().message_by_package_relative_name("FreeformCommand").unwrap()).clone()
+    }
+}
+
+impl ::std::fmt::Display for FreeformCommand {
+    fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
+        ::protobuf::text_format::fmt(self, f)
+    }
+}
+
+impl ::protobuf::reflect::ProtobufValue for FreeformCommand {
+    type RuntimeType = ::protobuf::reflect::rt::RuntimeTypeMessage<Self>;
+}
+
 // @@protoc_insertion_point(message:key_config.CommandAction)
 #[derive(PartialEq,Clone,Default,Debug)]
 pub struct CommandAction {
-    // message fields
-    // @@protoc_insertion_point(field:key_config.CommandAction.command)
-    pub command: ::std::string::String,
+    // message oneof groups
+    pub command: ::std::option::Option<command_action::Command>,
     // special fields
     // @@protoc_insertion_point(special_field:key_config.CommandAction.special_fields)
     pub special_fields: ::protobuf::SpecialFields,
@@ -661,14 +922,122 @@ impl CommandAction {
         ::std::default::Default::default()
     }
 
+    // .key_config.OpenAppCommand open_app_command = 1;
+
+    pub fn open_app_command(&self) -> &OpenAppCommand {
+        match self.command {
+            ::std::option::Option::Some(command_action::Command::OpenAppCommand(ref v)) => v,
+            _ => <OpenAppCommand as ::protobuf::Message>::default_instance(),
+        }
+    }
+
+    pub fn clear_open_app_command(&mut self) {
+        self.command = ::std::option::Option::None;
+    }
+
+    pub fn has_open_app_command(&self) -> bool {
+        match self.command {
+            ::std::option::Option::Some(command_action::Command::OpenAppCommand(..)) => true,
+            _ => false,
+        }
+    }
+
+    // Param is passed by value, moved
+    pub fn set_open_app_command(&mut self, v: OpenAppCommand) {
+        self.command = ::std::option::Option::Some(command_action::Command::OpenAppCommand(v))
+    }
+
+    // Mutable pointer to the field.
+    pub fn mut_open_app_command(&mut self) -> &mut OpenAppCommand {
+        if let ::std::option::Option::Some(command_action::Command::OpenAppCommand(_)) = self.command {
+        } else {
+            self.command = ::std::option::Option::Some(command_action::Command::OpenAppCommand(OpenAppCommand::new()));
+        }
+        match self.command {
+            ::std::option::Option::Some(command_action::Command::OpenAppCommand(ref mut v)) => v,
+            _ => panic!(),
+        }
+    }
+
+    // Take field
+    pub fn take_open_app_command(&mut self) -> OpenAppCommand {
+        if self.has_open_app_command() {
+            match self.command.take() {
+                ::std::option::Option::Some(command_action::Command::OpenAppCommand(v)) => v,
+                _ => panic!(),
+            }
+        } else {
+            OpenAppCommand::new()
+        }
+    }
+
+    // .key_config.FreeformCommand freeform_command = 2;
+
+    pub fn freeform_command(&self) -> &FreeformCommand {
+        match self.command {
+            ::std::option::Option::Some(command_action::Command::FreeformCommand(ref v)) => v,
+            _ => <FreeformCommand as ::protobuf::Message>::default_instance(),
+        }
+    }
+
+    pub fn clear_freeform_command(&mut self) {
+        self.command = ::std::option::Option::None;
+    }
+
+    pub fn has_freeform_command(&self) -> bool {
+        match self.command {
+            ::std::option::Option::Some(command_action::Command::FreeformCommand(..)) => true,
+            _ => false,
+        }
+    }
+
+    // Param is passed by value, moved
+    pub fn set_freeform_command(&mut self, v: FreeformCommand) {
+        self.command = ::std::option::Option::Some(command_action::Command::FreeformCommand(v))
+    }
+
+    // Mutable pointer to the field.
+    pub fn mut_freeform_command(&mut self) -> &mut FreeformCommand {
+        if let ::std::option::Option::Some(command_action::Command::FreeformCommand(_)) = self.command {
+        } else {
+            self.command = ::std::option::Option::Some(command_action::Command::FreeformCommand(FreeformCommand::new()));
+        }
+        match self.command {
+            ::std::option::Option::Some(command_action::Command::FreeformCommand(ref mut v)) => v,
+            _ => panic!(),
+        }
+    }
+
+    // Take field
+    pub fn take_freeform_command(&mut self) -> FreeformCommand {
+        if self.has_freeform_command() {
+            match self.command.take() {
+                ::std::option::Option::Some(command_action::Command::FreeformCommand(v)) => v,
+                _ => panic!(),
+            }
+        } else {
+            FreeformCommand::new()
+        }
+    }
+
     fn generated_message_descriptor_data() -> ::protobuf::reflect::GeneratedMessageDescriptorData {
-        let mut fields = ::std::vec::Vec::with_capacity(1);
-        let mut oneofs = ::std::vec::Vec::with_capacity(0);
-        fields.push(::protobuf::reflect::rt::v2::make_simpler_field_accessor::<_, _>(
-            "command",
-            |m: &CommandAction| { &m.command },
-            |m: &mut CommandAction| { &mut m.command },
+        let mut fields = ::std::vec::Vec::with_capacity(2);
+        let mut oneofs = ::std::vec::Vec::with_capacity(1);
+        fields.push(::protobuf::reflect::rt::v2::make_oneof_message_has_get_mut_set_accessor::<_, OpenAppCommand>(
+            "open_app_command",
+            CommandAction::has_open_app_command,
+            CommandAction::open_app_command,
+            CommandAction::mut_open_app_command,
+            CommandAction::set_open_app_command,
         ));
+        fields.push(::protobuf::reflect::rt::v2::make_oneof_message_has_get_mut_set_accessor::<_, FreeformCommand>(
+            "freeform_command",
+            CommandAction::has_freeform_command,
+            CommandAction::freeform_command,
+            CommandAction::mut_freeform_command,
+            CommandAction::set_freeform_command,
+        ));
+        oneofs.push(command_action::Command::generated_oneof_descriptor_data());
         ::protobuf::reflect::GeneratedMessageDescriptorData::new_2::<CommandAction>(
             "CommandAction",
             fields,
@@ -687,8 +1056,11 @@ impl ::protobuf::Message for CommandAction {
     fn merge_from(&mut self, is: &mut ::protobuf::CodedInputStream<'_>) -> ::protobuf::Result<()> {
         while let Some(tag) = is.read_raw_tag_or_eof()? {
             match tag {
+                10 => {
+                    self.command = ::std::option::Option::Some(command_action::Command::OpenAppCommand(is.read_message()?));
+                },
                 18 => {
-                    self.command = is.read_string()?;
+                    self.command = ::std::option::Option::Some(command_action::Command::FreeformCommand(is.read_message()?));
                 },
                 tag => {
                     ::protobuf::rt::read_unknown_or_skip_group(tag, is, self.special_fields.mut_unknown_fields())?;
@@ -702,8 +1074,17 @@ impl ::protobuf::Message for CommandAction {
     #[allow(unused_variables)]
     fn compute_size(&self) -> u64 {
         let mut my_size = 0;
-        if !self.command.is_empty() {
-            my_size += ::protobuf::rt::string_size(2, &self.command);
+        if let ::std::option::Option::Some(ref v) = self.command {
+            match v {
+                &command_action::Command::OpenAppCommand(ref v) => {
+                    let len = v.compute_size();
+                    my_size += 1 + ::protobuf::rt::compute_raw_varint64_size(len) + len;
+                },
+                &command_action::Command::FreeformCommand(ref v) => {
+                    let len = v.compute_size();
+                    my_size += 1 + ::protobuf::rt::compute_raw_varint64_size(len) + len;
+                },
+            };
         }
         my_size += ::protobuf::rt::unknown_fields_size(self.special_fields.unknown_fields());
         self.special_fields.cached_size().set(my_size as u32);
@@ -711,8 +1092,15 @@ impl ::protobuf::Message for CommandAction {
     }
 
     fn write_to_with_cached_sizes(&self, os: &mut ::protobuf::CodedOutputStream<'_>) -> ::protobuf::Result<()> {
-        if !self.command.is_empty() {
-            os.write_string(2, &self.command)?;
+        if let ::std::option::Option::Some(ref v) = self.command {
+            match v {
+                &command_action::Command::OpenAppCommand(ref v) => {
+                    ::protobuf::rt::write_message_field_with_cached_size(1, v, os)?;
+                },
+                &command_action::Command::FreeformCommand(ref v) => {
+                    ::protobuf::rt::write_message_field_with_cached_size(2, v, os)?;
+                },
+            };
         }
         os.write_unknown_fields(self.special_fields.unknown_fields())?;
         ::std::result::Result::Ok(())
@@ -731,13 +1119,14 @@ impl ::protobuf::Message for CommandAction {
     }
 
     fn clear(&mut self) {
-        self.command.clear();
+        self.command = ::std::option::Option::None;
+        self.command = ::std::option::Option::None;
         self.special_fields.clear();
     }
 
     fn default_instance() -> &'static CommandAction {
         static instance: CommandAction = CommandAction {
-            command: ::std::string::String::new(),
+            command: ::std::option::Option::None,
             special_fields: ::protobuf::SpecialFields::new(),
         };
         &instance
@@ -759,6 +1148,36 @@ impl ::std::fmt::Display for CommandAction {
 
 impl ::protobuf::reflect::ProtobufValue for CommandAction {
     type RuntimeType = ::protobuf::reflect::rt::RuntimeTypeMessage<Self>;
+}
+
+/// Nested message and enums of message `CommandAction`
+pub mod command_action {
+
+    #[derive(Clone,PartialEq,Debug)]
+    #[non_exhaustive]
+    // @@protoc_insertion_point(oneof:key_config.CommandAction.command)
+    pub enum Command {
+        // @@protoc_insertion_point(oneof_field:key_config.CommandAction.open_app_command)
+        OpenAppCommand(super::OpenAppCommand),
+        // @@protoc_insertion_point(oneof_field:key_config.CommandAction.freeform_command)
+        FreeformCommand(super::FreeformCommand),
+    }
+
+    impl ::protobuf::Oneof for Command {
+    }
+
+    impl ::protobuf::OneofFull for Command {
+        fn descriptor() -> ::protobuf::reflect::OneofDescriptor {
+            static descriptor: ::protobuf::rt::Lazy<::protobuf::reflect::OneofDescriptor> = ::protobuf::rt::Lazy::new();
+            descriptor.get(|| <super::CommandAction as ::protobuf::MessageFull>::descriptor().oneof_by_name("command").unwrap()).clone()
+        }
+    }
+
+    impl Command {
+        pub(in super) fn generated_oneof_descriptor_data() -> ::protobuf::reflect::GeneratedOneofDescriptorData {
+            ::protobuf::reflect::GeneratedOneofDescriptorData::new::<Command>("command")
+        }
+    }
 }
 
 #[derive(Clone,Copy,PartialEq,Eq,Debug,Hash)]
@@ -831,9 +1250,15 @@ static file_descriptor_proto_data: &'static [u8] = b"\
     \n\x08modifier\x18\x02\x20\x01(\x0e2\x04.KeyH\0R\x08modifier\x88\x01\x01\
     \x12\x1d\n\x07unicode\x18\x03\x20\x01(\rH\x01R\x07unicode\x88\x01\x01\
     \x12)\n\x0eother_key_code\x18\x04\x20\x01(\rH\x02R\x0cotherKeyCode\x88\
-    \x01\x01B\x0b\n\t_modifierB\n\n\x08_unicodeB\x11\n\x0f_other_key_code\")\
-    \n\rCommandAction\x12\x18\n\x07command\x18\x02\x20\x01(\tR\x07command*!\
-    \n\nActionType\x12\x13\n\x0fACTION_TYPE_KEY\x10\0b\x06proto3\
+    \x01\x01B\x0b\n\t_modifierB\n\n\x08_unicodeB\x11\n\x0f_other_key_code\"+\
+    \n\x0eOpenAppCommand\x12\x19\n\x08app_path\x18\x01\x20\x01(\tR\x07appPat\
+    h\"?\n\x0fFreeformCommand\x12\x18\n\x07command\x18\x01\x20\x01(\tR\x07co\
+    mmand\x12\x12\n\x04args\x18\x02\x20\x03(\tR\x04args\"\xac\x01\n\rCommand\
+    Action\x12F\n\x10open_app_command\x18\x01\x20\x01(\x0b2\x1a.key_config.O\
+    penAppCommandH\0R\x0eopenAppCommand\x12H\n\x10freeform_command\x18\x02\
+    \x20\x01(\x0b2\x1b.key_config.FreeformCommandH\0R\x0ffreeformCommandB\t\
+    \n\x07command*!\n\nActionType\x12\x13\n\x0fACTION_TYPE_KEY\x10\0b\x06pro\
+    to3\
 ";
 
 /// `FileDescriptorProto` object which was a source for this generated file
@@ -853,10 +1278,12 @@ pub fn file_descriptor() -> &'static ::protobuf::reflect::FileDescriptor {
             let mut deps = ::std::vec::Vec::with_capacity(2);
             deps.push(super::keys::file_descriptor().clone());
             deps.push(super::inputs::file_descriptor().clone());
-            let mut messages = ::std::vec::Vec::with_capacity(4);
+            let mut messages = ::std::vec::Vec::with_capacity(6);
             messages.push(KeyConfig::generated_message_descriptor_data());
             messages.push(Action::generated_message_descriptor_data());
             messages.push(KeyAction::generated_message_descriptor_data());
+            messages.push(OpenAppCommand::generated_message_descriptor_data());
+            messages.push(FreeformCommand::generated_message_descriptor_data());
             messages.push(CommandAction::generated_message_descriptor_data());
             let mut enums = ::std::vec::Vec::with_capacity(1);
             enums.push(ActionType::generated_enum_descriptor_data());

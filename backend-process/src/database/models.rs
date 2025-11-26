@@ -6,7 +6,9 @@ use serde::{Deserialize, Serialize};
 #[derive(Debug, PartialEq, Clone, Serialize, Deserialize)]
 pub enum Action {
     Key(Key),
-    Command(String),
+    /// (command, args)
+    Command(String, Vec<String>),
+    Noop
 }
 
 /// The format we want to use inside the backend to handle actions

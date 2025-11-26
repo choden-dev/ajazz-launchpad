@@ -8,6 +8,7 @@ use firmware_api::inputs::knobs::KnobActions;
 use firmware_api::inputs::touchscreen::TouchscreenAction;
 use messaging::protos;
 use messaging::protos::key_config::action::Action_data;
+use messaging::protos::key_config::command_action;
 use protobuf::Enum;
 use std::io::{Error, ErrorKind};
 
@@ -160,17 +161,33 @@ impl TryFrom<protos::key_config::KeyConfig> for InputMapping {
             .map(|a| {
                 match a.clone().action_data {
                     Some(item) => match item {
-                        Action_data::CommandAction(command) => Action::Command(command.command),
+                        Action_data::CommandAction(command) => {
+                            if let Some(command_type) = command.command {
+                                return match command_type {
+                                    command_action::Command::FreeformCommand(command) => {
+                                        Action::Command(command.command, command.args)
+                                    }
+                                    command_action::Command::OpenAppCommand(command) => {
+                                        Action::Command(
+                                            String::from("Open command"),
+                                            vec![command.app_path],
+                                        )
+                                    }
+                                    _ => Action::Noop,
+                                };
+                            }
+                            Action::Noop
+                        }
                         Action_data::KeyAction(key) => {
                             if let Ok(key_val) = KeyWrapper::try_from(key) {
                                 return Action::Key(key_val.0);
                             }
                             // Stub out invalid values
-                            Action::Command(String::new())
+                            Action::Noop
                         }
-                        _ => Action::Command(String::new()),
+                        _ => Action::Noop,
                     },
-                    _ => Action::Command(String::new()),
+                    _ => Action::Noop,
                 }
             })
             .collect::<Vec<Action>>();
@@ -354,6 +371,7 @@ impl TryFrom<protos::key_config::KeyAction> for KeyWrapper {
 mod tests {
     use super::*;
     use firmware_api::inputs::InputActions::Knob;
+    use messaging::protos::key_config::FreeformCommand;
 
     #[test]
     fn parse_key_action_properly() {
@@ -440,7 +458,11 @@ mod tests {
                     ..protos::key_config::KeyAction::default()
                 }),
                 Action_data::CommandAction(protos::key_config::CommandAction {
-                    command: String::from("NAH"),
+                    command: Some(command_action::Command::FreeformCommand(FreeformCommand {
+                        command: String::from("command"),
+                        args: vec![String::from("arg1"), String::from("arg2")],
+                        ..FreeformCommand::default()
+                    })),
                     ..protos::key_config::CommandAction::default()
                 }),
             ],
@@ -450,7 +472,13 @@ mod tests {
             InputMapping::try_from(proto).unwrap(),
             InputMapping::new(
                 Unknown,
-                vec![Action::Key(Key::Add), Action::Command(String::from("NAH"))]
+                vec![
+                    Action::Key(Key::Add),
+                    Action::Command(
+                        String::from("command"),
+                        vec![String::from("arg1"), String::from("arg2")]
+                    )
+                ]
             )
         )
     }

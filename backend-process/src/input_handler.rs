@@ -8,6 +8,7 @@ use firmware_api::inputs::buttons::ButtonActions::Button1Pressed;
 use firmware_api::inputs::knobs::KnobActions;
 use firmware_api::inputs::touchscreen::TouchscreenAction;
 use std::collections::HashMap;
+use std::process::Command;
 use std::sync::Mutex;
 
 pub trait KeyActionExecutor {
@@ -104,9 +105,10 @@ impl<'a> LaunchpadInputHandler<'a> {
                     Action::Key(key) => {
                         self.key_action_executor.execute(&[*key]).ok();
                     }
-                    Action::Command(command) => {
-                        todo!("{}", command)
+                    Action::Command(command, args) => {
+                        Command::new(command).args(args).spawn().ok();
                     }
+                    _ => {}
                 }
             }
         }

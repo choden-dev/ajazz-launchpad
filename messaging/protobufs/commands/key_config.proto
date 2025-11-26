@@ -29,6 +29,18 @@ message KeyAction {
   optional uint32 other_key_code = 4;
 }
 
+message OpenAppCommand {
+  string app_path = 1;
+}
+
+message FreeformCommand {
+  string command = 1;
+  repeated string args = 2;
+}
+
 message CommandAction {
-  string command = 2;
+  oneof command {
+    OpenAppCommand open_app_command = 1;
+    FreeformCommand freeform_command = 2;
+  }
 }
