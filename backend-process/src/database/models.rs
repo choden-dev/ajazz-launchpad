@@ -5,7 +5,8 @@ use serde::{Deserialize, Serialize};
 
 #[derive(Debug, PartialEq, Clone, Serialize, Deserialize)]
 pub enum Action {
-    Key(Key),
+    /// (key, modifiers)
+    Key(Key, Vec<Key>),
     /// (command, args)
     Command(String, Vec<String>),
     Noop

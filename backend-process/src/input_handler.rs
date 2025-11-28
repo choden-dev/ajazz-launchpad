@@ -12,7 +12,7 @@ use std::process::Command;
 use std::sync::Mutex;
 
 pub trait KeyActionExecutor {
-    fn execute(&self, actions: &[Key]) -> Result<(), String>;
+    fn execute(&self, actions: &[(Key, Vec<Key>)]) -> Result<(), String>;
 }
 
 pub struct EnigoKeyActionHandler {
@@ -44,7 +44,7 @@ impl Default for InputMapping {
     fn default() -> Self {
         Self(HashMap::from([(
             InputActions::Button(Button1Pressed),
-            vec![Action::Key(Key::VolumeDown)],
+            vec![Action::Key(Key::VolumeDown, vec![])],
         )]))
     }
 }
@@ -69,10 +69,17 @@ impl From<models::InputMapping> for InputMapping {
     }
 }
 impl KeyActionExecutor for EnigoKeyActionHandler {
-    fn execute(&self, actions: &[Key]) -> Result<(), String> {
+    fn execute(&self, actions: &[(Key, Vec<Key>)]) -> Result<(), String> {
         let mut lock = self.enigo.lock().map_err(|e| e.to_string())?;
-        let _: () = actions.iter().for_each(|action| {
+        let _: () = actions.iter().for_each(|(action, modifiers)| {
+            modifiers.iter().for_each(|modifier| {
+                lock.key(*modifier, enigo::Direction::Press).ok();
+            });
             lock.key(*action, enigo::Direction::Click).ok();
+
+            modifiers.iter().for_each(|modifier| {
+                lock.key(*modifier, enigo::Direction::Release).ok();
+            });
         });
         Ok(())
     }
@@ -102,8 +109,10 @@ impl<'a> LaunchpadInputHandler<'a> {
         if let Some(actions) = self.input_mapping.0.get(&input_action) {
             for action in actions {
                 match action {
-                    Action::Key(key) => {
-                        self.key_action_executor.execute(&[*key]).ok();
+                    Action::Key(key, modifiers) => {
+                        self.key_action_executor
+                            .execute(&[(*key, modifiers.clone())])
+                            .ok();
                     }
                     Action::Command(command, args) => {
                         Command::new(command).args(args).spawn().ok();

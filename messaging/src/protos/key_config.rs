@@ -470,7 +470,7 @@ pub struct KeyAction {
     // @@protoc_insertion_point(field:key_config.KeyAction.key)
     pub key: ::protobuf::EnumOrUnknown<super::keys::Key>,
     // @@protoc_insertion_point(field:key_config.KeyAction.modifier)
-    pub modifier: ::std::option::Option<::protobuf::EnumOrUnknown<super::keys::Key>>,
+    pub modifier: ::std::vec::Vec<::protobuf::EnumOrUnknown<super::keys::Key>>,
     // @@protoc_insertion_point(field:key_config.KeyAction.unicode)
     pub unicode: ::std::option::Option<u32>,
     // @@protoc_insertion_point(field:key_config.KeyAction.other_key_code)
@@ -499,7 +499,7 @@ impl KeyAction {
             |m: &KeyAction| { &m.key },
             |m: &mut KeyAction| { &mut m.key },
         ));
-        fields.push(::protobuf::reflect::rt::v2::make_option_accessor::<_, _>(
+        fields.push(::protobuf::reflect::rt::v2::make_vec_simpler_accessor::<_, _>(
             "modifier",
             |m: &KeyAction| { &m.modifier },
             |m: &mut KeyAction| { &mut m.modifier },
@@ -536,7 +536,10 @@ impl ::protobuf::Message for KeyAction {
                     self.key = is.read_enum_or_unknown()?;
                 },
                 16 => {
-                    self.modifier = ::std::option::Option::Some(is.read_enum_or_unknown()?);
+                    self.modifier.push(is.read_enum_or_unknown()?);
+                },
+                18 => {
+                    ::protobuf::rt::read_repeated_packed_enum_or_unknown_into(is, &mut self.modifier)?
                 },
                 24 => {
                     self.unicode = ::std::option::Option::Some(is.read_uint32()?);
@@ -559,9 +562,7 @@ impl ::protobuf::Message for KeyAction {
         if self.key != ::protobuf::EnumOrUnknown::new(super::keys::Key::KEY_UNSPECIFIED) {
             my_size += ::protobuf::rt::int32_size(1, self.key.value());
         }
-        if let Some(v) = self.modifier {
-            my_size += ::protobuf::rt::int32_size(2, v.value());
-        }
+        my_size += ::protobuf::rt::vec_packed_enum_or_unknown_size(2, &self.modifier);
         if let Some(v) = self.unicode {
             my_size += ::protobuf::rt::uint32_size(3, v);
         }
@@ -577,9 +578,7 @@ impl ::protobuf::Message for KeyAction {
         if self.key != ::protobuf::EnumOrUnknown::new(super::keys::Key::KEY_UNSPECIFIED) {
             os.write_enum(1, ::protobuf::EnumOrUnknown::value(&self.key))?;
         }
-        if let Some(v) = self.modifier {
-            os.write_enum(2, ::protobuf::EnumOrUnknown::value(&v))?;
-        }
+        os.write_repeated_packed_enum_or_unknown(2, &self.modifier)?;
         if let Some(v) = self.unicode {
             os.write_uint32(3, v)?;
         }
@@ -604,7 +603,7 @@ impl ::protobuf::Message for KeyAction {
 
     fn clear(&mut self) {
         self.key = ::protobuf::EnumOrUnknown::new(super::keys::Key::KEY_UNSPECIFIED);
-        self.modifier = ::std::option::Option::None;
+        self.modifier.clear();
         self.unicode = ::std::option::Option::None;
         self.other_key_code = ::std::option::Option::None;
         self.special_fields.clear();
@@ -613,7 +612,7 @@ impl ::protobuf::Message for KeyAction {
     fn default_instance() -> &'static KeyAction {
         static instance: KeyAction = KeyAction {
             key: ::protobuf::EnumOrUnknown::from_i32(0),
-            modifier: ::std::option::Option::None,
+            modifier: ::std::vec::Vec::new(),
             unicode: ::std::option::Option::None,
             other_key_code: ::std::option::Option::None,
             special_fields: ::protobuf::SpecialFields::new(),
@@ -1245,20 +1244,19 @@ static file_descriptor_proto_data: &'static [u8] = b"\
     Action\x12*\n\x04type\x18\x01\x20\x01(\x0e2\x16.key_config.ActionTypeR\
     \x04type\x126\n\nkey_action\x18\x02\x20\x01(\x0b2\x15.key_config.KeyActi\
     onH\0R\tkeyAction\x12B\n\x0ecommand_action\x18\x03\x20\x01(\x0b2\x19.key\
-    _config.CommandActionH\0R\rcommandActionB\r\n\x0baction_data\"\xc0\x01\n\
-    \tKeyAction\x12\x16\n\x03key\x18\x01\x20\x01(\x0e2\x04.KeyR\x03key\x12%\
-    \n\x08modifier\x18\x02\x20\x01(\x0e2\x04.KeyH\0R\x08modifier\x88\x01\x01\
-    \x12\x1d\n\x07unicode\x18\x03\x20\x01(\rH\x01R\x07unicode\x88\x01\x01\
-    \x12)\n\x0eother_key_code\x18\x04\x20\x01(\rH\x02R\x0cotherKeyCode\x88\
-    \x01\x01B\x0b\n\t_modifierB\n\n\x08_unicodeB\x11\n\x0f_other_key_code\"+\
-    \n\x0eOpenAppCommand\x12\x19\n\x08app_path\x18\x01\x20\x01(\tR\x07appPat\
-    h\"?\n\x0fFreeformCommand\x12\x18\n\x07command\x18\x01\x20\x01(\tR\x07co\
-    mmand\x12\x12\n\x04args\x18\x02\x20\x03(\tR\x04args\"\xac\x01\n\rCommand\
-    Action\x12F\n\x10open_app_command\x18\x01\x20\x01(\x0b2\x1a.key_config.O\
-    penAppCommandH\0R\x0eopenAppCommand\x12H\n\x10freeform_command\x18\x02\
-    \x20\x01(\x0b2\x1b.key_config.FreeformCommandH\0R\x0ffreeformCommandB\t\
-    \n\x07command*!\n\nActionType\x12\x13\n\x0fACTION_TYPE_KEY\x10\0b\x06pro\
-    to3\
+    _config.CommandActionH\0R\rcommandActionB\r\n\x0baction_data\"\xae\x01\n\
+    \tKeyAction\x12\x16\n\x03key\x18\x01\x20\x01(\x0e2\x04.KeyR\x03key\x12\
+    \x20\n\x08modifier\x18\x02\x20\x03(\x0e2\x04.KeyR\x08modifier\x12\x1d\n\
+    \x07unicode\x18\x03\x20\x01(\rH\0R\x07unicode\x88\x01\x01\x12)\n\x0eothe\
+    r_key_code\x18\x04\x20\x01(\rH\x01R\x0cotherKeyCode\x88\x01\x01B\n\n\x08\
+    _unicodeB\x11\n\x0f_other_key_code\"+\n\x0eOpenAppCommand\x12\x19\n\x08a\
+    pp_path\x18\x01\x20\x01(\tR\x07appPath\"?\n\x0fFreeformCommand\x12\x18\n\
+    \x07command\x18\x01\x20\x01(\tR\x07command\x12\x12\n\x04args\x18\x02\x20\
+    \x03(\tR\x04args\"\xac\x01\n\rCommandAction\x12F\n\x10open_app_command\
+    \x18\x01\x20\x01(\x0b2\x1a.key_config.OpenAppCommandH\0R\x0eopenAppComma\
+    nd\x12H\n\x10freeform_command\x18\x02\x20\x01(\x0b2\x1b.key_config.Freef\
+    ormCommandH\0R\x0ffreeformCommandB\t\n\x07command*!\n\nActionType\x12\
+    \x13\n\x0fACTION_TYPE_KEY\x10\0b\x06proto3\
 ";
 
 /// `FileDescriptorProto` object which was a source for this generated file

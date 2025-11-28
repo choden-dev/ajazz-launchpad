@@ -24,7 +24,7 @@ enum ActionType {
 
 message KeyAction {
   Key key = 1;                   // e.g., "v", "f1", "enter"
-  optional Key modifier = 2;
+  repeated Key modifier = 2;
   optional uint32 unicode = 3;   // only required if we are using a key input
   optional uint32 other_key_code = 4;
 }

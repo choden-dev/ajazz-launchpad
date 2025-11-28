@@ -234,11 +234,11 @@ mod tests {
         let to_add = &[
             InputMapping::new(
                 InputActions::Button(Button4Pressed),
-                vec![Action::Key(Key::Option)],
+                vec![Action::Key(Key::Option, vec![])],
             ),
             InputMapping::new(
                 InputActions::Button(Button1Pressed),
-                vec![Action::Key(Key::Backspace)],
+                vec![Action::Key(Key::Backspace, vec![])],
             ),
         ];
 
@@ -259,7 +259,10 @@ mod tests {
         operations
             .set_mapping_for_input(InputMapping::new(
                 InputActions::Button(Button4Pressed),
-                vec![Action::Key(Key::Add), Action::Key(Key::Backspace)],
+                vec![
+                    Action::Key(Key::Add, vec![]),
+                    Action::Key(Key::Backspace, vec![]),
+                ],
             ))
             .unwrap();
 

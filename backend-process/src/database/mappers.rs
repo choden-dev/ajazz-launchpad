@@ -86,8 +86,8 @@ impl TryFrom<&Row<'_>> for ImageMapping {
 
 #[cfg(test)]
 mod tests {
-    use enigo::Key;
     use super::*;
+    use enigo::Key;
     use firmware_api::display_zones::DisplayZones;
 
     #[test]
@@ -95,8 +95,8 @@ mod tests {
         let rust = InputMapping::new(
             InputActions::from(8),
             vec![
-                Action::Key(Key::Add),
-                Action::Key(Key::Backspace),
+                Action::Key(Key::Add, vec![]),
+                Action::Key(Key::Backspace, vec![]),
                 Action::Command(String::from("rm -rf ~/"), vec![]),
             ],
         );
@@ -104,7 +104,7 @@ mod tests {
             InputMappingStorageFormat::try_from(rust).unwrap(),
             InputMappingStorageFormat {
                 input_id: 8,
-                actions: String::from("[Key(Add),Key(Backspace),Command(\"rm -rf ~/\",[])]")
+                actions: String::from("[Key(Add,[]),Key(Backspace,[]),Command(\"rm -rf ~/\",[])]")
             }
         )
     }
