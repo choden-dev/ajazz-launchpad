@@ -50,6 +50,24 @@ impl KeyConfigActionBuilder {
         self
     }
 
+    /// Appends the given `command` to the current protobuf
+    pub fn add_command_action(
+        mut self,
+        command: protos::key_config::command_action::Command,
+    ) -> Self {
+        let action = protos::key_config::Action {
+            action_data: Some(protos::key_config::action::Action_data::CommandAction(
+                protos::key_config::CommandAction {
+                    command: Some(command),
+                    ..protos::key_config::CommandAction::default()
+                },
+            )),
+            ..protos::key_config::Action::default()
+        };
+        self.actions.push(action);
+        self
+    }
+
     /// Vector of built protobuf actions
     pub fn actions(&self) -> &Vec<protos::key_config::Action> {
         &self.actions
