@@ -12,8 +12,8 @@ use messaging::client_wrapper::{ClientCommands, ClientWrapper};
 use messaging::proto_builders::KeyConfigActionBuilder;
 use messaging::protos::display_zones::DisplayZone;
 use messaging::protos::inputs::InputId;
-use messaging::protos::key_config::command_action::Command;
 use messaging::protos::key_config::FreeformCommand;
+use messaging::protos::key_config::command_action::Command;
 use messaging::protos::keys::Key;
 
 fn main() {
@@ -73,12 +73,10 @@ fn main() {
                     .send_key_config(
                         InputId::BUTTON_1_PRESSED,
                         KeyConfigActionBuilder::new()
-                            .add_command_action(Command::FreeformCommand(
-                                FreeformCommand {
-                                    command: String::from("zed"),
-                                    ..FreeformCommand::default()
-                                }
-                            ))
+                            .add_command_action(Command::FreeformCommand(FreeformCommand {
+                                command: String::from("zed"),
+                                ..FreeformCommand::default()
+                            }))
                             .actions()
                             .clone(),
                     )

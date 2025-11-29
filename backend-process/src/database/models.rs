@@ -9,7 +9,7 @@ pub enum Action {
     Key(Key, Vec<Key>),
     /// (command, args)
     Command(String, Vec<String>),
-    Noop
+    Noop,
 }
 
 /// The format we want to use inside the backend to handle actions
