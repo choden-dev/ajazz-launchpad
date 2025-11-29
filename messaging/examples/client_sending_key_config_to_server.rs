@@ -48,7 +48,7 @@ fn main() {
                     .send_key_config(
                         InputId::KNOB_1_CLOCKWISE,
                         KeyConfigActionBuilder::new()
-                            .add_key_action(Key::KEY_VOLUME_UP)
+                            .add_key_action(Key::KEY_VOLUME_UP, vec![Key::KEY_SHIFT, Key::KEY_ALT])
                             .actions()
                             .clone(),
                     )
@@ -58,7 +58,10 @@ fn main() {
                     .send_key_config(
                         InputId::KNOB_1_COUNTER_CLOCKWISE,
                         KeyConfigActionBuilder::new()
-                            .add_key_action(Key::KEY_VOLUME_DOWN)
+                            .add_key_action(
+                                Key::KEY_VOLUME_DOWN,
+                                vec![Key::KEY_SHIFT, Key::KEY_ALT],
+                            )
                             .actions()
                             .clone(),
                     )
@@ -97,6 +100,14 @@ fn main() {
         },
         Err(_) => {
             panic!("Did not enter a valid choice")
+        }
+    }
+
+    println!("Press any key to quit");
+    loop {
+        io::stdin().read_line(&mut buffer).unwrap();
+        if !buffer.trim().is_empty() {
+            break;
         }
     }
 }

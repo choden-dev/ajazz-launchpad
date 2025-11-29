@@ -28,11 +28,19 @@ impl KeyConfigActionBuilder {
         }
     }
     /// Appends the given `key` to the current protobuf
-    pub fn add_key_action(mut self, key: protos::keys::Key) -> Self {
+    pub fn add_key_action(
+        mut self,
+        key: protos::keys::Key,
+        modifiers: Vec<protos::keys::Key>,
+    ) -> Self {
         let action = protos::key_config::Action {
             action_data: Some(protos::key_config::action::Action_data::KeyAction(
                 protos::key_config::KeyAction {
                     key: protobuf::EnumOrUnknown::from(key),
+                    modifier: modifiers
+                        .iter()
+                        .map(|m| protobuf::EnumOrUnknown::from(*m))
+                        .collect(),
                     ..protos::key_config::KeyAction::default()
                 },
             )),
