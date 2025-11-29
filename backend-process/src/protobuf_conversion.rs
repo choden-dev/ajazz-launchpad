@@ -376,7 +376,9 @@ impl TryFrom<protos::key_config::KeyAction> for KeyWrapper {
                             Ok(c) => Ok(KeyWrapper(Key::Unicode(c))),
                             Err(e) => Err(e.to_string()),
                         },
-                        None => Err("Unicode value not found when unicode key provided".to_string()),
+                        None => {
+                            Err("Unicode value not found when unicode key provided".to_string())
+                        }
                     },
                     KeyWrapper(Key::Other(_)) => match value.other_key_code {
                         Some(key_code) => Ok(KeyWrapper(Key::Other(key_code))),
