@@ -40,7 +40,7 @@ impl From<(IcedKey, Modifiers)> for ProtoKeyActionWrapper {
             modifier: ProtoModifierWrapper::from(modifiers)
                 .0
                 .iter()
-                .map(|modifier_key| EnumOrUnknown::new(modifier_key.clone()))
+                .map(|modifier_key| EnumOrUnknown::new(*modifier_key))
                 .collect(),
             ..KeyAction::default()
         })

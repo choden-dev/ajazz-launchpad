@@ -368,8 +368,9 @@ impl TryFrom<protos::key_config::KeyAction> for KeyWrapper {
     type Error = String;
     fn try_from(value: protos::key_config::KeyAction) -> Result<Self, Self::Error> {
         match value.key.enum_value() {
-            Ok(key) => match KeyWrapper::from(key) {
-                key_wrapper => match key_wrapper {
+            Ok(key) => {
+                let key_wrapper = KeyWrapper::from(key);
+                match key_wrapper {
                     KeyWrapper(Key::Unicode(_)) => match value.unicode {
                         Some(unicode) => match char::try_from(unicode) {
                             Ok(c) => Ok(KeyWrapper(Key::Unicode(c))),
@@ -382,8 +383,8 @@ impl TryFrom<protos::key_config::KeyAction> for KeyWrapper {
                         None => Err("Other key code not found".to_string()),
                     },
                     _ => Ok(key_wrapper),
-                },
-            },
+                }
+            }
             Err(e) => Err(format!(
                 "Error matching key, an unsupported format may have been provided: {:?}",
                 e.to_string()
