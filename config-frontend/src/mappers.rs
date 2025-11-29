@@ -11,6 +11,8 @@ use protobuf::EnumOrUnknown;
 /// Util type to assist with conversion to the protobuf Key format
 pub struct ProtoKeyWrapper(Key);
 
+pub struct ProtoModifierWrapper(Vec<Key>);
+
 impl ProtoKeyWrapper {
     pub fn key(&self) -> Key {
         self.0
@@ -26,7 +28,7 @@ impl ProtoKeyActionWrapper {
 }
 
 impl From<(IcedKey, Modifiers)> for ProtoKeyActionWrapper {
-    fn from((key, _): (IcedKey, Modifiers)) -> Self {
+    fn from((key, modifiers): (IcedKey, Modifiers)) -> Self {
         ProtoKeyActionWrapper(KeyAction {
             key: EnumOrUnknown::from(ProtoKeyWrapper::from(key.clone()).key()),
             unicode: match key {
@@ -35,8 +37,41 @@ impl From<(IcedKey, Modifiers)> for ProtoKeyActionWrapper {
                 }
                 _ => None,
             },
+            modifier: ProtoModifierWrapper::from(modifiers)
+                .0
+                .iter()
+                .map(|modifier_key| EnumOrUnknown::new(*modifier_key))
+                .collect(),
             ..KeyAction::default()
         })
+    }
+}
+
+impl From<Modifiers> for ProtoModifierWrapper {
+    fn from(modifiers: Modifiers) -> Self {
+        let mut list = vec![];
+
+        if modifiers.command() {
+            list.push(Key::KEY_COMMAND);
+        }
+
+        if modifiers.shift() {
+            list.push(Key::KEY_SHIFT);
+        }
+
+        if modifiers.alt() {
+            list.push(Key::KEY_ALT);
+        }
+
+        if modifiers.macos_command() {
+            list.push(Key::KEY_COMMAND);
+        }
+
+        if modifiers.jump() {
+            list.push(Key::KEY_CONTROL);
+        }
+
+        ProtoModifierWrapper(list)
     }
 }
 

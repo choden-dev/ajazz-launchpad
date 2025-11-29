@@ -1,3 +1,5 @@
+use crate::database::models;
+use crate::database::models::Action;
 use enigo::{Enigo, Key, Keyboard};
 use firmware_api::device::InputHandler;
 use firmware_api::inputs::InputActions;
@@ -6,12 +8,11 @@ use firmware_api::inputs::buttons::ButtonActions::Button1Pressed;
 use firmware_api::inputs::knobs::KnobActions;
 use firmware_api::inputs::touchscreen::TouchscreenAction;
 use std::collections::HashMap;
+use std::process::Command;
 use std::sync::Mutex;
 
-use crate::database::models;
-
 pub trait KeyActionExecutor {
-    fn execute(&self, actions: &[Key]) -> Result<(), String>;
+    fn execute(&self, actions: &[(Key, Vec<Key>)]) -> Result<(), String>;
 }
 
 pub struct EnigoKeyActionHandler {
@@ -29,7 +30,7 @@ impl Default for EnigoKeyActionHandler {
 /// Used by the application to access the current set of input mappings in-memory,
 /// This should be the object queried when handling input to avoid database queries.
 #[derive(Clone)]
-pub struct InputMapping(HashMap<InputActions, Vec<Key>>);
+pub struct InputMapping(HashMap<InputActions, Vec<Action>>);
 
 impl InputMapping {
     /// Used to set new configs for the keys
@@ -43,7 +44,7 @@ impl Default for InputMapping {
     fn default() -> Self {
         Self(HashMap::from([(
             InputActions::Button(Button1Pressed),
-            vec![Key::VolumeDown],
+            vec![Action::Key(Key::VolumeDown, vec![])],
         )]))
     }
 }
@@ -68,10 +69,17 @@ impl From<models::InputMapping> for InputMapping {
     }
 }
 impl KeyActionExecutor for EnigoKeyActionHandler {
-    fn execute(&self, actions: &[Key]) -> Result<(), String> {
+    fn execute(&self, actions: &[(Key, Vec<Key>)]) -> Result<(), String> {
         let mut lock = self.enigo.lock().map_err(|e| e.to_string())?;
-        let _: () = actions.iter().for_each(|action| {
+        let _: () = actions.iter().for_each(|(action, modifiers)| {
+            modifiers.iter().for_each(|modifier| {
+                lock.key(*modifier, enigo::Direction::Press).ok();
+            });
             lock.key(*action, enigo::Direction::Click).ok();
+
+            modifiers.iter().for_each(|modifier| {
+                lock.key(*modifier, enigo::Direction::Release).ok();
+            });
         });
         Ok(())
     }
@@ -99,7 +107,19 @@ impl<'a> LaunchpadInputHandler<'a> {
 
     fn execute_keys(&self, input_action: InputActions) {
         if let Some(actions) = self.input_mapping.0.get(&input_action) {
-            self.key_action_executor.execute(actions).ok();
+            for action in actions {
+                match action {
+                    Action::Key(key, modifiers) => {
+                        self.key_action_executor
+                            .execute(&[(*key, modifiers.clone())])
+                            .ok();
+                    }
+                    Action::Command(command, args) => {
+                        Command::new(command).args(args).spawn().ok();
+                    }
+                    _ => {}
+                }
+            }
         }
     }
 

@@ -1,4 +1,4 @@
-use crate::database::models::{ImageMapping, InputMapping};
+use crate::database::models::{Action, ImageMapping, InputMapping};
 use enigo::Key;
 use firmware_api::display_zones::DisplayZones;
 use firmware_api::inputs::InputActions;
@@ -7,7 +7,9 @@ use firmware_api::inputs::buttons::ButtonActions;
 use firmware_api::inputs::knobs::KnobActions;
 use firmware_api::inputs::touchscreen::TouchscreenAction;
 use messaging::protos;
-use protobuf::Enum;
+use messaging::protos::key_config::action::Action_data;
+use messaging::protos::key_config::command_action;
+use std::char;
 use std::io::{Error, ErrorKind};
 
 /// Util struct for mapping the protobuf key into an `Enigo` key
@@ -153,16 +155,57 @@ impl TryFrom<protos::key_config::KeyConfig> for InputMapping {
 
     fn try_from(value: protos::key_config::KeyConfig) -> Result<Self, Self::Error> {
         let input_id: InputActionWrapper = value.input_id.enum_value().unwrap().into();
-        let actions: Vec<KeyWrapper> = value
+        let actions = value
             .actions
             .iter()
-            .map(|a| a.key_action().clone().try_into().map_err(|_| ()))
-            .collect::<Result<Vec<_>, _>>()?;
+            .map(|a| {
+                match a.clone().action_data {
+                    Some(item) => match item {
+                        Action_data::CommandAction(command) => {
+                            if let Some(command_type) = command.command {
+                                return match command_type {
+                                    command_action::Command::FreeformCommand(command) => {
+                                        Action::Command(command.command, command.args)
+                                    }
+                                    command_action::Command::OpenAppCommand(command) => {
+                                        Action::Command(
+                                            String::from("Open command"),
+                                            vec![command.app_path],
+                                        )
+                                    }
+                                    _ => Action::Noop,
+                                };
+                            }
+                            Action::Noop
+                        }
+                        Action_data::KeyAction(key) => {
+                            if let Ok(key_val) = KeyWrapper::try_from(key.clone()) {
+                                return Action::Key(
+                                    key_val.0,
+                                    key.modifier
+                                        .iter()
+                                        .filter_map(|modifier_key| {
+                                            match modifier_key.enum_value() {
+                                                Ok(modifier_key_value) => {
+                                                    Some(KeyWrapper::from(modifier_key_value).0)
+                                                }
+                                                Err(_) => None,
+                                            }
+                                        })
+                                        .collect::<Vec<Key>>(),
+                                );
+                            }
+                            // Stub out invalid values
+                            Action::Noop
+                        }
+                        _ => Action::Noop,
+                    },
+                    _ => Action::Noop,
+                }
+            })
+            .collect::<Vec<Action>>();
 
-        Ok(InputMapping::new(
-            input_id.0,
-            actions.iter().map(|a| a.0).collect(),
-        ))
+        Ok(InputMapping::new(input_id.0, actions))
     }
 }
 
@@ -245,90 +288,105 @@ impl TryFrom<protos::display_zones::DisplayZone> for DisplayZoneWrapper {
     }
 }
 
+impl From<protos::keys::Key> for KeyWrapper {
+    fn from(value: protos::keys::Key) -> Self {
+        match value {
+            protos::keys::Key::KEY_ADD => KeyWrapper(Key::Add),
+            protos::keys::Key::KEY_ALT => KeyWrapper(Key::Alt),
+            protos::keys::Key::KEY_BACKSPACE => KeyWrapper(Key::Backspace),
+            protos::keys::Key::KEY_CAPS_LOCK => KeyWrapper(Key::CapsLock),
+            protos::keys::Key::KEY_CONTROL => KeyWrapper(Key::Control),
+            protos::keys::Key::KEY_DECIMAL => KeyWrapper(Key::Decimal),
+            protos::keys::Key::KEY_DELETE => KeyWrapper(Key::Delete),
+            protos::keys::Key::KEY_DIVIDE => KeyWrapper(Key::Divide),
+            protos::keys::Key::KEY_DOWN_ARROW => KeyWrapper(Key::DownArrow),
+            protos::keys::Key::KEY_END => KeyWrapper(Key::End),
+            protos::keys::Key::KEY_ESCAPE => KeyWrapper(Key::Escape),
+            protos::keys::Key::KEY_F1 => KeyWrapper(Key::F1),
+            protos::keys::Key::KEY_F2 => KeyWrapper(Key::F2),
+            protos::keys::Key::KEY_F3 => KeyWrapper(Key::F3),
+            protos::keys::Key::KEY_F4 => KeyWrapper(Key::F4),
+            protos::keys::Key::KEY_F5 => KeyWrapper(Key::F5),
+            protos::keys::Key::KEY_F6 => KeyWrapper(Key::F6),
+            protos::keys::Key::KEY_F7 => KeyWrapper(Key::F7),
+            protos::keys::Key::KEY_F8 => KeyWrapper(Key::F8),
+            protos::keys::Key::KEY_F9 => KeyWrapper(Key::F9),
+            protos::keys::Key::KEY_F10 => KeyWrapper(Key::F10),
+            protos::keys::Key::KEY_F11 => KeyWrapper(Key::F11),
+            protos::keys::Key::KEY_F12 => KeyWrapper(Key::F12),
+            protos::keys::Key::KEY_F13 => KeyWrapper(Key::F13),
+            protos::keys::Key::KEY_F14 => KeyWrapper(Key::F14),
+            protos::keys::Key::KEY_F15 => KeyWrapper(Key::F15),
+            protos::keys::Key::KEY_F16 => KeyWrapper(Key::F16),
+            protos::keys::Key::KEY_F17 => KeyWrapper(Key::F17),
+            protos::keys::Key::KEY_F18 => KeyWrapper(Key::F18),
+            protos::keys::Key::KEY_F19 => KeyWrapper(Key::F19),
+            protos::keys::Key::KEY_F20 => KeyWrapper(Key::F20),
+            protos::keys::Key::KEY_HELP => KeyWrapper(Key::Help),
+            protos::keys::Key::KEY_HOME => KeyWrapper(Key::Home),
+            protos::keys::Key::KEY_L_CONTROL => KeyWrapper(Key::LControl),
+            protos::keys::Key::KEY_LEFT_ARROW => KeyWrapper(Key::LeftArrow),
+            protos::keys::Key::KEY_L_SHIFT => KeyWrapper(Key::LShift),
+            protos::keys::Key::KEY_MEDIA_NEXT_TRACK => KeyWrapper(Key::MediaNextTrack),
+            protos::keys::Key::KEY_MEDIA_PLAY_PAUSE => KeyWrapper(Key::MediaPlayPause),
+            protos::keys::Key::KEY_MEDIA_PREV_TRACK => KeyWrapper(Key::MediaPrevTrack),
+            protos::keys::Key::KEY_META => KeyWrapper(Key::Meta),
+            protos::keys::Key::KEY_MULTIPLY => KeyWrapper(Key::Multiply),
+            protos::keys::Key::KEY_NUMPAD0 => KeyWrapper(Key::Numpad0),
+            protos::keys::Key::KEY_NUMPAD1 => KeyWrapper(Key::Numpad1),
+            protos::keys::Key::KEY_NUMPAD2 => KeyWrapper(Key::Numpad2),
+            protos::keys::Key::KEY_NUMPAD3 => KeyWrapper(Key::Numpad3),
+            protos::keys::Key::KEY_NUMPAD4 => KeyWrapper(Key::Numpad4),
+            protos::keys::Key::KEY_NUMPAD5 => KeyWrapper(Key::Numpad5),
+            protos::keys::Key::KEY_NUMPAD6 => KeyWrapper(Key::Numpad6),
+            protos::keys::Key::KEY_NUMPAD7 => KeyWrapper(Key::Numpad7),
+            protos::keys::Key::KEY_NUMPAD8 => KeyWrapper(Key::Numpad8),
+            protos::keys::Key::KEY_NUMPAD9 => KeyWrapper(Key::Numpad9),
+            protos::keys::Key::KEY_OPTION => KeyWrapper(Key::Option),
+            protos::keys::Key::KEY_PAGE_DOWN => KeyWrapper(Key::PageDown),
+            protos::keys::Key::KEY_PAGE_UP => KeyWrapper(Key::PageUp),
+            protos::keys::Key::KEY_R_CONTROL => KeyWrapper(Key::RControl),
+            protos::keys::Key::KEY_RETURN => KeyWrapper(Key::Return),
+            protos::keys::Key::KEY_RIGHT_ARROW => KeyWrapper(Key::RightArrow),
+            protos::keys::Key::KEY_R_SHIFT => KeyWrapper(Key::RShift),
+            protos::keys::Key::KEY_SHIFT => KeyWrapper(Key::Shift),
+            protos::keys::Key::KEY_SPACE => KeyWrapper(Key::Space),
+            protos::keys::Key::KEY_SUBTRACT => KeyWrapper(Key::Subtract),
+            protos::keys::Key::KEY_TAB => KeyWrapper(Key::Tab),
+            protos::keys::Key::KEY_UP_ARROW => KeyWrapper(Key::UpArrow),
+            protos::keys::Key::KEY_VOLUME_DOWN => KeyWrapper(Key::VolumeDown),
+            protos::keys::Key::KEY_VOLUME_MUTE => KeyWrapper(Key::VolumeMute),
+            protos::keys::Key::KEY_VOLUME_UP => KeyWrapper(Key::VolumeUp),
+            protos::keys::Key::KEY_UNICODE => KeyWrapper(Key::Unicode(char::default())),
+            protos::keys::Key::KEY_OTHER => KeyWrapper(Key::Other(u32::default())),
+            _ => KeyWrapper(Key::Other(u32::default())),
+        }
+    }
+}
+
 impl TryFrom<protos::key_config::KeyAction> for KeyWrapper {
     type Error = String;
     fn try_from(value: protos::key_config::KeyAction) -> Result<Self, Self::Error> {
         match value.key.enum_value() {
-            Ok(key) => match key {
-                protos::keys::Key::KEY_ADD => Ok(KeyWrapper(Key::Add)),
-                protos::keys::Key::KEY_ALT => Ok(KeyWrapper(Key::Alt)),
-                protos::keys::Key::KEY_BACKSPACE => Ok(KeyWrapper(Key::Backspace)),
-                protos::keys::Key::KEY_CAPS_LOCK => Ok(KeyWrapper(Key::CapsLock)),
-                protos::keys::Key::KEY_CONTROL => Ok(KeyWrapper(Key::Control)),
-                protos::keys::Key::KEY_DECIMAL => Ok(KeyWrapper(Key::Decimal)),
-                protos::keys::Key::KEY_DELETE => Ok(KeyWrapper(Key::Delete)),
-                protos::keys::Key::KEY_DIVIDE => Ok(KeyWrapper(Key::Divide)),
-                protos::keys::Key::KEY_DOWN_ARROW => Ok(KeyWrapper(Key::DownArrow)),
-                protos::keys::Key::KEY_END => Ok(KeyWrapper(Key::End)),
-                protos::keys::Key::KEY_ESCAPE => Ok(KeyWrapper(Key::Escape)),
-                protos::keys::Key::KEY_F1 => Ok(KeyWrapper(Key::F1)),
-                protos::keys::Key::KEY_F2 => Ok(KeyWrapper(Key::F2)),
-                protos::keys::Key::KEY_F3 => Ok(KeyWrapper(Key::F3)),
-                protos::keys::Key::KEY_F4 => Ok(KeyWrapper(Key::F4)),
-                protos::keys::Key::KEY_F5 => Ok(KeyWrapper(Key::F5)),
-                protos::keys::Key::KEY_F6 => Ok(KeyWrapper(Key::F6)),
-                protos::keys::Key::KEY_F7 => Ok(KeyWrapper(Key::F7)),
-                protos::keys::Key::KEY_F8 => Ok(KeyWrapper(Key::F8)),
-                protos::keys::Key::KEY_F9 => Ok(KeyWrapper(Key::F9)),
-                protos::keys::Key::KEY_F10 => Ok(KeyWrapper(Key::F10)),
-                protos::keys::Key::KEY_F11 => Ok(KeyWrapper(Key::F11)),
-                protos::keys::Key::KEY_F12 => Ok(KeyWrapper(Key::F12)),
-                protos::keys::Key::KEY_F13 => Ok(KeyWrapper(Key::F13)),
-                protos::keys::Key::KEY_F14 => Ok(KeyWrapper(Key::F14)),
-                protos::keys::Key::KEY_F15 => Ok(KeyWrapper(Key::F15)),
-                protos::keys::Key::KEY_F16 => Ok(KeyWrapper(Key::F16)),
-                protos::keys::Key::KEY_F17 => Ok(KeyWrapper(Key::F17)),
-                protos::keys::Key::KEY_F18 => Ok(KeyWrapper(Key::F18)),
-                protos::keys::Key::KEY_F19 => Ok(KeyWrapper(Key::F19)),
-                protos::keys::Key::KEY_F20 => Ok(KeyWrapper(Key::F20)),
-                protos::keys::Key::KEY_HELP => Ok(KeyWrapper(Key::Help)),
-                protos::keys::Key::KEY_HOME => Ok(KeyWrapper(Key::Home)),
-                protos::keys::Key::KEY_L_CONTROL => Ok(KeyWrapper(Key::LControl)),
-                protos::keys::Key::KEY_LEFT_ARROW => Ok(KeyWrapper(Key::LeftArrow)),
-                protos::keys::Key::KEY_L_SHIFT => Ok(KeyWrapper(Key::LShift)),
-                protos::keys::Key::KEY_MEDIA_NEXT_TRACK => Ok(KeyWrapper(Key::MediaNextTrack)),
-                protos::keys::Key::KEY_MEDIA_PLAY_PAUSE => Ok(KeyWrapper(Key::MediaPlayPause)),
-                protos::keys::Key::KEY_MEDIA_PREV_TRACK => Ok(KeyWrapper(Key::MediaPrevTrack)),
-                protos::keys::Key::KEY_META => Ok(KeyWrapper(Key::Meta)),
-                protos::keys::Key::KEY_MULTIPLY => Ok(KeyWrapper(Key::Multiply)),
-                protos::keys::Key::KEY_NUMPAD0 => Ok(KeyWrapper(Key::Numpad0)),
-                protos::keys::Key::KEY_NUMPAD1 => Ok(KeyWrapper(Key::Numpad1)),
-                protos::keys::Key::KEY_NUMPAD2 => Ok(KeyWrapper(Key::Numpad2)),
-                protos::keys::Key::KEY_NUMPAD3 => Ok(KeyWrapper(Key::Numpad3)),
-                protos::keys::Key::KEY_NUMPAD4 => Ok(KeyWrapper(Key::Numpad4)),
-                protos::keys::Key::KEY_NUMPAD5 => Ok(KeyWrapper(Key::Numpad5)),
-                protos::keys::Key::KEY_NUMPAD6 => Ok(KeyWrapper(Key::Numpad6)),
-                protos::keys::Key::KEY_NUMPAD7 => Ok(KeyWrapper(Key::Numpad7)),
-                protos::keys::Key::KEY_NUMPAD8 => Ok(KeyWrapper(Key::Numpad8)),
-                protos::keys::Key::KEY_NUMPAD9 => Ok(KeyWrapper(Key::Numpad9)),
-                protos::keys::Key::KEY_OPTION => Ok(KeyWrapper(Key::Option)),
-                protos::keys::Key::KEY_PAGE_DOWN => Ok(KeyWrapper(Key::PageDown)),
-                protos::keys::Key::KEY_PAGE_UP => Ok(KeyWrapper(Key::PageUp)),
-                protos::keys::Key::KEY_R_CONTROL => Ok(KeyWrapper(Key::RControl)),
-                protos::keys::Key::KEY_RETURN => Ok(KeyWrapper(Key::Return)),
-                protos::keys::Key::KEY_RIGHT_ARROW => Ok(KeyWrapper(Key::RightArrow)),
-                protos::keys::Key::KEY_R_SHIFT => Ok(KeyWrapper(Key::RShift)),
-                protos::keys::Key::KEY_SHIFT => Ok(KeyWrapper(Key::Shift)),
-                protos::keys::Key::KEY_SPACE => Ok(KeyWrapper(Key::Space)),
-                protos::keys::Key::KEY_SUBTRACT => Ok(KeyWrapper(Key::Subtract)),
-                protos::keys::Key::KEY_TAB => Ok(KeyWrapper(Key::Tab)),
-                protos::keys::Key::KEY_UP_ARROW => Ok(KeyWrapper(Key::UpArrow)),
-                protos::keys::Key::KEY_VOLUME_DOWN => Ok(KeyWrapper(Key::VolumeDown)),
-                protos::keys::Key::KEY_VOLUME_MUTE => Ok(KeyWrapper(Key::VolumeMute)),
-                protos::keys::Key::KEY_VOLUME_UP => Ok(KeyWrapper(Key::VolumeUp)),
-                protos::keys::Key::KEY_UNICODE => match value.unicode {
-                    Some(unicode) => match char::try_from(unicode) {
-                        Ok(c) => Ok(KeyWrapper(Key::Unicode(c))),
-                        Err(e) => Err(e.to_string()),
+            Ok(key) => {
+                let key_wrapper = KeyWrapper::from(key);
+                match key_wrapper {
+                    KeyWrapper(Key::Unicode(_)) => match value.unicode {
+                        Some(unicode) => match char::try_from(unicode) {
+                            Ok(c) => Ok(KeyWrapper(Key::Unicode(c))),
+                            Err(e) => Err(e.to_string()),
+                        },
+                        None => {
+                            Err("Unicode value not found when unicode key provided".to_string())
+                        }
                     },
-                    None => Err("Unicode value not found".to_string()),
-                },
-                protos::keys::Key::KEY_OTHER => match value.other_key_code {
-                    Some(key_code) => Ok(KeyWrapper(Key::Other(key_code))),
-                    None => Err("Other key code not found".to_string()),
-                },
-                _ => Err(format!("Unsupported key format {}", key.value())),
-            },
+                    KeyWrapper(Key::Other(_)) => match value.other_key_code {
+                        Some(key_code) => Ok(KeyWrapper(Key::Other(key_code))),
+                        None => Err("Other key code not found when key is other".to_string()),
+                    },
+                    _ => Ok(key_wrapper),
+                }
+            }
             Err(e) => Err(format!(
                 "Error matching key, an unsupported format may have been provided: {:?}",
                 e.to_string()
@@ -341,6 +399,7 @@ impl TryFrom<protos::key_config::KeyAction> for KeyWrapper {
 mod tests {
     use super::*;
     use firmware_api::inputs::InputActions::Knob;
+    use messaging::protos::key_config::FreeformCommand;
 
     #[test]
     fn parse_key_action_properly() {
@@ -361,7 +420,7 @@ mod tests {
 
         assert_eq!(
             KeyWrapper::try_from(proto).err().unwrap(),
-            "Unsupported key format 54"
+            "Other key code not found when key is other"
         );
     }
 
@@ -384,19 +443,17 @@ mod tests {
 
     fn create_proto_fixture(
         proto_input_id: protos::inputs::InputId,
-        proto_key: protos::keys::Key,
+        action_data: Vec<Action_data>,
     ) -> protos::key_config::KeyConfig {
         protos::key_config::KeyConfig {
             input_id: protobuf::EnumOrUnknown::new(proto_input_id),
-            actions: vec![protos::key_config::Action {
-                action_data: Some(protos::key_config::action::Action_data::KeyAction(
-                    protos::key_config::KeyAction {
-                        key: protobuf::EnumOrUnknown::from(proto_key),
-                        ..protos::key_config::KeyAction::default()
-                    },
-                )),
-                ..protos::key_config::Action::default()
-            }],
+            actions: action_data
+                .iter()
+                .map(|item| protos::key_config::Action {
+                    action_data: Some(item.clone()),
+                    ..protos::key_config::Action::default()
+                })
+                .collect(),
             ..protos::key_config::KeyConfig::default()
         }
     }
@@ -404,14 +461,17 @@ mod tests {
     fn converts_mapping_into_model() {
         let proto = create_proto_fixture(
             protos::inputs::InputId::KNOB_1_CLOCKWISE,
-            protos::keys::Key::KEY_ADD,
+            vec![Action_data::KeyAction(protos::key_config::KeyAction {
+                key: protos::keys::Key::KEY_ADD.into(),
+                ..protos::key_config::KeyAction::default()
+            })],
         );
 
         assert_eq!(
             InputMapping::try_from(proto).unwrap(),
             InputMapping::new(
-                InputActions::Knob(KnobActions::Knob1Clockwise),
-                vec![Key::Add]
+                Knob(KnobActions::Knob1Clockwise),
+                vec![Action::Key(Key::Add, vec![])]
             )
         )
     }
@@ -420,12 +480,34 @@ mod tests {
     fn converts_mapping_into_model_with_invalid_input() {
         let proto = create_proto_fixture(
             protos::inputs::InputId::INPUT_ACTION_UNSPECIFIED,
-            protos::keys::Key::KEY_ADD,
+            vec![
+                Action_data::KeyAction(protos::key_config::KeyAction {
+                    key: protos::keys::Key::KEY_ADD.into(),
+                    ..protos::key_config::KeyAction::default()
+                }),
+                Action_data::CommandAction(protos::key_config::CommandAction {
+                    command: Some(command_action::Command::FreeformCommand(FreeformCommand {
+                        command: String::from("command"),
+                        args: vec![String::from("arg1"), String::from("arg2")],
+                        ..FreeformCommand::default()
+                    })),
+                    ..protos::key_config::CommandAction::default()
+                }),
+            ],
         );
 
         assert_eq!(
             InputMapping::try_from(proto).unwrap(),
-            InputMapping::new(Unknown, vec![Key::Add])
+            InputMapping::new(
+                Unknown,
+                vec![
+                    Action::Key(Key::Add, vec![]),
+                    Action::Command(
+                        String::from("command"),
+                        vec![String::from("arg1"), String::from("arg2")]
+                    )
+                ]
+            )
         )
     }
 }

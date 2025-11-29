@@ -12,6 +12,8 @@ use messaging::client_wrapper::{ClientCommands, ClientWrapper};
 use messaging::proto_builders::KeyConfigActionBuilder;
 use messaging::protos::display_zones::DisplayZone;
 use messaging::protos::inputs::InputId;
+use messaging::protos::key_config::FreeformCommand;
+use messaging::protos::key_config::command_action::Command;
 use messaging::protos::keys::Key;
 
 fn main() {
@@ -48,7 +50,7 @@ fn main() {
                     .send_key_config(
                         InputId::KNOB_1_CLOCKWISE,
                         KeyConfigActionBuilder::new()
-                            .add_key_action(Key::KEY_VOLUME_UP)
+                            .add_key_action(Key::KEY_VOLUME_UP, vec![Key::KEY_SHIFT, Key::KEY_ALT])
                             .actions()
                             .clone(),
                     )
@@ -58,7 +60,23 @@ fn main() {
                     .send_key_config(
                         InputId::KNOB_1_COUNTER_CLOCKWISE,
                         KeyConfigActionBuilder::new()
-                            .add_key_action(Key::KEY_VOLUME_DOWN)
+                            .add_key_action(
+                                Key::KEY_VOLUME_DOWN,
+                                vec![Key::KEY_SHIFT, Key::KEY_ALT],
+                            )
+                            .actions()
+                            .clone(),
+                    )
+                    .unwrap();
+
+                handler
+                    .send_key_config(
+                        InputId::BUTTON_1_PRESSED,
+                        KeyConfigActionBuilder::new()
+                            .add_command_action(Command::FreeformCommand(FreeformCommand {
+                                command: String::from("zed"),
+                                ..FreeformCommand::default()
+                            }))
                             .actions()
                             .clone(),
                     )
@@ -97,6 +115,14 @@ fn main() {
         },
         Err(_) => {
             panic!("Did not enter a valid choice")
+        }
+    }
+
+    println!("Press any key to quit");
+    loop {
+        io::stdin().read_line(&mut buffer).unwrap();
+        if !buffer.trim().is_empty() {
+            break;
         }
     }
 }

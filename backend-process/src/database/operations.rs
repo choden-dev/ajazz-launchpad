@@ -220,6 +220,7 @@ impl Operations {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::database::models::Action;
     use enigo::Key;
     use firmware_api::display_zones::DisplayZones;
     use firmware_api::inputs::InputActions;
@@ -231,8 +232,14 @@ mod tests {
         let operations = Operations::new(sqlite.unwrap());
 
         let to_add = &[
-            InputMapping::new(InputActions::Button(Button4Pressed), vec![Key::Option]),
-            InputMapping::new(InputActions::Button(Button1Pressed), vec![Key::Backspace]),
+            InputMapping::new(
+                InputActions::Button(Button4Pressed),
+                vec![Action::Key(Key::Option, vec![])],
+            ),
+            InputMapping::new(
+                InputActions::Button(Button1Pressed),
+                vec![Action::Key(Key::Backspace, vec![])],
+            ),
         ];
 
         operations.create_input_mapping_table().unwrap();
@@ -252,7 +259,10 @@ mod tests {
         operations
             .set_mapping_for_input(InputMapping::new(
                 InputActions::Button(Button4Pressed),
-                vec![Key::Add, Key::Backspace],
+                vec![
+                    Action::Key(Key::Add, vec![]),
+                    Action::Key(Key::Backspace, vec![]),
+                ],
             ))
             .unwrap();
 
