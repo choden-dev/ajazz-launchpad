@@ -3,7 +3,8 @@ mod knobs;
 mod touchscreen;
 
 use crate::common::{
-    ButtonInput, ConfigurableZones, KnobInput, TouchscreenInput, TouchscreenZoneInput,
+    ButtonInput, ConfigurableZones, KeyConfigOptions, KnobInput, TouchscreenInput,
+    TouchscreenZoneInput,
 };
 use crate::components::modal::modal;
 use crate::messages::Messages;
@@ -36,8 +37,13 @@ impl<'a> Config {
 
         let current_display = widget::text!("{:?}", current_key_sequence);
 
-        let submit_button =
-            widget::button("OK").on_press(Messages::SetKeyConfig(input_id, current_key_sequence));
+        let submit_button = widget::button("OK").on_press(Messages::SetKeyConfig(
+            input_id,
+            current_key_sequence
+                .iter()
+                .map(|mapping| KeyConfigOptions::Key(mapping.to_owned()))
+                .collect(),
+        ));
 
         column![current_display, submit_button]
     }

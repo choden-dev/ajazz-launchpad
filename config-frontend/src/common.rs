@@ -1,3 +1,6 @@
+use iced::keyboard::{Key, Modifiers};
+use messaging::protos::key_config::command_action::Command;
+
 #[derive(Debug, Clone, Default, PartialEq)]
 pub enum ConfigurableZones {
     Button1(ButtonInput),
@@ -53,6 +56,12 @@ pub enum TouchscreenInput {
     SwipeRight,
     #[default]
     None,
+}
+
+#[derive(Debug, Clone, PartialEq)]
+pub enum KeyConfigOptions {
+    Command(Command),
+    Key((Key, Modifiers))
 }
 
 #[derive(Debug, Clone, Default, PartialEq)]

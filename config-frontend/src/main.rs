@@ -6,13 +6,14 @@ mod tasks;
 mod views;
 
 use crate::common::{ConfigurableZones, ExtraConfigMode};
-use crate::mappers::ProtoKeyActionWrapper;
+use crate::mappers::{ProtoKeyActionWrapper, ProtoKeyWrapper, ProtoModifierWrapper};
 use crate::messages::Messages;
 use crate::tasks::{connect_to_backend, select_image_blocking};
 use iced::keyboard::{Key, Modifiers};
 use iced::task::Task;
 use iced::{Element, Subscription};
 use messaging::client_wrapper::{ClientCommands, ClientWrapper};
+use messaging::proto_builders::KeyConfigActionBuilder;
 use std::cmp::PartialEq;
 use std::time::Duration;
 
@@ -159,12 +160,17 @@ fn update(application_state: &mut LaunchpadConfigApp, message: Messages) -> Task
             };
         }
         Messages::SetKeyConfig(input_id, sequence) => {
-            let key_actions = sequence
-                .iter()
-                .map(|mapping| ProtoKeyActionWrapper::from(mapping.clone()).key_action())
-                .collect::<Vec<_>>();
-
-            let builder = messaging::proto_builders::KeyConfigActionBuilder::from(key_actions);
+            let mut builder = messaging::proto_builders::KeyConfigActionBuilder::new();
+            sequence.iter().for_each(|action| match action {
+                common::KeyConfigOptions::Key(key_action) => {
+                    builder.add_prebuilt_key_action(
+                        ProtoKeyActionWrapper::from(key_action.to_owned()).key_action(),
+                    );
+                }
+                common::KeyConfigOptions::Command(command_action) => {
+                    builder.add_command_action(command_action.to_owned())
+                }
+            });
 
             if let Some(client) = application_state.get_client() {
                 client
