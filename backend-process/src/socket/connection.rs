@@ -27,6 +27,8 @@ impl<'a> ServerHandler<'a> {
         })
     }
 
+    /// Given a `ServerConfig`, will broadcast the config to the connected clients, which
+    /// will have to read and parse this
     pub fn send_current_config(&mut self, config: ServerConfig) -> Result<(), Error> {
         let bytes = config.write_to_bytes()?;
         self.server.send_message(bytes.as_slice())
