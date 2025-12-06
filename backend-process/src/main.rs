@@ -173,10 +173,10 @@ fn main() {
                                     ..ServerConfig::default()
                                 };
 
-                                if let Some(brightness) = brightness {
-                                    if let Some(brightness) = brightness {
-                                        server_config.brightness = brightness.into();
-                                    }
+                                if let Some(brightness) = brightness
+                                    && let Some(brightness) = brightness
+                                {
+                                    server_config.brightness = brightness.into();
                                 }
 
                                 if let Some(input_mappings) = input_mappings {

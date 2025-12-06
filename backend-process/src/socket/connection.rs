@@ -29,7 +29,7 @@ impl<'a> ServerHandler<'a> {
 
     pub fn send_current_config(&mut self, config: ServerConfig) -> Result<(), Error> {
         let bytes = config.write_to_bytes()?;
-        Ok(self.server.send_message(bytes.as_slice())?)
+        self.server.send_message(bytes.as_slice())
     }
 
     /// Checks if there is a message from the connected clients.
