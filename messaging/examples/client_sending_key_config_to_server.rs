@@ -40,6 +40,7 @@ fn main() {
     println!("4. Set brightness");
     println!("5. Clear all key images");
     println!("6. Clear single key image");
+    println!("6. Request current server config");
     io::stdin().read_line(&mut buffer).unwrap();
 
     let mut handler = ClientWrapper::new(client);
@@ -106,6 +107,11 @@ fn main() {
             6 => handler
                 .clear_display_zone_image(DisplayZone::BUTTON_2)
                 .unwrap(),
+            7 => {
+                handler.request_server_config().unwrap();
+                let result = handler.check_for_server_config().unwrap();
+                println!("{:?}", result);
+            }
             _ => {
                 panic!("Out of range of options!")
             }
