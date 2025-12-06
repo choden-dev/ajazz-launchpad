@@ -136,7 +136,11 @@ fn update(application_state: &mut LaunchpadConfigApp, message: Messages) -> Task
         },
 
         Messages::RemoveAction(index) => {
-            if index < application_state.current_input_sequence.len() {
+            if application_state
+                .current_input_sequence
+                .get(index)
+                .is_some()
+            {
                 application_state.current_input_sequence.remove(index);
             }
         }

@@ -9,5 +9,5 @@ pub enum IncomingCommands {
     ClearAllDisplayZoneImages,
     SetBootLogo(String),
     SetBrightness(u8),
-    RequestServerConfig
+    RequestServerConfig,
 }

@@ -9,10 +9,14 @@ use crate::device_management::DeviceManagement;
 use crate::input_handler::{
     EnigoKeyActionHandler, InputMapping, KeyActionExecutor, LaunchpadInputHandler,
 };
+use crate::protobuf_conversion::DisplayZoneWrapper;
 use crate::socket::commands::IncomingCommands;
 use firmware_api::device;
 use log::{debug, error, info};
-use messaging::protos::server_config::ServerConfig;
+use messaging::protos::display_zones::DisplayZone;
+use messaging::protos::key_config::KeyConfig;
+use messaging::protos::server_config::{DisplayImage, ServerConfig};
+use protobuf::EnumOrUnknown;
 use std::fs::File;
 
 #[derive(Clone)]
@@ -162,12 +166,41 @@ fn main() {
                                 dev.refresh().ok();
                             }
                             IncomingCommands::RequestServerConfig => {
-                                server
-                                    .send_current_config(ServerConfig {
-                                        // TODO: fetch the config
-                                        ..ServerConfig::default()
-                                    })
-                                    .ok();
+                                let brightness = db.get_stored_brightness().ok();
+                                let input_mappings = db.get_all_input_mappings().ok();
+                                let display_zone_images = db.get_all_image_mappings().ok();
+                                let mut server_config = ServerConfig {
+                                    ..ServerConfig::default()
+                                };
+
+                                if let Some(brightness) = brightness {
+                                    if let Some(brightness) = brightness {
+                                        server_config.brightness = brightness.into();
+                                    }
+                                }
+
+                                if let Some(input_mappings) = input_mappings {
+                                    server_config.key_configs = input_mappings
+                                        .iter()
+                                        .map(|input_mapping| KeyConfig::from(input_mapping.clone()))
+                                        .collect();
+                                }
+
+                                if let Some(display_zone_images) = display_zone_images {
+                                    server_config.display_images = display_zone_images
+                                        .iter()
+                                        // TODO: move into another file and make field private again
+                                        .map(|display_zone_image| DisplayImage {
+                                            display_zone: EnumOrUnknown::new(DisplayZone::from(
+                                                DisplayZoneWrapper(display_zone_image.display_zone),
+                                            )),
+                                            path: display_zone_image.clone().image_path,
+                                            ..DisplayImage::default()
+                                        })
+                                        .collect()
+                                }
+
+                                server.send_current_config(server_config).ok();
                             }
                         },
                         Err(e) => {

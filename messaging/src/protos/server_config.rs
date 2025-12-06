@@ -174,8 +174,6 @@ pub struct ServerConfig {
     pub display_images: ::std::vec::Vec<DisplayImage>,
     // @@protoc_insertion_point(field:ServerConfig.brightness)
     pub brightness: u32,
-    // @@protoc_insertion_point(field:ServerConfig.boot_logo)
-    pub boot_logo: ::std::string::String,
     // special fields
     // @@protoc_insertion_point(special_field:ServerConfig.special_fields)
     pub special_fields: ::protobuf::SpecialFields,
@@ -193,7 +191,7 @@ impl ServerConfig {
     }
 
     fn generated_message_descriptor_data() -> ::protobuf::reflect::GeneratedMessageDescriptorData {
-        let mut fields = ::std::vec::Vec::with_capacity(4);
+        let mut fields = ::std::vec::Vec::with_capacity(3);
         let mut oneofs = ::std::vec::Vec::with_capacity(0);
         fields.push(::protobuf::reflect::rt::v2::make_vec_simpler_accessor::<_, _>(
             "key_configs",
@@ -209,11 +207,6 @@ impl ServerConfig {
             "brightness",
             |m: &ServerConfig| { &m.brightness },
             |m: &mut ServerConfig| { &mut m.brightness },
-        ));
-        fields.push(::protobuf::reflect::rt::v2::make_simpler_field_accessor::<_, _>(
-            "boot_logo",
-            |m: &ServerConfig| { &m.boot_logo },
-            |m: &mut ServerConfig| { &mut m.boot_logo },
         ));
         ::protobuf::reflect::GeneratedMessageDescriptorData::new_2::<ServerConfig>(
             "ServerConfig",
@@ -242,9 +235,6 @@ impl ::protobuf::Message for ServerConfig {
                 24 => {
                     self.brightness = is.read_uint32()?;
                 },
-                34 => {
-                    self.boot_logo = is.read_string()?;
-                },
                 tag => {
                     ::protobuf::rt::read_unknown_or_skip_group(tag, is, self.special_fields.mut_unknown_fields())?;
                 },
@@ -268,9 +258,6 @@ impl ::protobuf::Message for ServerConfig {
         if self.brightness != 0 {
             my_size += ::protobuf::rt::uint32_size(3, self.brightness);
         }
-        if !self.boot_logo.is_empty() {
-            my_size += ::protobuf::rt::string_size(4, &self.boot_logo);
-        }
         my_size += ::protobuf::rt::unknown_fields_size(self.special_fields.unknown_fields());
         self.special_fields.cached_size().set(my_size as u32);
         my_size
@@ -285,9 +272,6 @@ impl ::protobuf::Message for ServerConfig {
         };
         if self.brightness != 0 {
             os.write_uint32(3, self.brightness)?;
-        }
-        if !self.boot_logo.is_empty() {
-            os.write_string(4, &self.boot_logo)?;
         }
         os.write_unknown_fields(self.special_fields.unknown_fields())?;
         ::std::result::Result::Ok(())
@@ -309,7 +293,6 @@ impl ::protobuf::Message for ServerConfig {
         self.key_configs.clear();
         self.display_images.clear();
         self.brightness = 0;
-        self.boot_logo.clear();
         self.special_fields.clear();
     }
 
@@ -318,7 +301,6 @@ impl ::protobuf::Message for ServerConfig {
             key_configs: ::std::vec::Vec::new(),
             display_images: ::std::vec::Vec::new(),
             brightness: 0,
-            boot_logo: ::std::string::String::new(),
             special_fields: ::protobuf::SpecialFields::new(),
         };
         &instance
@@ -346,11 +328,10 @@ static file_descriptor_proto_data: &'static [u8] = b"\
     \n\x13server_config.proto\x1a\x19commands/key_config.proto\x1a#commands/\
     common/display_zones.proto\"S\n\x0cDisplayImage\x12/\n\x0cdisplay_zone\
     \x18\x01\x20\x01(\x0e2\x0c.DisplayZoneR\x0bdisplayZone\x12\x12\n\x04path\
-    \x18\x02\x20\x01(\tR\x04path\"\xb9\x01\n\x0cServerConfig\x126\n\x0bkey_c\
+    \x18\x02\x20\x01(\tR\x04path\"\x9c\x01\n\x0cServerConfig\x126\n\x0bkey_c\
     onfigs\x18\x01\x20\x03(\x0b2\x15.key_config.KeyConfigR\nkeyConfigs\x124\
     \n\x0edisplay_images\x18\x02\x20\x03(\x0b2\r.DisplayImageR\rdisplayImage\
-    s\x12\x1e\n\nbrightness\x18\x03\x20\x01(\rR\nbrightness\x12\x1b\n\tboot_\
-    logo\x18\x04\x20\x01(\tR\x08bootLogob\x06proto3\
+    s\x12\x1e\n\nbrightness\x18\x03\x20\x01(\rR\nbrightnessb\x06proto3\
 ";
 
 /// `FileDescriptorProto` object which was a source for this generated file
