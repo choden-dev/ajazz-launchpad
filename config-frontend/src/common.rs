@@ -61,12 +61,13 @@ pub enum TouchscreenInput {
 #[derive(Debug, Clone, PartialEq)]
 pub enum KeyConfigOptions {
     Command(Command),
-    Key((Key, Modifiers))
+    Key((Key, Modifiers)),
 }
 
-#[derive(Debug, Clone, Default, PartialEq)]
+#[derive(Debug, Clone, Default, PartialEq, Copy, Eq)]
 pub enum ExtraConfigMode {
     #[default]
     Default,
     KeyRecording,
+    Command,
 }

@@ -5,15 +5,14 @@ mod messages;
 mod tasks;
 mod views;
 
-use crate::common::{ConfigurableZones, ExtraConfigMode};
-use crate::mappers::{ProtoKeyActionWrapper, ProtoKeyWrapper, ProtoModifierWrapper};
+use crate::common::{ConfigurableZones, ExtraConfigMode, KeyConfigOptions};
+use crate::mappers::ProtoKeyActionWrapper;
 use crate::messages::Messages;
 use crate::tasks::{connect_to_backend, select_image_blocking};
-use iced::keyboard::{Key, Modifiers};
 use iced::task::Task;
 use iced::{Element, Subscription};
 use messaging::client_wrapper::{ClientCommands, ClientWrapper};
-use messaging::proto_builders::KeyConfigActionBuilder;
+use messaging::protos::key_config::command_action::Command;
 use std::cmp::PartialEq;
 use std::time::Duration;
 
@@ -32,7 +31,8 @@ struct LaunchpadConfigApp {
     socket_client: Option<ClientWrapper>,
     connecting_to_backend: bool,
     brightness: u8,
-    current_input_sequence: Vec<(Key, Modifiers)>,
+    current_input_sequence: Vec<KeyConfigOptions>,
+    current_command_input_value: String,
 }
 
 impl LaunchpadConfigApp {
@@ -44,10 +44,12 @@ impl LaunchpadConfigApp {
 fn view(application_state: &'_ LaunchpadConfigApp) -> Element<'_, Messages> {
     match &application_state.view {
         View::Initialise => views::initialise::Initialise.view(),
-        View::Configure(modal_zone, _) => views::config::Config.view(
+        View::Configure(modal_zone, mode) => views::config::Config.view(
             application_state.brightness,
-            modal_zone.clone(),
-            application_state.current_input_sequence.clone(),
+            modal_zone.to_owned(),
+            application_state.current_input_sequence.to_owned(),
+            mode.to_owned(),
+            application_state.current_command_input_value.to_owned(),
         ),
         _ => todo!(),
     }
@@ -126,19 +128,32 @@ fn update(application_state: &mut LaunchpadConfigApp, message: Messages) -> Task
             application_state.view = View::Configure(zone, ExtraConfigMode::Default);
         }
 
-        Messages::OpenInputMappingConfigurationPanel(zone) => {
-            application_state.view = View::Configure(zone, ExtraConfigMode::KeyRecording);
-            // We need a new set of inputs every time the panel is opened
-            return Task::done(Messages::ResetInputBuffer);
+        Messages::OpenInputMappingConfigurationPanel(zone, mode) => match mode {
+            ExtraConfigMode::Command | ExtraConfigMode::KeyRecording => {
+                application_state.view = View::Configure(zone, mode);
+            }
+            _ => (),
+        },
+
+        Messages::RemoveAction(index) => {
+            if index < application_state.current_input_sequence.len() {
+                application_state.current_input_sequence.remove(index);
+            }
         }
 
         Messages::CloseConfigurationPanel => {
             application_state.view =
                 View::Configure(ConfigurableZones::None, ExtraConfigMode::Default);
+            // We need a new set of inputs every time the panel is opened
+            return Task::done(Messages::ResetInputBuffer);
         }
 
         Messages::ResetInputBuffer => {
             application_state.current_input_sequence.clear();
+        }
+
+        Messages::ClearCommandInput => {
+            application_state.current_command_input_value.clear();
         }
 
         Messages::KeyboardInput(key, modifier) => {
@@ -148,16 +163,28 @@ fn update(application_state: &mut LaunchpadConfigApp, message: Messages) -> Task
                 }
                 View::Configure(_, ref config_mode) => {
                     match config_mode {
-                        ExtraConfigMode::Default => {
-                            // Default mode does not need to capture input
+                        ExtraConfigMode::Default | ExtraConfigMode::Command => {
+                            // Default or command mode does not need to capture input
                         }
                         _ => application_state
                             .current_input_sequence
-                            .push((key, modifier)),
+                            .push(KeyConfigOptions::Key((key, modifier))),
                     }
                 }
                 _ => {}
             };
+        }
+        Messages::CommandInputChanged(text) => {
+            application_state.current_command_input_value = text;
+        }
+        Messages::CommandAdded(command) => {
+            if let Command::FreeformCommand(ref freeform) = command {
+                application_state.current_command_input_value = freeform.clone().command;
+            }
+            application_state
+                .current_input_sequence
+                .push(KeyConfigOptions::Command(command));
+            return Task::done(Messages::ClearCommandInput);
         }
         Messages::SetKeyConfig(input_id, sequence) => {
             let mut builder = messaging::proto_builders::KeyConfigActionBuilder::new();

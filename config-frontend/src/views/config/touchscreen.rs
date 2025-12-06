@@ -1,4 +1,4 @@
-use crate::common::{ConfigurableZones, TouchscreenInput, TouchscreenZoneInput};
+use crate::common::{ConfigurableZones, ExtraConfigMode, TouchscreenInput, TouchscreenZoneInput};
 use crate::messages::Messages;
 use crate::views::config::TOUCHSCREEN_ZONES;
 use iced::widget;
@@ -68,9 +68,11 @@ pub fn touchscreen_zone_config_settings<'a>(
     let display_zone_config = widget::button("Set Image")
         .on_press(Messages::SetDisplayZoneImage(touchscreen_zone_mapping.1));
 
-    let key_mapping_config_button = widget::button("On pressed").on_press(
-        Messages::OpenInputMappingConfigurationPanel(touchscreen_zone_mapping.2),
-    );
+    let key_mapping_config_button =
+        widget::button("On pressed").on_press(Messages::OpenInputMappingConfigurationPanel(
+            touchscreen_zone_mapping.2,
+            ExtraConfigMode::KeyRecording,
+        ));
 
     let clear_image_button = widget::button("Clear Image")
         .on_press(Messages::ClearDisplayZoneImage(touchscreen_zone_mapping.1));
@@ -94,11 +96,13 @@ pub fn touchscreen_swipe_settings<'a>() -> widget::Column<'a, Messages> {
     let left_swipe_config_button =
         widget::button("On left swipe").on_press(Messages::OpenInputMappingConfigurationPanel(
             ConfigurableZones::TouchscreenExtra(TouchscreenInput::SwipeLeft),
+            ExtraConfigMode::KeyRecording,
         ));
 
     let right_swipe_config_button =
         widget::button("On right swipe").on_press(Messages::OpenInputMappingConfigurationPanel(
             ConfigurableZones::TouchscreenExtra(TouchscreenInput::SwipeRight),
+            ExtraConfigMode::KeyRecording,
         ));
 
     iced::widget::column![row![left_swipe_config_button, right_swipe_config_button]]

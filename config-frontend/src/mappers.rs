@@ -12,11 +12,6 @@ use protobuf::EnumOrUnknown;
 pub struct ProtoKeyWrapper(Key);
 
 pub struct ProtoModifierWrapper(Vec<Key>);
-impl ProtoModifierWrapper {
-    pub fn modifiers(&self) -> Vec<Key> {
-        self.0.to_owned()
-    }
-}
 
 impl ProtoKeyWrapper {
     pub fn key(&self) -> Key {
