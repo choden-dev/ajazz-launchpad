@@ -189,14 +189,7 @@ fn main() {
                                 if let Some(display_zone_images) = display_zone_images {
                                     server_config.display_images = display_zone_images
                                         .iter()
-                                        // TODO: move into another file and make field private again
-                                        .map(|display_zone_image| DisplayImage {
-                                            display_zone: EnumOrUnknown::new(DisplayZone::from(
-                                                DisplayZoneWrapper(display_zone_image.display_zone),
-                                            )),
-                                            path: display_zone_image.clone().image_path,
-                                            ..DisplayImage::default()
-                                        })
+                                        .map(|image| DisplayImage::from(image.to_owned()))
                                         .collect()
                                 }
 

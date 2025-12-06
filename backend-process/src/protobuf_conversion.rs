@@ -88,7 +88,7 @@ impl KeyWrapper {
 }
 
 #[derive(Debug, PartialEq)]
-pub struct DisplayZoneWrapper(pub DisplayZones);
+pub struct DisplayZoneWrapper(DisplayZones);
 
 /// Util struct to convert from the protobuf format to our application model
 #[derive(Debug, PartialEq)]
@@ -336,6 +336,18 @@ impl From<Action> for protos::key_config::Action {
                 Action::Noop => None,
             },
             ..protos::key_config::Action::default()
+        }
+    }
+}
+
+impl From<ImageMapping> for protos::server_config::DisplayImage {
+    fn from(mapping: ImageMapping) -> Self {
+        protos::server_config::DisplayImage {
+            display_zone: EnumOrUnknown::new(protos::display_zones::DisplayZone::from(
+                DisplayZoneWrapper(mapping.display_zone),
+            )),
+            path: mapping.image_path,
+            ..protos::server_config::DisplayImage::default()
         }
     }
 }
