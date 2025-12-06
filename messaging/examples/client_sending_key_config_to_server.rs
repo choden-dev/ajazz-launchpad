@@ -46,39 +46,36 @@ fn main() {
     match u8::from_str(buffer.trim()) {
         Ok(v) => match v {
             1 => {
+                let mut knob_1_cw_builder = KeyConfigActionBuilder::new();
+                knob_1_cw_builder
+                    .add_key_action(Key::KEY_VOLUME_UP, vec![Key::KEY_SHIFT, Key::KEY_ALT]);
                 handler
                     .send_key_config(
                         InputId::KNOB_1_CLOCKWISE,
-                        KeyConfigActionBuilder::new()
-                            .add_key_action(Key::KEY_VOLUME_UP, vec![Key::KEY_SHIFT, Key::KEY_ALT])
-                            .actions()
-                            .clone(),
+                        knob_1_cw_builder.actions().clone(),
                     )
                     .unwrap();
+
+                let mut knob_1_ccw_builder = KeyConfigActionBuilder::new();
+                knob_1_ccw_builder
+                    .add_key_action(Key::KEY_VOLUME_DOWN, vec![Key::KEY_SHIFT, Key::KEY_ALT]);
 
                 handler
                     .send_key_config(
                         InputId::KNOB_1_COUNTER_CLOCKWISE,
-                        KeyConfigActionBuilder::new()
-                            .add_key_action(
-                                Key::KEY_VOLUME_DOWN,
-                                vec![Key::KEY_SHIFT, Key::KEY_ALT],
-                            )
-                            .actions()
-                            .clone(),
+                        knob_1_ccw_builder.actions().clone(),
                     )
                     .unwrap();
 
+                let mut button_1_builder = KeyConfigActionBuilder::new();
+                button_1_builder.add_command_action(Command::FreeformCommand(FreeformCommand {
+                    command: String::from("zed"),
+                    ..FreeformCommand::default()
+                }));
                 handler
                     .send_key_config(
                         InputId::BUTTON_1_PRESSED,
-                        KeyConfigActionBuilder::new()
-                            .add_command_action(Command::FreeformCommand(FreeformCommand {
-                                command: String::from("zed"),
-                                ..FreeformCommand::default()
-                            }))
-                            .actions()
-                            .clone(),
+                        button_1_builder.actions().clone(),
                     )
                     .unwrap();
             }

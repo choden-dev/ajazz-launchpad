@@ -1,4 +1,4 @@
-use crate::common::{ConfigurableZones, KnobInput};
+use crate::common::{ConfigurableZones, ExtraConfigMode, KnobInput};
 use crate::messages::Messages;
 use crate::views::config::KNOB_COUNT;
 use iced::widget;
@@ -54,15 +54,21 @@ pub fn knob_config_settings<'a>(zone: ConfigurableZones) -> widget::Column<'a, M
         ),
     };
 
-    let knob_clockwise_config = widget::button("Clockwise").on_press(
-        Messages::OpenInputMappingConfigurationPanel(touchscreen_zone_mapping.1),
-    );
-    let knob_counter_clockwise_config = widget::button("Counter Clockwise").on_press(
-        Messages::OpenInputMappingConfigurationPanel(touchscreen_zone_mapping.2),
-    );
-    let knob_pressed_config = widget::button("Pressed").on_press(
-        Messages::OpenInputMappingConfigurationPanel(touchscreen_zone_mapping.3),
-    );
+    let knob_clockwise_config =
+        widget::button("Clockwise").on_press(Messages::OpenInputMappingConfigurationPanel(
+            touchscreen_zone_mapping.1,
+            ExtraConfigMode::KeyRecording,
+        ));
+    let knob_counter_clockwise_config =
+        widget::button("Counter Clockwise").on_press(Messages::OpenInputMappingConfigurationPanel(
+            touchscreen_zone_mapping.2,
+            ExtraConfigMode::KeyRecording,
+        ));
+    let knob_pressed_config =
+        widget::button("Pressed").on_press(Messages::OpenInputMappingConfigurationPanel(
+            touchscreen_zone_mapping.3,
+            ExtraConfigMode::KeyRecording,
+        ));
 
     iced::widget::column![
         widget::text!("{} config", touchscreen_zone_mapping.0),

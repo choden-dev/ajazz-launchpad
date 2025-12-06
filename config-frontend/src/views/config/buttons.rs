@@ -1,4 +1,4 @@
-use crate::common::{ButtonInput, ConfigurableZones};
+use crate::common::{ButtonInput, ConfigurableZones, ExtraConfigMode};
 use crate::messages::Messages;
 use crate::views::config::BUTTON_COUNT;
 use iced::widget;
@@ -113,12 +113,16 @@ pub fn button_config_settings<'a>(button: ConfigurableZones) -> widget::Column<'
     let button =
         widget::button("Set Image").on_press(Messages::SetDisplayZoneImage(button_mapping.1));
 
-    let pressed_action_button = widget::button("On pressed").on_press(
-        Messages::OpenInputMappingConfigurationPanel(button_mapping.2),
-    );
-    let released_action_button = widget::button("On released").on_press(
-        Messages::OpenInputMappingConfigurationPanel(button_mapping.3),
-    );
+    let pressed_action_button =
+        widget::button("On pressed").on_press(Messages::OpenInputMappingConfigurationPanel(
+            button_mapping.2,
+            ExtraConfigMode::KeyRecording,
+        ));
+    let released_action_button =
+        widget::button("On released").on_press(Messages::OpenInputMappingConfigurationPanel(
+            button_mapping.3,
+            ExtraConfigMode::KeyRecording,
+        ));
 
     let clear_image_button =
         widget::button("Clear Image").on_press(Messages::ClearDisplayZoneImage(button_mapping.1));

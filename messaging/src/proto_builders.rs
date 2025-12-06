@@ -27,12 +27,15 @@ impl KeyConfigActionBuilder {
             actions: Vec::new(),
         }
     }
+
+    pub fn add_prebuilt_key_action(&mut self, action: protos::key_config::KeyAction) {
+        self.actions.push(protos::key_config::Action {
+            action_data: Some(protos::key_config::action::Action_data::KeyAction(action)),
+            ..protos::key_config::Action::default()
+        });
+    }
     /// Appends the given `key` to the current protobuf
-    pub fn add_key_action(
-        mut self,
-        key: protos::keys::Key,
-        modifiers: Vec<protos::keys::Key>,
-    ) -> Self {
+    pub fn add_key_action(&mut self, key: protos::keys::Key, modifiers: Vec<protos::keys::Key>) {
         let action = protos::key_config::Action {
             action_data: Some(protos::key_config::action::Action_data::KeyAction(
                 protos::key_config::KeyAction {
@@ -47,14 +50,10 @@ impl KeyConfigActionBuilder {
             ..protos::key_config::Action::default()
         };
         self.actions.push(action);
-        self
     }
 
     /// Appends the given `command` to the current protobuf
-    pub fn add_command_action(
-        mut self,
-        command: protos::key_config::command_action::Command,
-    ) -> Self {
+    pub fn add_command_action(&mut self, command: protos::key_config::command_action::Command) {
         let action = protos::key_config::Action {
             action_data: Some(protos::key_config::action::Action_data::CommandAction(
                 protos::key_config::CommandAction {
@@ -65,7 +64,6 @@ impl KeyConfigActionBuilder {
             ..protos::key_config::Action::default()
         };
         self.actions.push(action);
-        self
     }
 
     /// Vector of built protobuf actions
