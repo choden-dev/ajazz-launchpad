@@ -9,14 +9,11 @@ use crate::device_management::DeviceManagement;
 use crate::input_handler::{
     EnigoKeyActionHandler, InputMapping, KeyActionExecutor, LaunchpadInputHandler,
 };
-use crate::protobuf_conversion::DisplayZoneWrapper;
 use crate::socket::commands::IncomingCommands;
 use firmware_api::device;
 use log::{debug, error, info};
-use messaging::protos::display_zones::DisplayZone;
 use messaging::protos::key_config::KeyConfig;
 use messaging::protos::server_config::{DisplayImage, ServerConfig};
-use protobuf::EnumOrUnknown;
 use std::fs::File;
 
 #[derive(Clone)]
