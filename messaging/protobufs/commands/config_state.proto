@@ -1,0 +1,9 @@
+syntax = "proto3";
+
+package config_state;
+
+message RequestConfigState {}
+
+message CurrentConfigState {
+  uint32 brightness = 1;
+}

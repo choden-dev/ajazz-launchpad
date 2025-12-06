@@ -339,8 +339,57 @@ impl TopLevel {
         }
     }
 
+    // .server_request.RequestServerConfig request_server_config = 7;
+
+    pub fn request_server_config(&self) -> &super::server_request::RequestServerConfig {
+        match self.command {
+            ::std::option::Option::Some(top_level::Command::RequestServerConfig(ref v)) => v,
+            _ => <super::server_request::RequestServerConfig as ::protobuf::Message>::default_instance(),
+        }
+    }
+
+    pub fn clear_request_server_config(&mut self) {
+        self.command = ::std::option::Option::None;
+    }
+
+    pub fn has_request_server_config(&self) -> bool {
+        match self.command {
+            ::std::option::Option::Some(top_level::Command::RequestServerConfig(..)) => true,
+            _ => false,
+        }
+    }
+
+    // Param is passed by value, moved
+    pub fn set_request_server_config(&mut self, v: super::server_request::RequestServerConfig) {
+        self.command = ::std::option::Option::Some(top_level::Command::RequestServerConfig(v))
+    }
+
+    // Mutable pointer to the field.
+    pub fn mut_request_server_config(&mut self) -> &mut super::server_request::RequestServerConfig {
+        if let ::std::option::Option::Some(top_level::Command::RequestServerConfig(_)) = self.command {
+        } else {
+            self.command = ::std::option::Option::Some(top_level::Command::RequestServerConfig(super::server_request::RequestServerConfig::new()));
+        }
+        match self.command {
+            ::std::option::Option::Some(top_level::Command::RequestServerConfig(ref mut v)) => v,
+            _ => panic!(),
+        }
+    }
+
+    // Take field
+    pub fn take_request_server_config(&mut self) -> super::server_request::RequestServerConfig {
+        if self.has_request_server_config() {
+            match self.command.take() {
+                ::std::option::Option::Some(top_level::Command::RequestServerConfig(v)) => v,
+                _ => panic!(),
+            }
+        } else {
+            super::server_request::RequestServerConfig::new()
+        }
+    }
+
     fn generated_message_descriptor_data() -> ::protobuf::reflect::GeneratedMessageDescriptorData {
-        let mut fields = ::std::vec::Vec::with_capacity(6);
+        let mut fields = ::std::vec::Vec::with_capacity(7);
         let mut oneofs = ::std::vec::Vec::with_capacity(1);
         fields.push(::protobuf::reflect::rt::v2::make_oneof_message_has_get_mut_set_accessor::<_, super::key_config::KeyConfig>(
             "key_config_command",
@@ -384,6 +433,13 @@ impl TopLevel {
             TopLevel::mut_set_boot_logo_command,
             TopLevel::set_set_boot_logo_command,
         ));
+        fields.push(::protobuf::reflect::rt::v2::make_oneof_message_has_get_mut_set_accessor::<_, super::server_request::RequestServerConfig>(
+            "request_server_config",
+            TopLevel::has_request_server_config,
+            TopLevel::request_server_config,
+            TopLevel::mut_request_server_config,
+            TopLevel::set_request_server_config,
+        ));
         oneofs.push(top_level::Command::generated_oneof_descriptor_data());
         ::protobuf::reflect::GeneratedMessageDescriptorData::new_2::<TopLevel>(
             "TopLevel",
@@ -420,6 +476,9 @@ impl ::protobuf::Message for TopLevel {
                 },
                 50 => {
                     self.command = ::std::option::Option::Some(top_level::Command::SetBootLogoCommand(is.read_message()?));
+                },
+                58 => {
+                    self.command = ::std::option::Option::Some(top_level::Command::RequestServerConfig(is.read_message()?));
                 },
                 tag => {
                     ::protobuf::rt::read_unknown_or_skip_group(tag, is, self.special_fields.mut_unknown_fields())?;
@@ -459,6 +518,10 @@ impl ::protobuf::Message for TopLevel {
                     let len = v.compute_size();
                     my_size += 1 + ::protobuf::rt::compute_raw_varint64_size(len) + len;
                 },
+                &top_level::Command::RequestServerConfig(ref v) => {
+                    let len = v.compute_size();
+                    my_size += 1 + ::protobuf::rt::compute_raw_varint64_size(len) + len;
+                },
             };
         }
         my_size += ::protobuf::rt::unknown_fields_size(self.special_fields.unknown_fields());
@@ -487,6 +550,9 @@ impl ::protobuf::Message for TopLevel {
                 &top_level::Command::SetBootLogoCommand(ref v) => {
                     ::protobuf::rt::write_message_field_with_cached_size(6, v, os)?;
                 },
+                &top_level::Command::RequestServerConfig(ref v) => {
+                    ::protobuf::rt::write_message_field_with_cached_size(7, v, os)?;
+                },
             };
         }
         os.write_unknown_fields(self.special_fields.unknown_fields())?;
@@ -506,6 +572,7 @@ impl ::protobuf::Message for TopLevel {
     }
 
     fn clear(&mut self) {
+        self.command = ::std::option::Option::None;
         self.command = ::std::option::Option::None;
         self.command = ::std::option::Option::None;
         self.command = ::std::option::Option::None;
@@ -560,6 +627,8 @@ pub mod top_level {
         SetBrightnessCommand(super::super::brightness::SetBrightness),
         // @@protoc_insertion_point(oneof_field:TopLevel.set_boot_logo_command)
         SetBootLogoCommand(super::super::boot_logo::SetBootLogo),
+        // @@protoc_insertion_point(oneof_field:TopLevel.request_server_config)
+        RequestServerConfig(super::super::server_request::RequestServerConfig),
     }
 
     impl ::protobuf::Oneof for Command {
@@ -582,18 +651,20 @@ pub mod top_level {
 static file_descriptor_proto_data: &'static [u8] = b"\
     \n\x0ftop_level.proto\x1a\x18commands/boot_logo.proto\x1a!commands/displ\
     ay_zone_image.proto\x1a\x19commands/brightness.proto\x1a\x19commands/key\
-    _config.proto\"\xe3\x04\n\x08TopLevel\x12E\n\x12key_config_command\x18\
-    \x01\x20\x01(\x0b2\x15.key_config.KeyConfigH\0R\x10keyConfigCommand\x12m\
-    \n\x1eset_display_zone_image_command\x18\x02\x20\x01(\x0b2'.display_zone\
-    _image.SetDisplayZoneImageH\0R\x1asetDisplayZoneImageCommand\x12s\n\x20c\
-    lear_display_zone_image_command\x18\x03\x20\x01(\x0b2).display_zone_imag\
-    e.ClearDisplayZoneImageH\0R\x1cclearDisplayZoneImageCommand\x12\x80\x01\
-    \n%clear_all_display_zone_images_command\x18\x04\x20\x01(\x0b2-.display_\
-    zone_image.ClearAllDisplayZoneImagesH\0R\x20clearAllDisplayZoneImagesCom\
-    mand\x12Q\n\x16set_brightness_command\x18\x05\x20\x01(\x0b2\x19.brightne\
-    ss.SetBrightnessH\0R\x14setBrightnessCommand\x12K\n\x15set_boot_logo_com\
-    mand\x18\x06\x20\x01(\x0b2\x16.boot_logo.SetBootLogoH\0R\x12setBootLogoC\
-    ommandB\t\n\x07commandb\x06proto3\
+    _config.proto\x1a\x1dcommands/server_request.proto\"\xbe\x05\n\x08TopLev\
+    el\x12E\n\x12key_config_command\x18\x01\x20\x01(\x0b2\x15.key_config.Key\
+    ConfigH\0R\x10keyConfigCommand\x12m\n\x1eset_display_zone_image_command\
+    \x18\x02\x20\x01(\x0b2'.display_zone_image.SetDisplayZoneImageH\0R\x1ase\
+    tDisplayZoneImageCommand\x12s\n\x20clear_display_zone_image_command\x18\
+    \x03\x20\x01(\x0b2).display_zone_image.ClearDisplayZoneImageH\0R\x1cclea\
+    rDisplayZoneImageCommand\x12\x80\x01\n%clear_all_display_zone_images_com\
+    mand\x18\x04\x20\x01(\x0b2-.display_zone_image.ClearAllDisplayZoneImages\
+    H\0R\x20clearAllDisplayZoneImagesCommand\x12Q\n\x16set_brightness_comman\
+    d\x18\x05\x20\x01(\x0b2\x19.brightness.SetBrightnessH\0R\x14setBrightnes\
+    sCommand\x12K\n\x15set_boot_logo_command\x18\x06\x20\x01(\x0b2\x16.boot_\
+    logo.SetBootLogoH\0R\x12setBootLogoCommand\x12Y\n\x15request_server_conf\
+    ig\x18\x07\x20\x01(\x0b2#.server_request.RequestServerConfigH\0R\x13requ\
+    estServerConfigB\t\n\x07commandb\x06proto3\
 ";
 
 /// `FileDescriptorProto` object which was a source for this generated file
@@ -610,11 +681,12 @@ pub fn file_descriptor() -> &'static ::protobuf::reflect::FileDescriptor {
     static file_descriptor: ::protobuf::rt::Lazy<::protobuf::reflect::FileDescriptor> = ::protobuf::rt::Lazy::new();
     file_descriptor.get(|| {
         let generated_file_descriptor = generated_file_descriptor_lazy.get(|| {
-            let mut deps = ::std::vec::Vec::with_capacity(4);
+            let mut deps = ::std::vec::Vec::with_capacity(5);
             deps.push(super::boot_logo::file_descriptor().clone());
             deps.push(super::display_zone_image::file_descriptor().clone());
             deps.push(super::brightness::file_descriptor().clone());
             deps.push(super::key_config::file_descriptor().clone());
+            deps.push(super::server_request::file_descriptor().clone());
             let mut messages = ::std::vec::Vec::with_capacity(1);
             messages.push(TopLevel::generated_message_descriptor_data());
             let mut enums = ::std::vec::Vec::with_capacity(0);

@@ -12,6 +12,8 @@ use crate::input_handler::{
 use crate::socket::commands::IncomingCommands;
 use firmware_api::device;
 use log::{debug, error, info};
+use messaging::protos::key_config::KeyConfig;
+use messaging::protos::server_config::{DisplayImage, ServerConfig};
 use std::fs::File;
 
 #[derive(Clone)]
@@ -159,6 +161,36 @@ fn main() {
                             IncomingCommands::ClearAllDisplayZoneImages => {
                                 dev.clear_all_images().ok();
                                 dev.refresh().ok();
+                            }
+                            IncomingCommands::RequestServerConfig => {
+                                let brightness = db.get_stored_brightness().ok();
+                                let input_mappings = db.get_all_input_mappings().ok();
+                                let display_zone_images = db.get_all_image_mappings().ok();
+                                let mut server_config = ServerConfig {
+                                    ..ServerConfig::default()
+                                };
+
+                                if let Some(brightness) = brightness
+                                    && let Some(brightness) = brightness
+                                {
+                                    server_config.brightness = brightness.into();
+                                }
+
+                                if let Some(input_mappings) = input_mappings {
+                                    server_config.key_configs = input_mappings
+                                        .iter()
+                                        .map(|input_mapping| KeyConfig::from(input_mapping.clone()))
+                                        .collect();
+                                }
+
+                                if let Some(display_zone_images) = display_zone_images {
+                                    server_config.display_images = display_zone_images
+                                        .iter()
+                                        .map(|image| DisplayImage::from(image.to_owned()))
+                                        .collect()
+                                }
+
+                                server.send_current_config(server_config).ok();
                             }
                         },
                         Err(e) => {

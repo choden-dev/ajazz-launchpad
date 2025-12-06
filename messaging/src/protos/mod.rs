@@ -7,4 +7,6 @@ pub mod display_zones;
 pub mod inputs;
 pub mod key_config;
 pub mod keys;
+pub mod server_config;
+pub mod server_request;
 pub mod top_level;

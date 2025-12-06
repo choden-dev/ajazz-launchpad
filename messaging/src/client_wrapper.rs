@@ -6,10 +6,12 @@ use crate::protos::display_zone_image::{
 use crate::protos::display_zones::DisplayZone;
 use crate::protos::inputs::InputId;
 use crate::protos::key_config::{Action, KeyConfig};
+use crate::protos::server_config::ServerConfig;
+use crate::protos::server_request::RequestServerConfig;
 use crate::protos::top_level::TopLevel;
 use crate::protos::top_level::top_level::Command;
 use crate::socket;
-use crate::socket::MessageSender;
+use crate::socket::{MessageReceiver, MessageSender};
 use protobuf::{EnumOrUnknown, Message};
 use std::io::Error;
 
@@ -55,6 +57,10 @@ pub trait ClientCommands {
     ///
     /// * `display_zone` - the specific area/zone of the display to clear
     fn clear_display_zone_image(&mut self, display_zone: DisplayZone) -> Result<(), Error>;
+    /// Sends a request for the server to produce a config message
+    fn request_server_config(&mut self) -> Result<(), Error>;
+    /// _Blocking_ call for checking if the server has sent the config
+    fn check_for_server_config(&mut self) -> Result<ServerConfig, Error>;
 }
 
 /// To be used by any client that wants to communicate with the server
@@ -140,6 +146,21 @@ impl ClientCommands for ClientWrapper {
             .write_to_bytes()?
             .as_slice(),
         )
+    }
+
+    fn request_server_config(&mut self) -> Result<(), Error> {
+        self.client.send_message(
+            create_command(Command::RequestServerConfig(RequestServerConfig {
+                ..RequestServerConfig::default()
+            }))
+            .write_to_bytes()?
+            .as_slice(),
+        )
+    }
+
+    fn check_for_server_config(&mut self) -> Result<ServerConfig, Error> {
+        let message = self.client.read_message()?;
+        Ok(ServerConfig::parse_from_bytes(message.as_slice())?)
     }
 }
 

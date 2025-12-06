@@ -1,0 +1,15 @@
+syntax = "proto3";
+
+import "commands/key_config.proto";
+import "commands/common/display_zones.proto";
+
+message DisplayImage {
+  DisplayZone display_zone = 1;
+  string path = 2;
+}
+
+message ServerConfig {
+  repeated key_config.KeyConfig key_configs = 1;
+  repeated DisplayImage display_images = 2;
+  uint32 brightness = 3;
+}
