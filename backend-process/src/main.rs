@@ -12,6 +12,7 @@ use crate::input_handler::{
 use crate::socket::commands::IncomingCommands;
 use firmware_api::device;
 use log::{debug, error, info};
+use messaging::protos::server_config::ServerConfig;
 use std::fs::File;
 
 #[derive(Clone)]
@@ -159,6 +160,14 @@ fn main() {
                             IncomingCommands::ClearAllDisplayZoneImages => {
                                 dev.clear_all_images().ok();
                                 dev.refresh().ok();
+                            }
+                            IncomingCommands::RequestServerConfig => {
+                                server
+                                    .send_current_config(ServerConfig {
+                                        // TODO: fetch the config
+                                        ..ServerConfig::default()
+                                    })
+                                    .ok();
                             }
                         },
                         Err(e) => {

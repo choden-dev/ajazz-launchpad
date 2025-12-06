@@ -11,10 +11,12 @@ fn main() {
         .includes(["protobufs"])
         // Inputs must reside in some of include paths.
         .input("protobufs/top_level.proto")
+        .input("protobufs/server_config.proto")
         .input("protobufs/commands/key_config.proto")
         .input("protobufs/commands/boot_logo.proto")
         .input("protobufs/commands/brightness.proto")
         .input("protobufs/commands/display_zone_image.proto")
+        .input("protobufs/commands/server_request.proto")
         .input("protobufs/commands/common/keys.proto")
         .input("protobufs/commands/common/inputs.proto")
         .input("protobufs/commands/common/display_zones.proto")

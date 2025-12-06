@@ -3,10 +3,11 @@ use crate::database::operations::Operations;
 use crate::input_handler::InputMapping;
 use crate::protobuf_conversion::DisplayZoneWrapper;
 use crate::socket::commands::IncomingCommands;
+use messaging::protos::server_config::ServerConfig;
 use messaging::protos::top_level::TopLevel;
 use messaging::protos::top_level::top_level::Command;
 use messaging::socket;
-use messaging::socket::MessageReceiver;
+use messaging::socket::{MessageReceiver, MessageSender};
 use protobuf::Message;
 use std::io::{Error, ErrorKind};
 
@@ -24,6 +25,11 @@ impl<'a> ServerHandler<'a> {
             server: socket::Server::new()?,
             operations,
         })
+    }
+
+    pub fn send_current_config(&mut self, config: ServerConfig) -> Result<(), Error> {
+        let bytes = config.write_to_bytes()?;
+        Ok(self.server.send_message(bytes.as_slice())?)
     }
 
     /// Checks if there is a message from the connected clients.
@@ -104,6 +110,9 @@ impl<'a> ServerHandler<'a> {
                             display_zone_wrapper.display_zone(),
                         ));
                     }
+                }
+                Command::RequestServerConfig(_) => {
+                    return Ok(IncomingCommands::RequestServerConfig);
                 }
                 _ => {}
             },
