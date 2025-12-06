@@ -34,7 +34,7 @@ impl<'a> Config {
         input: ConfigurableZones,
         current_key_sequence: Vec<KeyConfigOptions>,
         current_mode: ExtraConfigMode,
-        current_command_input: String, // TODO: extend to support undo and command actions
+        current_command_input: String,
     ) -> widget::Column<'a, Messages> {
         let options = row![
             widget::radio(
