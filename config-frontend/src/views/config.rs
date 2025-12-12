@@ -1,5 +1,6 @@
 mod buttons;
 mod knobs;
+mod saved_config_display;
 mod touchscreen;
 
 use crate::common::{
@@ -21,6 +22,7 @@ use iced::{Length, widget};
 use messaging::protos::inputs::InputId;
 use messaging::protos::key_config::FreeformCommand;
 use messaging::protos::key_config::command_action::Command;
+use messaging::protos::server_config::ServerConfig;
 
 pub struct Config;
 
@@ -107,6 +109,7 @@ impl<'a> Config {
         current_key_sequence: Vec<KeyConfigOptions>,
         selected_mode: ExtraConfigMode,
         current_command_input: String,
+        current_backend_config: ServerConfig,
     ) -> iced::Element<'_, Messages> {
         let base = widget::container(
             column![
@@ -145,7 +148,11 @@ impl<'a> Config {
                             selected_mode,
                             current_command_input,
                         ),
-                        _ => button_config_settings(selected_config_zone),
+                        _ => button_config_settings(
+                            selected_config_zone,
+                            current_backend_config.display_images,
+                            current_backend_config.key_configs,
+                        ),
                     },
                     ConfigurableZones::Touchscreen1(ref selected_input)
                     | ConfigurableZones::Touchscreen2(ref selected_input)
@@ -157,7 +164,11 @@ impl<'a> Config {
                             selected_mode,
                             current_command_input,
                         ),
-                        _ => touchscreen_zone_config_settings(selected_config_zone),
+                        _ => touchscreen_zone_config_settings(
+                            selected_config_zone,
+                            current_backend_config.display_images,
+                            current_backend_config.key_configs,
+                        ),
                     },
                     ConfigurableZones::TouchscreenExtra(ref selected_input) => match selected_input
                     {
@@ -169,7 +180,7 @@ impl<'a> Config {
                                 current_command_input,
                             )
                         }
-                        _ => touchscreen_swipe_settings(),
+                        _ => touchscreen_swipe_settings(current_backend_config.key_configs),
                     },
                     ConfigurableZones::Knob1(ref selected_input)
                     | ConfigurableZones::Knob2(ref selected_input)
@@ -183,7 +194,10 @@ impl<'a> Config {
                                 current_command_input,
                             )
                         }
-                        _ => knob_config_settings(selected_config_zone),
+                        _ => knob_config_settings(
+                            selected_config_zone,
+                            current_backend_config.key_configs,
+                        ),
                     },
                     _ => column![],
                 },

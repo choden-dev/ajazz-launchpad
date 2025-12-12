@@ -13,6 +13,7 @@ use iced::task::Task;
 use iced::{Element, Subscription};
 use messaging::client_wrapper::{ClientCommands, ClientWrapper};
 use messaging::protos::key_config::command_action::Command;
+use messaging::protos::server_config::ServerConfig;
 use std::cmp::PartialEq;
 use std::time::Duration;
 
@@ -29,10 +30,12 @@ enum View {
 struct LaunchpadConfigApp {
     view: View,
     socket_client: Option<ClientWrapper>,
+    /// Used to determine if we need to try and connect to server again
     connecting_to_backend: bool,
     brightness: u8,
     current_input_sequence: Vec<KeyConfigOptions>,
     current_command_input_value: String,
+    current_server_config: Option<ServerConfig>,
 }
 
 impl LaunchpadConfigApp {
@@ -50,6 +53,10 @@ fn view(application_state: &'_ LaunchpadConfigApp) -> Element<'_, Messages> {
             application_state.current_input_sequence.to_owned(),
             mode.to_owned(),
             application_state.current_command_input_value.to_owned(),
+            application_state
+                .current_server_config
+                .to_owned()
+                .map_or_else(ServerConfig::default, |cfg| cfg),
         ),
         _ => todo!(),
     }
@@ -75,10 +82,20 @@ fn update(application_state: &mut LaunchpadConfigApp, message: Messages) -> Task
         }
         Messages::InitialiseBackend => {
             application_state.socket_client = Some(connect_to_backend());
-            return Task::done(Messages::BackendInitialised);
+            if let Some(client) = application_state.get_client() {
+                client.request_server_config().ok();
+                let current_config = client.check_for_server_config().ok();
+                if let Some(current_config) = current_config {
+                    application_state.brightness = current_config.brightness as u8;
+                    return Task::done(Messages::BackendInitialised(Some(current_config)));
+                }
+            }
+
+            return Task::done(Messages::BackendInitialised(None));
         }
-        Messages::BackendInitialised => {
+        Messages::BackendInitialised(config) => {
             application_state.connecting_to_backend = false;
+            application_state.current_server_config = config;
             application_state.view =
                 View::Configure(ConfigurableZones::None, ExtraConfigMode::Default);
         }

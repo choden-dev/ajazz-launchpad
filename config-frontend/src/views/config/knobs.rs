@@ -1,8 +1,11 @@
 use crate::common::{ConfigurableZones, ExtraConfigMode, KnobInput};
 use crate::messages::Messages;
 use crate::views::config::KNOB_COUNT;
+use crate::views::config::saved_config_display::current_key_config;
 use iced::widget;
 use iced::widget::row;
+use messaging::protos::inputs::InputId;
+use messaging::protos::key_config::KeyConfig;
 
 pub fn knob_row<'a>() -> widget::Row<'a, Messages> {
     (0..KNOB_COUNT).fold(row![], |row, i| {
@@ -20,8 +23,11 @@ pub fn knob_row<'a>() -> widget::Row<'a, Messages> {
         )
     })
 }
-pub fn knob_config_settings<'a>(zone: ConfigurableZones) -> widget::Column<'a, Messages> {
-    let touchscreen_zone_mapping = match zone {
+pub fn knob_config_settings<'a>(
+    zone: ConfigurableZones,
+    key_config: Vec<KeyConfig>,
+) -> widget::Column<'a, Messages> {
+    let knob_mapping = match zone {
         ConfigurableZones::Knob1(_) => (
             "Knob 1",
             ConfigurableZones::Knob1(KnobInput::Clockwise),
@@ -56,24 +62,27 @@ pub fn knob_config_settings<'a>(zone: ConfigurableZones) -> widget::Column<'a, M
 
     let knob_clockwise_config =
         widget::button("Clockwise").on_press(Messages::OpenInputMappingConfigurationPanel(
-            touchscreen_zone_mapping.1,
+            knob_mapping.1.clone(),
             ExtraConfigMode::KeyRecording,
         ));
     let knob_counter_clockwise_config =
         widget::button("Counter Clockwise").on_press(Messages::OpenInputMappingConfigurationPanel(
-            touchscreen_zone_mapping.2,
+            knob_mapping.2.clone(),
             ExtraConfigMode::KeyRecording,
         ));
     let knob_pressed_config =
         widget::button("Pressed").on_press(Messages::OpenInputMappingConfigurationPanel(
-            touchscreen_zone_mapping.3,
+            knob_mapping.3.clone(),
             ExtraConfigMode::KeyRecording,
         ));
 
     iced::widget::column![
-        widget::text!("{} config", touchscreen_zone_mapping.0),
+        widget::text!("{} config", knob_mapping.0),
+        current_key_config(&key_config, InputId::from(knob_mapping.1)),
         knob_clockwise_config,
+        current_key_config(&key_config, InputId::from(knob_mapping.2)),
         knob_counter_clockwise_config,
+        current_key_config(&key_config, InputId::from(knob_mapping.3)),
         knob_pressed_config
     ]
 }

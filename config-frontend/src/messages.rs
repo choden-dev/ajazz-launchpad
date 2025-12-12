@@ -3,6 +3,7 @@ use iced::keyboard::{Key, Modifiers};
 use messaging::protos::display_zones::DisplayZone;
 use messaging::protos::inputs::InputId;
 use messaging::protos::key_config::command_action::Command;
+use messaging::protos::server_config::ServerConfig;
 
 #[derive(Debug, Clone)]
 pub enum Messages {
@@ -14,7 +15,7 @@ pub enum Messages {
     SetBrightness(u8),
 
     InitialiseBackend,
-    BackendInitialised,
+    BackendInitialised(Option<ServerConfig>),
 
     OpenConfigurationPanel(ConfigurableZones),
     OpenInputMappingConfigurationPanel(ConfigurableZones, ExtraConfigMode),
