@@ -1,9 +1,13 @@
 use crate::common::{ConfigurableZones, ExtraConfigMode, TouchscreenInput, TouchscreenZoneInput};
 use crate::messages::Messages;
 use crate::views::config::TOUCHSCREEN_ZONES;
+use crate::views::config::saved_config_display::{current_image, current_key_config};
 use iced::widget;
 use iced::widget::row;
 use messaging::protos::display_zones::DisplayZone;
+use messaging::protos::inputs::InputId;
+use messaging::protos::key_config::KeyConfig;
+use messaging::protos::server_config::DisplayImage;
 
 pub fn touchscreen_zones_row<'a>() -> widget::Row<'a, Messages> {
     (0..TOUCHSCREEN_ZONES).fold(row![], |row, i| {
@@ -36,6 +40,8 @@ pub fn touchscreen_zones_row<'a>() -> widget::Row<'a, Messages> {
 
 pub fn touchscreen_zone_config_settings<'a>(
     zone: ConfigurableZones,
+    image_config: Vec<DisplayImage>,
+    key_config: Vec<KeyConfig>,
 ) -> widget::Column<'a, Messages> {
     let touchscreen_zone_mapping = match zone {
         ConfigurableZones::Touchscreen1(_) => (
@@ -70,7 +76,7 @@ pub fn touchscreen_zone_config_settings<'a>(
 
     let key_mapping_config_button =
         widget::button("On pressed").on_press(Messages::OpenInputMappingConfigurationPanel(
-            touchscreen_zone_mapping.2,
+            touchscreen_zone_mapping.2.clone(),
             ExtraConfigMode::KeyRecording,
         ));
 
@@ -80,7 +86,9 @@ pub fn touchscreen_zone_config_settings<'a>(
     iced::widget::column![
         widget::text!("{} config", touchscreen_zone_mapping.0),
         display_zone_config,
+        current_key_config(&key_config, InputId::from(touchscreen_zone_mapping.2)),
         key_mapping_config_button,
+        current_image(&image_config, touchscreen_zone_mapping.1),
         clear_image_button
     ]
 }
@@ -92,7 +100,7 @@ pub fn touchscreen_extra<'a>() -> widget::Row<'a, Messages> {
 
     row![button]
 }
-pub fn touchscreen_swipe_settings<'a>() -> widget::Column<'a, Messages> {
+pub fn touchscreen_swipe_settings<'a>(key_config: Vec<KeyConfig>) -> widget::Column<'a, Messages> {
     let left_swipe_config_button =
         widget::button("On left swipe").on_press(Messages::OpenInputMappingConfigurationPanel(
             ConfigurableZones::TouchscreenExtra(TouchscreenInput::SwipeLeft),
@@ -105,5 +113,10 @@ pub fn touchscreen_swipe_settings<'a>() -> widget::Column<'a, Messages> {
             ExtraConfigMode::KeyRecording,
         ));
 
-    iced::widget::column![row![left_swipe_config_button, right_swipe_config_button]]
+    iced::widget::column![row![
+        current_key_config(&key_config, InputId::TOUCHSCREEN_SWIPED_LEFT),
+        left_swipe_config_button,
+        current_key_config(&key_config, InputId::TOUCHSCREEN_SWIPED_RIGHT),
+        right_swipe_config_button
+    ]]
 }

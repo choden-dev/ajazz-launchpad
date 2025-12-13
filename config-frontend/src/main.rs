@@ -13,6 +13,7 @@ use iced::task::Task;
 use iced::{Element, Subscription};
 use messaging::client_wrapper::{ClientCommands, ClientWrapper};
 use messaging::protos::key_config::command_action::Command;
+use messaging::protos::server_config::ServerConfig;
 use std::cmp::PartialEq;
 use std::time::Duration;
 
@@ -29,15 +30,25 @@ enum View {
 struct LaunchpadConfigApp {
     view: View,
     socket_client: Option<ClientWrapper>,
+    /// Used to determine if we need to try and connect to server again
     connecting_to_backend: bool,
     brightness: u8,
     current_input_sequence: Vec<KeyConfigOptions>,
     current_command_input_value: String,
+    current_server_config: Option<ServerConfig>,
 }
 
 impl LaunchpadConfigApp {
     fn get_client(&mut self) -> Option<&mut ClientWrapper> {
         self.socket_client.as_mut()
+    }
+
+    fn request_server_config(&mut self) -> Option<ServerConfig> {
+        if let Some(client) = self.get_client() {
+            client.request_server_config().ok();
+            return client.check_for_server_config().ok();
+        }
+        None
     }
 }
 
@@ -50,6 +61,10 @@ fn view(application_state: &'_ LaunchpadConfigApp) -> Element<'_, Messages> {
             application_state.current_input_sequence.to_owned(),
             mode.to_owned(),
             application_state.current_command_input_value.to_owned(),
+            application_state
+                .current_server_config
+                .to_owned()
+                .unwrap_or_default(),
         ),
         _ => todo!(),
     }
@@ -81,6 +96,7 @@ fn update(application_state: &mut LaunchpadConfigApp, message: Messages) -> Task
             application_state.connecting_to_backend = false;
             application_state.view =
                 View::Configure(ConfigurableZones::None, ExtraConfigMode::Default);
+            return Task::done(Messages::RequestBackendConfig);
         }
 
         Messages::SetBrightness(new_brightness) => {
@@ -100,6 +116,7 @@ fn update(application_state: &mut LaunchpadConfigApp, message: Messages) -> Task
             if let Some(client) = application_state.get_client() {
                 client.clear_display_zone_image(display_zone).ok();
             }
+            return Task::done(Messages::RequestBackendConfig);
         }
 
         Messages::SetBootLogo => {
@@ -122,10 +139,12 @@ fn update(application_state: &mut LaunchpadConfigApp, message: Messages) -> Task
                     .set_display_zone_image(display_zone, absolute_path)
                     .ok();
             }
+            return Task::done(Messages::RequestBackendConfig);
         }
 
         Messages::OpenConfigurationPanel(zone) => {
             application_state.view = View::Configure(zone, ExtraConfigMode::Default);
+            return Task::done(Messages::RequestBackendConfig);
         }
 
         Messages::OpenInputMappingConfigurationPanel(zone, mode) => match mode {
@@ -193,12 +212,12 @@ fn update(application_state: &mut LaunchpadConfigApp, message: Messages) -> Task
         Messages::SetKeyConfig(input_id, sequence) => {
             let mut builder = messaging::proto_builders::KeyConfigActionBuilder::new();
             sequence.iter().for_each(|action| match action {
-                common::KeyConfigOptions::Key(key_action) => {
+                KeyConfigOptions::Key(key_action) => {
                     builder.add_prebuilt_key_action(
                         ProtoKeyActionWrapper::from(key_action.to_owned()).key_action(),
                     );
                 }
-                common::KeyConfigOptions::Command(command_action) => {
+                KeyConfigOptions::Command(command_action) => {
                     builder.add_command_action(command_action.to_owned())
                 }
             });
@@ -210,6 +229,16 @@ fn update(application_state: &mut LaunchpadConfigApp, message: Messages) -> Task
             }
 
             return Task::done(Messages::ResetInputBuffer);
+        }
+        Messages::RequestBackendConfig => {
+            return Task::done(Messages::BackendConfigUpdated(
+                application_state.request_server_config(),
+            ));
+        }
+        Messages::BackendConfigUpdated(config) => {
+            if let Some(new_config) = config {
+                application_state.current_server_config = Some(new_config);
+            }
         }
     }
     Task::none()

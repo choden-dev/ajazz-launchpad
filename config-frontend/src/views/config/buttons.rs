@@ -1,9 +1,13 @@
 use crate::common::{ButtonInput, ConfigurableZones, ExtraConfigMode};
 use crate::messages::Messages;
 use crate::views::config::BUTTON_COUNT;
+use crate::views::config::saved_config_display::{current_image, current_key_config};
 use iced::widget;
 use iced::widget::row;
 use messaging::protos::display_zones::DisplayZone;
+use messaging::protos::inputs::InputId;
+use messaging::protos::key_config::KeyConfig;
+use messaging::protos::server_config::DisplayImage;
 
 pub fn button_grid_first_row<'a>() -> widget::Row<'a, Messages> {
     (0..BUTTON_COUNT / 2).fold(row![], |row, i| {
@@ -39,7 +43,11 @@ pub fn button_grid_second_row<'a>() -> widget::Row<'a, Messages> {
         row.push(button)
     })
 }
-pub fn button_config_settings<'a>(button: ConfigurableZones) -> widget::Column<'a, Messages> {
+pub fn button_config_settings<'a>(
+    button: ConfigurableZones,
+    image_config: Vec<DisplayImage>,
+    key_config: Vec<KeyConfig>,
+) -> widget::Column<'a, Messages> {
     let button_mapping = match button {
         ConfigurableZones::Button1(_) => (
             "Button 1",
@@ -115,12 +123,12 @@ pub fn button_config_settings<'a>(button: ConfigurableZones) -> widget::Column<'
 
     let pressed_action_button =
         widget::button("On pressed").on_press(Messages::OpenInputMappingConfigurationPanel(
-            button_mapping.2,
+            button_mapping.2.clone(),
             ExtraConfigMode::KeyRecording,
         ));
     let released_action_button =
         widget::button("On released").on_press(Messages::OpenInputMappingConfigurationPanel(
-            button_mapping.3,
+            button_mapping.3.clone(),
             ExtraConfigMode::KeyRecording,
         ));
 
@@ -130,8 +138,11 @@ pub fn button_config_settings<'a>(button: ConfigurableZones) -> widget::Column<'
     iced::widget::column![
         title,
         button,
+        current_key_config(&key_config, InputId::from(button_mapping.2)),
         pressed_action_button,
+        current_key_config(&key_config, InputId::from(button_mapping.3)),
         released_action_button,
+        current_image(&image_config, button_mapping.1),
         clear_image_button
     ]
 }
