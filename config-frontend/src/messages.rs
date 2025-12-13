@@ -15,7 +15,9 @@ pub enum Messages {
     SetBrightness(u8),
 
     InitialiseBackend,
-    BackendInitialised(Option<ServerConfig>),
+    BackendInitialised,
+    RequestBackendConfig,
+    BackendConfigUpdated(Option<ServerConfig>),
 
     OpenConfigurationPanel(ConfigurableZones),
     OpenInputMappingConfigurationPanel(ConfigurableZones, ExtraConfigMode),

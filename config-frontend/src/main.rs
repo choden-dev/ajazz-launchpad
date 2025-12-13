@@ -42,6 +42,14 @@ impl LaunchpadConfigApp {
     fn get_client(&mut self) -> Option<&mut ClientWrapper> {
         self.socket_client.as_mut()
     }
+
+    fn request_server_config(&mut self) -> Option<ServerConfig> {
+        if let Some(client) = self.get_client() {
+            client.request_server_config().ok();
+            return client.check_for_server_config().ok();
+        }
+        None
+    }
 }
 
 fn view(application_state: &'_ LaunchpadConfigApp) -> Element<'_, Messages> {
@@ -82,22 +90,13 @@ fn update(application_state: &mut LaunchpadConfigApp, message: Messages) -> Task
         }
         Messages::InitialiseBackend => {
             application_state.socket_client = Some(connect_to_backend());
-            if let Some(client) = application_state.get_client() {
-                client.request_server_config().ok();
-                let current_config = client.check_for_server_config().ok();
-                if let Some(current_config) = current_config {
-                    application_state.brightness = current_config.brightness as u8;
-                    return Task::done(Messages::BackendInitialised(Some(current_config)));
-                }
-            }
-
-            return Task::done(Messages::BackendInitialised(None));
+            return Task::done(Messages::BackendInitialised);
         }
-        Messages::BackendInitialised(config) => {
+        Messages::BackendInitialised => {
             application_state.connecting_to_backend = false;
-            application_state.current_server_config = config;
             application_state.view =
                 View::Configure(ConfigurableZones::None, ExtraConfigMode::Default);
+            return Task::done(Messages::RequestBackendConfig);
         }
 
         Messages::SetBrightness(new_brightness) => {
@@ -143,6 +142,7 @@ fn update(application_state: &mut LaunchpadConfigApp, message: Messages) -> Task
 
         Messages::OpenConfigurationPanel(zone) => {
             application_state.view = View::Configure(zone, ExtraConfigMode::Default);
+            return Task::done(Messages::RequestBackendConfig);
         }
 
         Messages::OpenInputMappingConfigurationPanel(zone, mode) => match mode {
@@ -210,12 +210,12 @@ fn update(application_state: &mut LaunchpadConfigApp, message: Messages) -> Task
         Messages::SetKeyConfig(input_id, sequence) => {
             let mut builder = messaging::proto_builders::KeyConfigActionBuilder::new();
             sequence.iter().for_each(|action| match action {
-                common::KeyConfigOptions::Key(key_action) => {
+                KeyConfigOptions::Key(key_action) => {
                     builder.add_prebuilt_key_action(
                         ProtoKeyActionWrapper::from(key_action.to_owned()).key_action(),
                     );
                 }
-                common::KeyConfigOptions::Command(command_action) => {
+                KeyConfigOptions::Command(command_action) => {
                     builder.add_command_action(command_action.to_owned())
                 }
             });
@@ -227,6 +227,16 @@ fn update(application_state: &mut LaunchpadConfigApp, message: Messages) -> Task
             }
 
             return Task::done(Messages::ResetInputBuffer);
+        }
+        Messages::RequestBackendConfig => {
+            return Task::done(Messages::BackendConfigUpdated(
+                application_state.request_server_config(),
+            ));
+        }
+        Messages::BackendConfigUpdated(config) => {
+            if let Some(new_config) = config {
+                application_state.current_server_config = Some(new_config);
+            }
         }
     }
     Task::none()
