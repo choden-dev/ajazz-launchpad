@@ -116,6 +116,7 @@ fn update(application_state: &mut LaunchpadConfigApp, message: Messages) -> Task
             if let Some(client) = application_state.get_client() {
                 client.clear_display_zone_image(display_zone).ok();
             }
+            return Task::done(Messages::RequestBackendConfig);
         }
 
         Messages::SetBootLogo => {
@@ -138,6 +139,7 @@ fn update(application_state: &mut LaunchpadConfigApp, message: Messages) -> Task
                     .set_display_zone_image(display_zone, absolute_path)
                     .ok();
             }
+            return Task::done(Messages::RequestBackendConfig);
         }
 
         Messages::OpenConfigurationPanel(zone) => {
