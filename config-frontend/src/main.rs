@@ -64,7 +64,7 @@ fn view(application_state: &'_ LaunchpadConfigApp) -> Element<'_, Messages> {
             application_state
                 .current_server_config
                 .to_owned()
-                .unwrap_or_else(ServerConfig::default),
+                .unwrap_or_default(),
         ),
         _ => todo!(),
     }
