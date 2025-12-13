@@ -5,7 +5,7 @@ edition = "2024"
 rust-version.workspace = true
 
 [dependencies]
-iced = { version = "0.13.1", features = ["tokio"] }
+iced = { version = "0.13.1", features = ["tokio", "image"] }
 messaging = { path = "../messaging" }
 protobuf = "3.7.2"
 rfd = "0.15.4"
