@@ -5,7 +5,7 @@ edition = "2024"
 rust-version.workspace = true
 
 [dependencies]
-iced = { version = "0.13.1", features = ["tokio", "image"] }
+iced = { features = ["tokio", "image"], git = "https://github.com/choden-dev/iced-with-radial-gradient", branch = "master" }
 messaging = { path = "../messaging" }
 protobuf = "3.7.2"
 rfd = "0.15.4"

@@ -18,7 +18,7 @@ use crate::views::config::touchscreen::{
     touchscreen_zones_row,
 };
 use iced::widget::{column, row};
-use iced::{Length, widget};
+use iced::{Length, color, widget};
 use messaging::protos::inputs::InputId;
 use messaging::protos::key_config::FreeformCommand;
 use messaging::protos::key_config::command_action::Command;
@@ -111,20 +111,34 @@ impl<'a> Config {
         current_command_input: String,
         current_backend_config: ServerConfig,
     ) -> iced::Element<'_, Messages> {
-        let base = widget::container(
-            column![
-                widget::button("Clear all images").on_press(Messages::ClearAllDisplayZoneImages),
-                widget::button("Pick boot logo").on_press(Messages::SetBootLogo),
-                widget::slider(0..=100, brightness, Messages::SetBrightness),
-                widget::container(column![button_grid_first_row(), button_grid_second_row(),]),
-                touchscreen_zones_row(),
-                touchscreen_extra(),
-                knob_row()
-            ]
-            .spacing(10),
-        )
-        .center(Length::Fill)
-        .padding(10);
+        let base = widget::stack![
+            widget::container(
+                column![
+                    widget::button("Clear all images")
+                        .on_press(Messages::ClearAllDisplayZoneImages),
+                    widget::button("Pick boot logo").on_press(Messages::SetBootLogo),
+                    widget::slider(0..=100, brightness, Messages::SetBrightness),
+                    widget::container(column![button_grid_first_row(), button_grid_second_row(),]),
+                    touchscreen_zones_row(),
+                    touchscreen_extra(),
+                    knob_row()
+                ]
+                .spacing(10),
+            )
+            .style(move |_theme| {
+                iced::gradient::Radial::new()
+                    .add_stop(0.0, color!(0x595B5E))
+                    .add_stop(1.0, color!(0x1D1D1F))
+                    .into()
+            })
+            .center(Length::Fill)
+            .padding(10),
+            widget::image(concat!(
+                env!("CARGO_MANIFEST_DIR"),
+                "/assets/images/launchpad.png",
+            ))
+            .width(Length::Fill),
+        ];
 
         match selected_config_zone {
             ConfigurableZones::None => base.into(),

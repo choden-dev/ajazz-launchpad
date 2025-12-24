@@ -4,7 +4,6 @@ mod mappers;
 mod messages;
 mod tasks;
 mod views;
-
 use crate::common::{ConfigurableZones, ExtraConfigMode, KeyConfigOptions};
 use crate::mappers::ProtoKeyActionWrapper;
 use crate::messages::Messages;
@@ -72,8 +71,11 @@ fn view(application_state: &'_ LaunchpadConfigApp) -> Element<'_, Messages> {
 
 fn subscriptions(_: &LaunchpadConfigApp) -> Subscription<Messages> {
     let tick_subscription = iced::time::every(Duration::from_secs(2)).map(|_| Messages::Tick);
-    let keyboard_subscription = iced::keyboard::on_key_press::<Messages>(|key, modifier| {
-        Some(Messages::KeyboardInput(key, modifier))
+    let keyboard_subscription = iced::keyboard::listen().map(|event| {
+        if let iced::keyboard::Event::KeyPressed { key, modifiers, .. } = event {
+            return Messages::KeyboardInput(key, modifiers);
+        }
+        Messages::Noop
     });
     let subscriptions = vec![tick_subscription, keyboard_subscription];
 
@@ -240,12 +242,13 @@ fn update(application_state: &mut LaunchpadConfigApp, message: Messages) -> Task
                 application_state.current_server_config = Some(new_config);
             }
         }
+        Messages::Noop => (),
     }
     Task::none()
 }
 
 pub fn main() -> iced::Result {
-    iced::application("Launchpad Config", update, view)
+    iced::application(LaunchpadConfigApp::default, update, view)
         .subscription(subscriptions)
         .run()
 }

@@ -32,4 +32,6 @@ pub enum Messages {
     RemoveAction(usize),
 
     Tick,
+
+    Noop,
 }
