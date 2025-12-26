@@ -2,45 +2,53 @@ use crate::common::{ButtonInput, ConfigurableZones, ExtraConfigMode};
 use crate::messages::Messages;
 use crate::views::config::BUTTON_COUNT;
 use crate::views::config::saved_config_display::{current_image, current_key_config};
-use iced::widget;
-use iced::widget::row;
+use iced::widget::{column, row};
+use iced::{Length, widget};
 use messaging::protos::display_zones::DisplayZone;
 use messaging::protos::inputs::InputId;
 use messaging::protos::key_config::KeyConfig;
 use messaging::protos::server_config::DisplayImage;
 
 pub fn button_grid_first_row<'a>() -> widget::Row<'a, Messages> {
-    (0..BUTTON_COUNT / 2).fold(row![], |row, i| {
-        let button_mapping = match i {
-            0 => ("Button 1", ConfigurableZones::Button1(ButtonInput::None)),
-            1 => ("Button 2", ConfigurableZones::Button2(ButtonInput::None)),
-            2 => ("Button 3", ConfigurableZones::Button3(ButtonInput::None)),
-            3 => ("Button 4", ConfigurableZones::Button4(ButtonInput::None)),
-            4 => ("Button 5", ConfigurableZones::Button5(ButtonInput::None)),
-            _ => ("Unsupported Button", ConfigurableZones::None),
-        };
-
-        let button = widget::button(button_mapping.0)
-            .on_press(Messages::OpenConfigurationPanel(button_mapping.1));
-
-        row.push(button)
-    })
+    create_button_row(0..BUTTON_COUNT / 2)
 }
+
 pub fn button_grid_second_row<'a>() -> widget::Row<'a, Messages> {
-    (BUTTON_COUNT / 2..BUTTON_COUNT).fold(row![], |row, i| {
-        let button_mapping = match i {
-            5 => ("Button 6", ConfigurableZones::Button6(ButtonInput::None)),
-            6 => ("Button 7", ConfigurableZones::Button7(ButtonInput::None)),
-            7 => ("Button 8", ConfigurableZones::Button8(ButtonInput::None)),
-            8 => ("Button 9", ConfigurableZones::Button9(ButtonInput::None)),
-            9 => ("Button 10", ConfigurableZones::Button10(ButtonInput::None)),
-            _ => ("Unsupported Button", ConfigurableZones::None),
-        };
+    create_button_row(BUTTON_COUNT / 2..BUTTON_COUNT)
+}
+fn get_button_mapping(i: u8) -> (&'static str, ConfigurableZones) {
+    match i {
+        0 => ("Button 1", ConfigurableZones::Button1(ButtonInput::None)),
+        1 => ("Button 2", ConfigurableZones::Button2(ButtonInput::None)),
+        2 => ("Button 3", ConfigurableZones::Button3(ButtonInput::None)),
+        3 => ("Button 4", ConfigurableZones::Button4(ButtonInput::None)),
+        4 => ("Button 5", ConfigurableZones::Button5(ButtonInput::None)),
+        5 => ("Button 6", ConfigurableZones::Button6(ButtonInput::None)),
+        6 => ("Button 7", ConfigurableZones::Button7(ButtonInput::None)),
+        7 => ("Button 8", ConfigurableZones::Button8(ButtonInput::None)),
+        8 => ("Button 9", ConfigurableZones::Button9(ButtonInput::None)),
+        9 => ("Button 10", ConfigurableZones::Button10(ButtonInput::None)),
+        _ => ("Unsupported Button", ConfigurableZones::None),
+    }
+}
 
-        let button = widget::button(button_mapping.0)
-            .on_press(Messages::OpenConfigurationPanel(button_mapping.1));
+fn create_button_row<'a>(range: std::ops::Range<u8>) -> widget::Row<'a, Messages> {
+    range.clone().fold(row![], |row, i| {
+        let (label, zone) = get_button_mapping(i);
+        let button = widget::button(label).on_press(Messages::OpenConfigurationPanel(zone));
 
-        row.push(button)
+        let is_first = i == range.start;
+        let is_last = i == range.end - 1;
+
+        let row_with_spacer =
+            row.push(column![].width(Length::FillPortion(if is_first { 3 } else { 1 })));
+        let row_with_button = row_with_spacer.push(button.width(Length::FillPortion(4)));
+
+        if is_last {
+            row_with_button.push(column![].width(Length::FillPortion(3)))
+        } else {
+            row_with_button
+        }
     })
 }
 pub fn button_config_settings<'a>(

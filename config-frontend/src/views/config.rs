@@ -102,6 +102,20 @@ impl<'a> Config {
         column![options, actions_display, ctas]
     }
 
+    fn constrained_container(
+        content: impl Into<iced::Element<'a, Messages>>,
+    ) -> widget::Container<'a, Messages> {
+        widget::container(column![
+            row![].height(Length::FillPortion(1)),
+            widget::container(row![
+                column![].width(Length::FillPortion(1)),
+                content.into(),
+                column![].width(Length::FillPortion(1)),
+            ]),
+            row![].height(Length::FillPortion(1)),
+        ])
+    }
+
     pub fn view(
         &'_ self,
         brightness: u8,
@@ -112,32 +126,45 @@ impl<'a> Config {
         current_backend_config: ServerConfig,
     ) -> iced::Element<'_, Messages> {
         let base = widget::stack![
-            widget::container(
-                column![
-                    widget::button("Clear all images")
-                        .on_press(Messages::ClearAllDisplayZoneImages),
-                    widget::button("Pick boot logo").on_press(Messages::SetBootLogo),
-                    widget::slider(0..=100, brightness, Messages::SetBrightness),
-                    widget::container(column![button_grid_first_row(), button_grid_second_row(),]),
-                    touchscreen_zones_row(),
-                    touchscreen_extra(),
-                    knob_row()
-                ]
-                .spacing(10),
-            )
-            .style(move |_theme| {
-                iced::gradient::Radial::new()
-                    .add_stop(0.0, color!(0x595B5E))
-                    .add_stop(1.0, color!(0x1D1D1F))
-                    .into()
-            })
-            .center(Length::Fill)
-            .padding(10),
-            widget::image(concat!(
-                env!("CARGO_MANIFEST_DIR"),
-                "/assets/images/launchpad.png",
-            ))
-            .width(Length::Fill),
+            widget::container(column![])
+                .style(move |_theme| {
+                    iced::gradient::Radial::new()
+                        .add_stop(0.0, color!(0x595B5E))
+                        .add_stop(1.0, color!(0x1D1D1F))
+                        .into()
+                })
+                .center(Length::Fill)
+                .padding(10),
+            Self::constrained_container(widget::stack![
+                widget::image(concat!(
+                    env!("CARGO_MANIFEST_DIR"),
+                    "/assets/images/launchpad.png",
+                ))
+                .width(Length::FillPortion(3)),
+                widget::container(
+                    column![
+                        row![].height(Length::FillPortion(3)),
+                        button_grid_first_row(),
+                        row![].height(Length::FillPortion(1)),
+                        button_grid_second_row(),
+                        row![].height(Length::FillPortion(1)),
+                        touchscreen_zones_row(),
+                        row![].height(Length::FillPortion(1)),
+                        touchscreen_extra(),
+                        row![].height(Length::FillPortion(2)),
+                        knob_row(),
+                        row![].height(Length::FillPortion(2)),
+                    ]
+                    .spacing(10),
+                )
+                .width(Length::Fill)
+            ])
+            .height(Length::FillPortion(3)),
+            column![
+                widget::button("Clear all images").on_press(Messages::ClearAllDisplayZoneImages),
+                widget::button("Pick boot logo").on_press(Messages::SetBootLogo),
+                widget::slider(0..=100, brightness, Messages::SetBrightness),
+            ]
         ];
 
         match selected_config_zone {
