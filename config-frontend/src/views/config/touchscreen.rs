@@ -2,8 +2,8 @@ use crate::common::{ConfigurableZones, ExtraConfigMode, TouchscreenInput, Touchs
 use crate::messages::Messages;
 use crate::views::config::TOUCHSCREEN_ZONES;
 use crate::views::config::saved_config_display::{current_image, current_key_config};
-use iced::widget;
 use iced::widget::row;
+use iced::{Length, widget};
 use messaging::protos::display_zones::DisplayZone;
 use messaging::protos::inputs::InputId;
 use messaging::protos::key_config::KeyConfig;
@@ -31,10 +31,21 @@ pub fn touchscreen_zones_row<'a>() -> widget::Row<'a, Messages> {
             _ => ("Unsupported Button", ConfigurableZones::None),
         };
 
+        let is_first = i == 0;
+        let is_last = i == TOUCHSCREEN_ZONES - 1;
+
         let button = widget::button(touchscreen_zone_mapping.0)
             .on_press(Messages::OpenConfigurationPanel(touchscreen_zone_mapping.1));
 
-        row.push(button)
+       let row_with_spacer = row
+            .push(iced::widget::column![].width(Length::FillPortion(if is_first { 3 } else { 1 })));
+        let row_with_button = row_with_spacer.push(button.width(Length::FillPortion(4)));
+
+        if is_last {
+            row_with_button.push(iced::widget::column![].width(Length::FillPortion(3)))
+        } else {
+            row_with_button
+        }
     })
 }
 
